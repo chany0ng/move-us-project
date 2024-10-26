@@ -3,6 +3,7 @@ import { createGlobalStyle } from "styled-components";
 const GlobalStyle = createGlobalStyle`
   :root {
     --primary-color: #F7CE46;  /* 메인 색상 */
+    --black-color: #18181B; // 검은색 대용 색상
     --secondary-color: #D9D9D9; /* 보조 색상 */
     --brighter-color: #F8E8E1;    /* 밝은 색상 */
     --darker-color: #A6725C; /* 어두운 색상 */
@@ -17,7 +18,7 @@ const GlobalStyle = createGlobalStyle`
   height: 100vh;
 }
 html {
-  font-size: 62.5%; // 1rem을 10px로 변환
+  /* font-size: 62.5%; // 1rem을 10px로 변환 */
   height:100vh;
 }
 
@@ -26,7 +27,6 @@ body{
   min-height:100vh;
   min-width: 560px;
   line-height: 1.2;
-  font-size: 1.5rem;
   color: white;
 }
 table {
