@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import backgroundImage from "../assets/images/backgroundImage.jpg";
+import backgroundImage from "../assets/images/backgroundImage.png";
 import { Button, Flex, Box, Heading, Text } from "@chakra-ui/react";
 const Index = () => {
   return (
@@ -20,7 +20,7 @@ const Index = () => {
                 찾아보세요
               </Text>
               <Button size="lg" colorScheme="green" mt="24px">
-                Create a free account
+                Get Started
               </Button>
             </Box>
           </Box>
