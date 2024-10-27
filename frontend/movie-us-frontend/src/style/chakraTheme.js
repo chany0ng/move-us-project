@@ -14,11 +14,6 @@ const theme = extendTheme({
       },
     },
   },
-  fontSizes: {
-    lg: "2rem",
-    md: "1.5rem",
-    sm: "1rem",
-  },
   colors: {
     brand: {
       primary: "#F7CE46", // 원하는 버튼 색상

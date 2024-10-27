@@ -22,7 +22,7 @@ const Index = () => {
       <BackGroundDiv>
         <Flex>
           <Box
-            flex="6"
+            flex="6.5"
             h="100vh"
             display="flex"
             alignItems="center"
@@ -57,7 +57,7 @@ const Index = () => {
             </Box>
           </Box>
 
-          <Box flex="4" bg="rgba(24, 24, 27, 0.8)" h="100vh">
+          <Box flex="3.5" bg="rgba(24, 24, 27, 0.8)" h="100vh">
             <Flex
               direction="column"
               align="flex-start"
@@ -75,7 +75,11 @@ const Index = () => {
               >
                 Log in
               </Heading>
-              <img src={kakaoLargeLogin} alt="카카오 로그인" />
+              <img
+                src={kakaoLargeLogin}
+                alt="카카오 로그인"
+                style={{ cursor: "pointer" }}
+              />
               <Box
                 position="relative"
                 textAlign="center"
@@ -106,27 +110,30 @@ const Index = () => {
                 />
               </Box>
               <FormControl /*isInvalid={isError} */>
-                <FormLabel fontSize="16px" color="gainsboro">
+                <FormLabel fontSize="15px" color="gainsboro">
                   Your Email address
                 </FormLabel>
-                <CustomInput type="email" fontSize={"sm"} />
+                <CustomInput type="email" size={"lg"} fontSize={"md"} />
                 {/* //todo isError시에 메시지 출력하게 설정  <FormHelperText>We'll never share your email.</FormHelperText> */}
               </FormControl>
 
               <FormControl /*isInvalid={isError} */>
-                <FormLabel fontSize="16px" color="gainsboro">
+                <FormLabel fontSize="15px" color="gainsboro">
                   Your Password
                 </FormLabel>
-                <CustomInput type="password" fontSize={"sm"} />
-                <ChakraLink
-                  as={RouterLink}
-                  to="/signup"
-                  textDecoration="underline"
-                  fontWeight="thin"
-                  fontSize="xs"
-                >
-                  Forget Your Password
-                </ChakraLink>
+                <CustomInput type="password" size={"lg"} fontSize={"md"} />
+                <Flex justify="flex-end" mt={2}>
+                  <ChakraLink
+                    as={RouterLink}
+                    to="/signup"
+                    textDecoration="underline"
+                    fontWeight="thin"
+                    fontSize="13px"
+                    color="gainsboro"
+                  >
+                    Forget Your Password
+                  </ChakraLink>
+                </Flex>
                 {/* //todo isError시에 메시지 출력하게 설정  <FormHelperText>We'll never share your password.</FormHelperText> */}
               </FormControl>
               <Button
@@ -140,7 +147,7 @@ const Index = () => {
               >
                 Sign in
               </Button>
-              <Text color={"gray"} textAlign={"left"} pt={5}>
+              <Text color={"gray"} textAlign={"left"} fontSize={"15px"}>
                 Movie us 회원이 아닌가요? &nbsp;
                 <ChakraLink
                   as={RouterLink}
