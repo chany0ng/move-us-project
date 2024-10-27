@@ -22,6 +22,7 @@ const theme = extendTheme({
   colors: {
     brand: {
       primary: "#F7CE46", // 원하는 버튼 색상
+      primaryHover: "#D1A832",
       black: "#18181B",
       white: "#FFFFFF",
       light: "#F8E8E1",
@@ -35,7 +36,7 @@ const theme = extendTheme({
           bg: "brand.primary",
           color: "brand.black",
           _hover: {
-            bg: "brand.primary", // hover 효과 색상
+            bg: "brand.primaryHover",
           },
         },
       },

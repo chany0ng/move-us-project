@@ -26,7 +26,7 @@ body{
   font-family: 'Pretendard', sans-serif;
   min-height:100vh;
   min-width: 560px;
-  line-height: 1.2;
+  line-height: 1.5;
   color: white;
 }
 table {
