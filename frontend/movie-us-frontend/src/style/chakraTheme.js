@@ -3,7 +3,7 @@ import { extendTheme } from "@chakra-ui/react";
 
 const theme = extendTheme({
   fonts: {
-    body: "'Pretendard', sans-serif", // 기본 본문 폰트
+    body: "'NanumSquareRound', sans-serif", // 기본 본문 폰트
     heading: "'Noto Sans KR', sans-serif", // 제목 폰트
   },
   styles: {
@@ -38,6 +38,8 @@ const theme = extendTheme({
           _hover: {
             bg: "brand.primaryHover",
           },
+          font: "NanumSquareRound",
+          lineHeight: "normal",
         },
       },
     },

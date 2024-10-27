@@ -1,6 +1,21 @@
 import styled from "styled-components";
 import backgroundImage from "../assets/images/backgroundImage.png";
-import { Button, Flex, Box, Heading, Text, Center } from "@chakra-ui/react";
+import kakaoLargeLogin from "../assets/images/kakao_login_large_wide.png";
+import {
+  Button,
+  Flex,
+  Box,
+  Heading,
+  Text,
+  Divider,
+  FormControl,
+  FormLabel,
+  FormErrorMessage,
+  Input,
+  FormHelperText,
+  Link as ChakraLink,
+} from "@chakra-ui/react";
+import { Link as RouterLink } from "react-router-dom";
 const Index = () => {
   return (
     <>
@@ -33,7 +48,7 @@ const Index = () => {
               <Button
                 mt="24px"
                 p={5}
-                fontSize="20px"
+                fontSize="18px"
                 borderRadius={"5px"}
                 // isLoading
               >
@@ -43,22 +58,100 @@ const Index = () => {
           </Box>
 
           <Box flex="4" bg="rgba(24, 24, 27, 0.8)" h="100vh">
-            <Heading
-              mb={20}
-              fontWeight="bold"
-              fontSize={["xl", "2xl", "3xl", "4xl"]}
+            <Flex
+              direction="column"
+              align="flex-start"
+              justify={"center"}
+              gap={5}
+              width="70%"
+              height="100%"
+              margin={"0 auto"}
             >
-              Log in
-            </Heading>
-            <Center>
               <Heading
-                mb={20}
+                mb={15}
+                textAlign="left"
                 fontWeight="bold"
                 fontSize={["xl", "2xl", "3xl", "4xl"]}
               >
                 Log in
               </Heading>
-            </Center>
+              <img src={kakaoLargeLogin} alt="카카오 로그인" />
+              <Box
+                position="relative"
+                textAlign="center"
+                width={"100%"}
+                my={10}
+              >
+                <Divider
+                  orientation="horizontal"
+                  position={"absolute"}
+                  width="40%"
+                  borderColor={"gray"}
+                />
+                <Text
+                  position="absolute"
+                  top="-10px"
+                  left="50%"
+                  transform="translateX(-50%)"
+                  color="gainsboro"
+                >
+                  OR
+                </Text>
+                <Divider
+                  position={"absolute"}
+                  left="60%"
+                  orientation="horizontal"
+                  width="40%"
+                  borderColor={"gray"}
+                />
+              </Box>
+              <FormControl /*isInvalid={isError} */>
+                <FormLabel fontSize="16px" color="gainsboro">
+                  Your Email address
+                </FormLabel>
+                <CustomInput type="email" fontSize={"sm"} />
+                {/* //todo isError시에 메시지 출력하게 설정  <FormHelperText>We'll never share your email.</FormHelperText> */}
+              </FormControl>
+
+              <FormControl /*isInvalid={isError} */>
+                <FormLabel fontSize="16px" color="gainsboro">
+                  Your Password
+                </FormLabel>
+                <CustomInput type="password" fontSize={"sm"} />
+                <ChakraLink
+                  as={RouterLink}
+                  to="/signup"
+                  textDecoration="underline"
+                  fontWeight="thin"
+                  fontSize="xs"
+                >
+                  Forget Your Password
+                </ChakraLink>
+                {/* //todo isError시에 메시지 출력하게 설정  <FormHelperText>We'll never share your password.</FormHelperText> */}
+              </FormControl>
+              <Button
+                mt="24px"
+                p={6}
+                fontSize="24px"
+                fontWeight={"thin"}
+                borderRadius={"8px"}
+                width="100%"
+                // isLoading
+              >
+                Sign in
+              </Button>
+              <Text color={"gray"} textAlign={"left"} pt={5}>
+                Movie us 회원이 아닌가요? &nbsp;
+                <ChakraLink
+                  as={RouterLink}
+                  to="/signup"
+                  textDecoration="underline"
+                  color="white"
+                >
+                  지금 가입하세요.
+                </ChakraLink>
+              </Text>
+            </Flex>
           </Box>
         </Flex>
       </BackGroundDiv>
@@ -73,6 +166,14 @@ export const BackGroundDiv = styled.div`
   background-repeat: no-repeat;
   background-position: center;
   height: 100%;
+`;
+
+export const CustomInput = styled(Input)`
+  border: 1px solid gray !important;
+  &:focus {
+    border: 0.1px solid #f7ce46 !important;
+    box-shadow: 0 0 0 0.5px #f7ce46 !important;
+  }
 `;
 
 export default Index;
