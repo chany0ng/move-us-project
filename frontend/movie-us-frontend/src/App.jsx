@@ -1,6 +1,7 @@
 import GlobalStyle from "./style/GlobalStyle";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Index from "./pages/Index";
+import ChangePw from "./pages/ChangePw";
 function App() {
   return (
     <>
@@ -8,6 +9,7 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/change-pw" element={<ChangePw />} />
         </Routes>
       </Router>
     </>

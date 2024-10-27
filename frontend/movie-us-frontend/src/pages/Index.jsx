@@ -15,6 +15,7 @@ import {
   FormHelperText,
   Link as ChakraLink,
 } from "@chakra-ui/react";
+import { ChevronRightIcon, CheckIcon } from "@chakra-ui/icons";
 import { Link as RouterLink } from "react-router-dom";
 const Index = () => {
   return (
@@ -52,7 +53,7 @@ const Index = () => {
                 borderRadius={"5px"}
                 // isLoading
               >
-                Get Started
+                Get Started <ChevronRightIcon boxSize={6} />
               </Button>
             </Box>
           </Box>
@@ -145,7 +146,8 @@ const Index = () => {
                 width="100%"
                 // isLoading
               >
-                Sign in
+                Sign in &nbsp;
+                <CheckIcon boxSize={5} />
               </Button>
               <Text color={"gray"} textAlign={"left"} fontSize={"15px"}>
                 Movie us 회원이 아닌가요? &nbsp;
