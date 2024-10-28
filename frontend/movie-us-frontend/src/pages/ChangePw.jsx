@@ -11,17 +11,38 @@ import {
   Link as ChakraLink,
 } from "@chakra-ui/react";
 import { useState } from "react";
-import { CheckIcon } from "@chakra-ui/icons";
+import { CheckIcon, CloseIcon } from "@chakra-ui/icons";
 import { Link as RouterLink } from "react-router-dom";
 import { CustomInput } from "./Index";
 const ChangePw = () => {
+  const [password, setPassword] = useState("");
+
+  // 비밀번호 유효성 검사 조건
+  const checks = {
+    length: (pwd) => pwd.length >= 8,
+    uppercase: (pwd) => /[A-Z]/.test(pwd),
+    number: (pwd) => /[0-9]/.test(pwd),
+    special: (pwd) => /[!@#$%^&*(),.?":{}|<>]/.test(pwd),
+  };
   return (
-    <BackGroundDiv>
+    <BackGroundDiv
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
       <Flex>
-        <Box m={"0 auto"} bg="rgba(24, 24, 27, 0.8)" h="70vh" w="40vw">
+        <Box
+          m={"0 auto"}
+          bg="rgba(24, 24, 27, 0.8)"
+          h="70vh"
+          w="30vw"
+          borderRadius="20px"
+        >
           <Flex
             direction="column"
-            align="flex-start"
+            align="center"
             justify={"center"}
             gap={5}
             width="70%"
@@ -30,37 +51,94 @@ const ChangePw = () => {
           >
             <Heading
               mb={15}
-              textAlign="left"
               fontWeight="bold"
               fontSize={["xl", "2xl", "3xl", "4xl"]}
             >
-              Log in
+              비밀번호 변경
             </Heading>
             <FormControl /*isInvalid={isError} */>
               <FormLabel fontSize="15px" color="gainsboro">
-                Your Email address
+                새로운 비밀번호
               </FormLabel>
-              <CustomInput type="email" size={"lg"} fontSize={"md"} />
+              <CustomInput
+                type="password"
+                size={"lg"}
+                fontSize={"md"}
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <Flex mt={2} flexWrap="nowrap">
+                <Box flex="1" minW="50%">
+                  <Text
+                    fontSize="sm"
+                    color="gray.600"
+                    display="flex"
+                    alignItems="center"
+                  >
+                    {checks.length(password) ? (
+                      <CheckIcon color="green.500" mr={2} />
+                    ) : (
+                      <CloseIcon color="red.500" mr={2} />
+                    )}
+                    8글자 이상
+                  </Text>
+                  <Text
+                    fontSize="sm"
+                    color="gray.600"
+                    display="flex"
+                    alignItems="center"
+                  >
+                    {checks.uppercase(password) ? (
+                      <CheckIcon color="green.500" mr={2} />
+                    ) : (
+                      <CloseIcon color="red.500" mr={2} />
+                    )}
+                    대문자 포함
+                  </Text>
+                </Box>
+                <Box flex="1" minW="250px">
+                  <Text
+                    fontSize="sm"
+                    color="gray.600"
+                    display="flex"
+                    alignItems="center"
+                  >
+                    {checks.number(password) ? (
+                      <CheckIcon color="green.500" mr={2} />
+                    ) : (
+                      <CloseIcon color="red.500" mr={2} />
+                    )}
+                    숫자 포함
+                  </Text>
+                  <Text
+                    fontSize="sm"
+                    color="gray.600"
+                    display="flex"
+                    alignItems="center"
+                  >
+                    {checks.special(password) ? (
+                      <CheckIcon color="green.500" mr={2} />
+                    ) : (
+                      <CloseIcon color="red.500" mr={2} />
+                    )}
+                    특수문자 포함
+                  </Text>
+                </Box>
+              </Flex>
               {/* //todo isError시에 메시지 출력하게 설정  <FormHelperText>We'll never share your email.</FormHelperText> */}
             </FormControl>
 
             <FormControl /*isInvalid={isError} */>
               <FormLabel fontSize="15px" color="gainsboro">
-                Your Password
+                새로운 비밀번호 확인
               </FormLabel>
-              <CustomInput type="password" size={"lg"} fontSize={"md"} />
-              <Flex justify="flex-end" mt={2}>
-                <ChakraLink
-                  as={RouterLink}
-                  to="/signup"
-                  textDecoration="underline"
-                  fontWeight="thin"
-                  fontSize="13px"
-                  color="gainsboro"
-                >
-                  Forget Your Password
-                </ChakraLink>
-              </Flex>
+              <CustomInput
+                type="password"
+                size={"lg"}
+                fontSize={"md"}
+                required
+              />
               {/* //todo isError시에 메시지 출력하게 설정  <FormHelperText>We'll never share your password.</FormHelperText> */}
             </FormControl>
             <Button
@@ -72,7 +150,7 @@ const ChangePw = () => {
               width="100%"
               // isLoading
             >
-              Sign in &nbsp;
+              변경하기 &nbsp;
               <CheckIcon boxSize={5} />
             </Button>
             <Text color={"gray"} textAlign={"left"} fontSize={"15px"}>
