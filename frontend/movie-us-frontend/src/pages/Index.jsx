@@ -126,7 +126,7 @@ const Index = () => {
                 <Flex justify="flex-end" mt={2}>
                   <ChakraLink
                     as={RouterLink}
-                    to="/signup"
+                    to="/change-pw"
                     textDecoration="underline"
                     fontWeight="thin"
                     fontSize="13px"

@@ -10,6 +10,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/change-pw" element={<ChangePw />} />
+          <Route path="/signup" element={<SignUp />} />
         </Routes>
       </Router>
     </>
