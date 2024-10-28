@@ -5,7 +5,6 @@ import {
   Heading,
   Text,
   VStack,
-  Input,
   FormControl,
   FormLabel,
   Button,
@@ -20,6 +19,7 @@ const SignUp = () => {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
   const [errors, setErrors] = useState({
     email: "",
     phone: "",
@@ -28,10 +28,10 @@ const SignUp = () => {
   // 비밀번호 유효성 검사 조건
   const checks = {
     length: (pwd) => pwd.length >= 8,
-    uppercase: (pwd) => /[A-Z]/.test(pwd),
-    number: (pwd) => /[0-9]/.test(pwd),
-    special: (pwd) => /[!@#$%^&*(),.?":{}|<>]/.test(pwd),
+    match: (pwd, confirmPwd) => pwd === confirmPwd
   };
+
+  
 
   // 이메일 유효성 검사
   const validateEmail = (email) => {
@@ -47,7 +47,7 @@ const SignUp = () => {
 
   // 전화번호 유효성 검사
   const validatePhone = (phone) => {
-    const phoneRegex = /^01([0|1|6|7|8|9])-?([0-9]{3,4})-?([0-9]{4})$/; //-는 선택
+    const phoneRegex = /^01([0|1|6|7|8|9])-([0-9]{3,4})-([0-9]{4})$/; //-는 선택
     if (!phone) {
       return "전화번호를 입력해주세요";
     }
@@ -133,6 +133,7 @@ const SignUp = () => {
                     size="lg"
                     fontSize="18px"
                     value={phone}
+                    placeholder="010-1234-5678"
                     onChange={handlePhoneChange}
                   />
                   {errors.phone && (
@@ -166,20 +167,20 @@ const SignUp = () => {
                         )}
                         8글자 이상
                       </Text>
-                      <Text
-                        fontSize="sm"
-                        color="gray.600"
-                        display="flex"
-                        alignItems="center"
-                      >
-                        {checks.uppercase(password) ? (
-                          <CheckIcon color="green.500" mr={2} />
-                        ) : (
-                          <CloseIcon color="red.500" mr={2} />
-                        )}
-                        대문자 포함
-                      </Text>
                     </Box>
+                  </Flex>
+                </FormControl>
+
+                <FormControl>
+                  <FormLabel fontSize="18px">비밀번호 확인</FormLabel>
+                  <CustomInput
+                    type="password"
+                    size="lg"
+                    fontSize="18px"
+                    value={passwordConfirm}
+                    onChange={(e) => setPasswordConfirm(e.target.value)}
+                  />
+                  <Flex mt={2} flexWrap="wrap">
                     <Box flex="1" minW="250px">
                       <Text
                         fontSize="sm"
@@ -187,25 +188,12 @@ const SignUp = () => {
                         display="flex"
                         alignItems="center"
                       >
-                        {checks.number(password) ? (
+                        {checks.length(password) && checks.match(password, passwordConfirm) ? (
                           <CheckIcon color="green.500" mr={2} />
                         ) : (
                           <CloseIcon color="red.500" mr={2} />
                         )}
-                        숫자 포함
-                      </Text>
-                      <Text
-                        fontSize="sm"
-                        color="gray.600"
-                        display="flex"
-                        alignItems="center"
-                      >
-                        {checks.special(password) ? (
-                          <CheckIcon color="green.500" mr={2} />
-                        ) : (
-                          <CloseIcon color="red.500" mr={2} />
-                        )}
-                        특수문자 포함
+                        비밀번호 일치
                       </Text>
                     </Box>
                   </Flex>
