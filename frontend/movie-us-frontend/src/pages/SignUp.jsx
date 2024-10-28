@@ -14,6 +14,7 @@ import {
 import { useState } from "react";
 import { CheckIcon, CloseIcon } from "@chakra-ui/icons";
 import { Link as RouterLink } from "react-router-dom";
+import { CustomInput } from "./Index";
 
 const SignUp = () => {
   const [email, setEmail] = useState("");
@@ -95,7 +96,7 @@ const SignUp = () => {
             borderRadius={20}
             textAlign="center"
             boxShadow="lg"
-            bg="black"
+            bg="rgba(24, 24, 27, 0.8)"
             color="white"
             mx="auto"
           >
@@ -110,7 +111,7 @@ const SignUp = () => {
               <VStack p={4} spacing={4} align="stretch">
                 <FormControl isInvalid={errors.email !== ""}>
                   <FormLabel fontSize="18px">이메일</FormLabel>
-                  <Input
+                  <CustomInput
                     type="email"
                     size="lg"
                     fontSize="18px"
@@ -127,7 +128,7 @@ const SignUp = () => {
 
                 <FormControl isInvalid={errors.phone !== ""}>
                   <FormLabel fontSize="18px">전화번호</FormLabel>
-                  <Input
+                  <CustomInput
                     type="tel"
                     size="lg"
                     fontSize="18px"
@@ -143,7 +144,7 @@ const SignUp = () => {
 
                 <FormControl>
                   <FormLabel fontSize="18px">비밀번호</FormLabel>
-                  <Input
+                  <CustomInput
                     type="password"
                     size="lg"
                     fontSize="18px"
