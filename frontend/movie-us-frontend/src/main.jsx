@@ -7,7 +7,6 @@ import theme from "./style/chakraTheme.js";
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <ChakraProvider theme={theme}>
-      {/* ChakraProvider에 theme 전달 */}
       <App />
     </ChakraProvider>
   </StrictMode>
