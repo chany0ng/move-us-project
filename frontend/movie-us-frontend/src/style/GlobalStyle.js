@@ -19,12 +19,12 @@ const GlobalStyle = createGlobalStyle`
 }
 html {
   /* font-size: 62.5%; // 1rem을 10px로 변환 */
-  height:100vh;
+  height:100%;
 }
 
 body{
   font-family: 'NanumSquareRound', sans-serif;
-  min-height:100vh;
+  min-height:100%;
   min-width: 560px;
   color: white;
 }
