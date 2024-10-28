@@ -5,14 +5,63 @@ import { CheckIcon, CloseIcon } from '@chakra-ui/icons';
 import { Link as RouterLink } from 'react-router-dom';
 
 const SignUp = () => {
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
-  
+  const [errors, setErrors] = useState({
+    email: '',
+    phone: '',
+  });
+
   // 비밀번호 유효성 검사 조건
   const checks = {
     length: (pwd) => pwd.length >= 8,
     uppercase: (pwd) => /[A-Z]/.test(pwd),
     number: (pwd) => /[0-9]/.test(pwd),
     special: (pwd) => /[!@#$%^&*(),.?":{}|<>]/.test(pwd),
+  };
+
+  // 이메일 유효성 검사
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email) {
+      return '이메일을 입력해주세요';
+    }
+    if (!emailRegex.test(email)) {
+      return '올바른 이메일 형식이 아닙니다';
+    }
+    return '';
+  };
+
+  // 전화번호 유효성 검사
+  const validatePhone = (phone) => {
+    const phoneRegex = /^01([0|1|6|7|8|9])-?([0-9]{3,4})-?([0-9]{4})$/;     //-는 선택
+    if (!phone) {
+      return '전화번호를 입력해주세요';
+    }
+    if (!phoneRegex.test(phone)) {
+      return '올바른 전화번호 형식이 아닙니다';
+    }
+    return '';
+  };
+
+  // 입력 필드 변경 핸들러
+  const handleEmailChange = (e) => {
+    const value = e.target.value;
+    setEmail(value);
+    setErrors(prev => ({
+      ...prev,
+      email: validateEmail(value)
+    }));
+  };
+
+  const handlePhoneChange = (e) => {
+    const value = e.target.value;
+    setPhone(value);
+    setErrors(prev => ({
+      ...prev,
+      phone: validatePhone(value)
+    }));
   };
 
   return (
@@ -44,23 +93,37 @@ const SignUp = () => {
               </Text>
 
               <VStack p={4} spacing={4} align="stretch">
-                <FormControl>
+                <FormControl isInvalid={errors.email !== ''}>
                   <FormLabel fontSize="18px">이메일</FormLabel>
                   <Input 
                     type="email" 
                     size="lg"
                     fontSize="18px"
+                    value={email}
+                    onChange={handleEmailChange}
                     required 
                   />
+                  {errors.email && (
+                    <Text color="red.500" fontSize="sm" mt={1}>
+                      {errors.email}
+                    </Text>
+                  )}
                 </FormControl>
 
-                <FormControl>
+                <FormControl isInvalid={errors.phone !== ''}>
                   <FormLabel fontSize="18px">전화번호</FormLabel>
                   <Input 
                     type="tel" 
                     size="lg"
                     fontSize="18px"
+                    value={phone}
+                    onChange={handlePhoneChange}
                   />
+                  {errors.phone && (
+                    <Text color="red.500" fontSize="sm" mt={1}>
+                      {errors.phone}
+                    </Text>
+                  )}
                 </FormControl>
 
                 <FormControl>
