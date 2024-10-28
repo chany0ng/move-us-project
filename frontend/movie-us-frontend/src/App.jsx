@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Index from "./pages/Index";
 import ChangePw from "./pages/ChangePw";
 import SignUp from "./pages/SignUp";
+import Main from "./pages/Main";
+
 function App() {
   return (
     <>
@@ -12,6 +14,7 @@ function App() {
           <Route path="/" element={<Index />} />
           <Route path="/change-pw" element={<ChangePw />} />
           <Route path="/signup" element={<SignUp />} />
+          <Route path="/main" element={<Main />} />
         </Routes>
       </Router>
     </>

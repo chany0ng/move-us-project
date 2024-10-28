@@ -10,9 +10,9 @@ import {
   Divider,
   FormControl,
   FormLabel,
-  FormErrorMessage,
+  // FormErrorMessage,
   Input,
-  FormHelperText,
+  // FormHelperText,
   Link as ChakraLink,
 } from "@chakra-ui/react";
 import { ChevronRightIcon, CheckIcon } from "@chakra-ui/icons";

@@ -183,10 +183,10 @@ const SignUp = () => {
                   <Flex mt={2} flexWrap="wrap">
                     <Box flex="1" minW="250px">
                       <Text
-                        fontSize="sm"
-                        color="gray.600"
-                        display="flex"
-                        alignItems="center"
+                fontSize="sm"
+                color="gray.600"
+                display="flex"
+                alignItems="center"
                       >
                         {checks.length(password) && checks.match(password, passwordConfirm) ? (
                           <CheckIcon color="green.500" mr={2} />
