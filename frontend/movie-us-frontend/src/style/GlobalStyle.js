@@ -23,10 +23,9 @@ html {
 }
 
 body{
-  font-family: 'Pretendard', sans-serif;
+  font-family: 'NanumSquareRound', sans-serif;
   min-height:100vh;
   min-width: 560px;
-  line-height: 1.2;
   color: white;
 }
 table {
@@ -46,7 +45,12 @@ input:foucs {
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Noto Sans KR', sans-serif;
 }
-
+@font-face {
+    font-family: 'NanumSquareRound';
+    src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_two@1.0/NanumSquareRound.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
 @font-face {
   font-family: 'Noto Sans KR';
   src: url('./assets/fonts/notoSansKR/NotoSansKR-Black.ttf') format('truetype');
