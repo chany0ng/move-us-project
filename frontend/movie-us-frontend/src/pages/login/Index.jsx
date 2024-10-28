@@ -17,7 +17,43 @@ import {
 } from "@chakra-ui/react";
 import { ChevronRightIcon, CheckIcon } from "@chakra-ui/icons";
 import { Link as RouterLink } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 const Index = () => {
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isExist, setIsExist] = useState(true);
+  const [isError, setIsError] = useState(false);
+
+  const passwordChangeHandler = (e) => {
+    setPassword(e.target.value);
+    if (e.target.value?.length < 8) {
+      setIsError(true);
+    } else {
+      setIsError(false);
+    }
+  };
+  const changePasswordHandler = (e) => {
+    //todo email을 db에 user찾기를 한다
+    const a = true;
+    if (a) {
+      alert("해당 이메일에 비밀번호 변경 링크를 발송했습니다!");
+      setIsExist(true);
+    } else {
+      alert("존재하지 않는 이메일입니다.");
+      setIsExist(false);
+    }
+  };
+  const handleSubmitHandler = async (e) => {
+    e.preventDefault();
+    if (!email || !password) {
+      alert("이메일과 비밀번호를 모두 입력해주세요!");
+    } else {
+      alert(email + "\n" + password);
+      // 로그인 API 호출
+    }
+  };
   return (
     <>
       <BackGroundDiv>
@@ -51,6 +87,7 @@ const Index = () => {
                 p={5}
                 fontSize="18px"
                 borderRadius={"5px"}
+                onClick={() => navigate("/main")}
                 // isLoading
               >
                 Get Started <ChevronRightIcon boxSize={6} />
@@ -110,45 +147,71 @@ const Index = () => {
                   borderColor={"gray"}
                 />
               </Box>
-              <FormControl /*isInvalid={isError} */>
-                <FormLabel fontSize="15px" color="gainsboro">
-                  Your Email address
-                </FormLabel>
-                <CustomInput type="email" size={"lg"} fontSize={"md"} />
-                {/* //todo isError시에 메시지 출력하게 설정  <FormHelperText>We'll never share your email.</FormHelperText> */}
-              </FormControl>
-
-              <FormControl /*isInvalid={isError} */>
-                <FormLabel fontSize="15px" color="gainsboro">
-                  Your Password
-                </FormLabel>
-                <CustomInput type="password" size={"lg"} fontSize={"md"} />
-                <Flex justify="flex-end" mt={2}>
-                  <ChakraLink
-                    as={RouterLink}
-                    to="/change-pw"
-                    textDecoration="underline"
-                    fontWeight="thin"
-                    fontSize="13px"
-                    color="gainsboro"
-                  >
-                    Forget Your Password
-                  </ChakraLink>
-                </Flex>
-                {/* //todo isError시에 메시지 출력하게 설정  <FormHelperText>We'll never share your password.</FormHelperText> */}
-              </FormControl>
-              <Button
-                mt="24px"
-                p={6}
-                fontSize="24px"
-                fontWeight={"thin"}
-                borderRadius={"8px"}
-                width="100%"
-                // isLoading
+              <form
+                action=""
+                onSubmit={handleSubmitHandler}
+                style={{ width: "100%" }}
               >
-                Sign in &nbsp;
-                <CheckIcon boxSize={5} />
-              </Button>
+                <FormControl sx={{ mb: "15px" }} isInvalid={!isExist}>
+                  <FormLabel fontSize="15px" color="gainsboro">
+                    Your Email address
+                  </FormLabel>
+                  <CustomInput
+                    type="email"
+                    size={"lg"}
+                    fontSize={"md"}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                  {!isExist && (
+                    <FormErrorMessage>
+                      비밀번호 찾기를 원하는 계정 이메일을 입력해주세요
+                    </FormErrorMessage>
+                  )}
+                </FormControl>
+
+                <FormControl isInvalid={isError}>
+                  <FormLabel fontSize="15px" color="gainsboro">
+                    Your Password
+                  </FormLabel>
+                  <CustomInput
+                    type="password"
+                    size={"lg"}
+                    fontSize={"md"}
+                    value={password}
+                    onChange={passwordChangeHandler}
+                  />
+                  {isError && (
+                    <FormErrorMessage>
+                      비밀번호는 8자리 이상입니다.
+                    </FormErrorMessage>
+                  )}
+                  <Flex justify="flex-end" mt={2}>
+                    <ChakraLink
+                      textDecoration="underline"
+                      fontWeight="thin"
+                      fontSize="13px"
+                      color="gainsboro"
+                      onClick={changePasswordHandler}
+                    >
+                      Forget Your Password
+                    </ChakraLink>
+                  </Flex>
+                </FormControl>
+                <Button
+                  mt="24px"
+                  p={6}
+                  fontSize="24px"
+                  fontWeight={"thin"}
+                  borderRadius={"8px"}
+                  width="100%"
+                  type="submit"
+                  // isLoading
+                >
+                  Sign in &nbsp;
+                  <CheckIcon boxSize={5} />
+                </Button>
+              </form>
               <Text color={"gray"} textAlign={"left"} fontSize={"15px"}>
                 Movie us 회원이 아닌가요? &nbsp;
                 <ChakraLink
