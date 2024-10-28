@@ -1,6 +1,6 @@
 import styled from "styled-components";
-import backgroundImage from "../assets/images/backgroundImage.png";
-import kakaoLargeLogin from "../assets/images/kakao_login_large_wide.png";
+import backgroundImage from "../../assets/images/backgroundImage.png";
+import kakaoLargeLogin from "../../assets/images/kakao_login_large_wide.png";
 import {
   Button,
   Flex,
