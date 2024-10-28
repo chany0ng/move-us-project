@@ -14,15 +14,30 @@ import { useState } from "react";
 import { CheckIcon, CloseIcon } from "@chakra-ui/icons";
 import { Link as RouterLink } from "react-router-dom";
 import { CustomInput } from "./Index";
+import { useNavigate } from "react-router-dom";
+
 const ChangePw = () => {
+  const navigate = useNavigate();
   const [password, setPassword] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
 
   // 비밀번호 유효성 검사 조건
   const checks = {
     length: (pwd) => pwd.length >= 8,
-    uppercase: (pwd) => /[A-Z]/.test(pwd),
-    number: (pwd) => /[0-9]/.test(pwd),
-    special: (pwd) => /[!@#$%^&*(),.?":{}|<>]/.test(pwd),
+    match: (pwd, confirmPwd) => pwd === confirmPwd,
+  };
+
+  const handleSubmitHandler = async (e) => {
+    e.preventDefault();
+    if (password.length < 8 || passwordConfirm.length < 8) {
+      alert("비밀번호는 8자 이상이어야 합니다!");
+    } else if (password !== passwordConfirm) {
+      alert("비밀번호 동일여부를 확인해주세요!");
+    } else {
+      alert(password + "\n" + passwordConfirm);
+      navigate("/");
+      // 로그인 API 호출
+    }
   };
   return (
     <BackGroundDiv
@@ -56,103 +71,84 @@ const ChangePw = () => {
             >
               비밀번호 변경
             </Heading>
-            <FormControl /*isInvalid={isError} */>
-              <FormLabel fontSize="15px" color="gainsboro">
-                새로운 비밀번호
-              </FormLabel>
-              <CustomInput
-                type="password"
-                size={"lg"}
-                fontSize={"md"}
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-              <Flex mt={2} flexWrap="nowrap">
-                <Box flex="1" minW="50%">
-                  <Text
-                    fontSize="sm"
-                    color="gray.600"
-                    display="flex"
-                    alignItems="center"
-                  >
-                    {checks.length(password) ? (
-                      <CheckIcon color="green.500" mr={2} />
-                    ) : (
-                      <CloseIcon color="red.500" mr={2} />
-                    )}
-                    8글자 이상
-                  </Text>
-                  <Text
-                    fontSize="sm"
-                    color="gray.600"
-                    display="flex"
-                    alignItems="center"
-                  >
-                    {checks.uppercase(password) ? (
-                      <CheckIcon color="green.500" mr={2} />
-                    ) : (
-                      <CloseIcon color="red.500" mr={2} />
-                    )}
-                    대문자 포함
-                  </Text>
-                </Box>
-                <Box flex="1" minW="250px">
-                  <Text
-                    fontSize="sm"
-                    color="gray.600"
-                    display="flex"
-                    alignItems="center"
-                  >
-                    {checks.number(password) ? (
-                      <CheckIcon color="green.500" mr={2} />
-                    ) : (
-                      <CloseIcon color="red.500" mr={2} />
-                    )}
-                    숫자 포함
-                  </Text>
-                  <Text
-                    fontSize="sm"
-                    color="gray.600"
-                    display="flex"
-                    alignItems="center"
-                  >
-                    {checks.special(password) ? (
-                      <CheckIcon color="green.500" mr={2} />
-                    ) : (
-                      <CloseIcon color="red.500" mr={2} />
-                    )}
-                    특수문자 포함
-                  </Text>
-                </Box>
-              </Flex>
-              {/* //todo isError시에 메시지 출력하게 설정  <FormHelperText>We'll never share your email.</FormHelperText> */}
-            </FormControl>
+            <form onSubmit={handleSubmitHandler} style={{ width: "100%" }}>
+              <FormControl>
+                <FormLabel fontSize="15px" color="gainsboro">
+                  새로운 비밀번호
+                </FormLabel>
+                <CustomInput
+                  type="password"
+                  size={"lg"}
+                  fontSize={"md"}
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <Flex mt={2} flexWrap="nowrap">
+                  <Box flex="1" minW="50%">
+                    <Text
+                      fontSize="sm"
+                      color="gray.600"
+                      display="flex"
+                      alignItems="center"
+                    >
+                      {checks.length(password) ? (
+                        <CheckIcon color="green.500" mr={2} />
+                      ) : (
+                        <CloseIcon color="red.500" mr={2} />
+                      )}
+                      8글자 이상
+                    </Text>
+                  </Box>
+                </Flex>
+              </FormControl>
 
-            <FormControl /*isInvalid={isError} */>
-              <FormLabel fontSize="15px" color="gainsboro">
-                새로운 비밀번호 확인
-              </FormLabel>
-              <CustomInput
-                type="password"
-                size={"lg"}
-                fontSize={"md"}
-                required
-              />
-              {/* //todo isError시에 메시지 출력하게 설정  <FormHelperText>We'll never share your password.</FormHelperText> */}
-            </FormControl>
-            <Button
-              mt="24px"
-              p={6}
-              fontSize="24px"
-              fontWeight={"thin"}
-              borderRadius={"8px"}
-              width="100%"
-              // isLoading
-            >
-              변경하기 &nbsp;
-              <CheckIcon boxSize={5} />
-            </Button>
+              <FormControl>
+                <FormLabel fontSize="15px" color="gainsboro" mt={5}>
+                  새로운 비밀번호 확인
+                </FormLabel>
+                <CustomInput
+                  type="password"
+                  size={"lg"}
+                  fontSize={"md"}
+                  required
+                  value={passwordConfirm}
+                  onChange={(e) => setPasswordConfirm(e.target.value)}
+                />
+                <Flex mt={2} flexWrap="nowrap">
+                  <Box flex="1" minW="50%">
+                    <Text
+                      fontSize="sm"
+                      color="gray.600"
+                      display="flex"
+                      alignItems="center"
+                    >
+                      {checks.length(password) &&
+                      checks.match(password, passwordConfirm) ? (
+                        <CheckIcon color="green.500" mr={2} />
+                      ) : (
+                        <CloseIcon color="red.500" mr={2} />
+                      )}
+                      비밀번호 일치
+                    </Text>
+                  </Box>
+                </Flex>
+              </FormControl>
+              <Button
+                mt="24px"
+                p={6}
+                fontSize="24px"
+                fontWeight={"thin"}
+                borderRadius={"8px"}
+                width="100%"
+                type="submit"
+                // isLoading
+              >
+                변경하기 &nbsp;
+                <CheckIcon boxSize={5} />
+              </Button>
+            </form>
+
             <Text color={"gray"} textAlign={"left"} fontSize={"15px"}>
               Movie us 회원이 아닌가요? &nbsp;
               <ChakraLink

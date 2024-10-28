@@ -147,11 +147,7 @@ const Index = () => {
                   borderColor={"gray"}
                 />
               </Box>
-              <form
-                action=""
-                onSubmit={handleSubmitHandler}
-                style={{ width: "100%" }}
-              >
+              <form onSubmit={handleSubmitHandler} style={{ width: "100%" }}>
                 <FormControl sx={{ mb: "15px" }} isInvalid={!isExist}>
                   <FormLabel fontSize="15px" color="gainsboro">
                     Your Email address
