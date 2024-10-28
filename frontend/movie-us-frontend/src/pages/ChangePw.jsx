@@ -36,8 +36,8 @@ const ChangePw = () => {
         <Box
           m={"0 auto"}
           bg="rgba(24, 24, 27, 0.8)"
-          h="70vh"
-          w="30vw"
+          h="80vh"
+          w="35vw"
           borderRadius="20px"
         >
           <Flex
