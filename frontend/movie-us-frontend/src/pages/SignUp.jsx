@@ -74,16 +74,19 @@ const SignUp = () => {
           justifyContent="center"
         >
           <Box 
-            borderWidth={1}
-            px={6}
+            px={8}
             py={8}
             width="fit-content"
+            minWidth="400px"
             maxWidth="700px"
+            minHeight="fit-content"  // 최소 높이 설정
+            height="auto"            // 높이 자동 조절
             borderRadius={20}
             textAlign="center"
             boxShadow="lg"
-            bg="white"
-            color="brand.black"
+            bg="black"
+            color="white"
+            mx="auto"
           >
             <Box p={8}>       
               <Heading size="2xl">Create an account</Heading>
@@ -168,11 +171,11 @@ const SignUp = () => {
                 </FormControl>
               </VStack>
 
-              <Button size="md" mt="20px">
-                회원 가입
+              <Button width={"90%"} mt="20px" p={6}>
+                Sign Up
               </Button>
 
-              <Text mt={4} fontSize="18px">이미 계정이 존재한다면? <Link as={RouterLink} to="/">로그인 하러가기</Link></Text>
+              <Text mt={4} fontSize="15px">이미 계정이 존재한다면? <Link as={RouterLink} to="/">로그인 하러가기</Link></Text>
 
             </Box>
           </Box>
