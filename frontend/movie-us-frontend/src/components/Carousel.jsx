@@ -16,7 +16,7 @@ const Carousel = ({ movies }) => {
       spaceBetween={30}
       slidesPerView={1} // 한 번에 보이는 슬라이드 수 조정
       autoplay={{
-        delay: 3000,
+        delay: 2000,
         disableOnInteraction: false,
       }}
       pagination={{ clickable: true }}

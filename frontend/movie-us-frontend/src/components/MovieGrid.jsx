@@ -44,31 +44,45 @@ const MovieGrid = ({ movies, title }) => {
           ref={swiperRef}
           modules={[Navigation]}
           navigation={false} // 기본 네비게이션 비활성화
-          slidesPerView={4}
+          slidesPerView={5}
           spaceBetween={"10px"}
           breakpoints={{
             320: {
-              slidesPerView: 1,
+              slidesPerView: 2,
               spaceBetween: 20,
             },
             700: {
-              slidesPerView: 2,
+              slidesPerView: 3,
               spaceBetween: 25,
             },
-            1100: {
-              slidesPerView: 3,
+            1280: {
+              slidesPerView: 4,
               spaceBetween: 10,
             },
-            1400: {
-              slidesPerView: 4,
+            1700: {
+              slidesPerView: 5,
               spaceBetween: "10px",
             },
           }}
         >
           {movies.map((movie) => (
             <SwiperSlide key={movie.id}>
-              <MovieBox>
-                <StyledImage src={movie.posterUrl} alt={movie.title} />
+              <MovieBox position="relative">
+                <StyledImage src={"https://image.tmdb.org/t/p/w500" + movie.posterPath} alt={movie.title} />
+                      {/* 좌측 하단 순위 표시 */}
+                <Box
+                  position="absolute"
+                  bottom="-10px"
+                  left="5px"
+                  color="white"
+                  fontWeight="extrabold"
+                  borderRadius="md"
+                  fontSize="4rem"
+                  fontFamily={"Noto Sans KR"}
+                  fontStyle={"italic"}
+                >
+                  {movie.id}
+                </Box>
                 <DescriptionBox>
                   <Heading as="h4" size="md" mb={10}>
                     {movie.title}
