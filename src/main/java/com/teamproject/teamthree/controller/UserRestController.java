@@ -20,6 +20,7 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/movies")
+@CrossOrigin(origins = "http://localhost:3000")
 public class UserRestController {
     private final UserService userService;
     private final UserDetailsService userDetailsService;
