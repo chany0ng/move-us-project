@@ -36,6 +36,12 @@ const theme = extendTheme({
           font: "NanumSquareRound",
           lineHeight: "normal",
         },
+        outline: {
+          bg: "brand.white",
+          color: "brand.black",
+          font: "NanumSquareRound",
+          lineHeight: "normal",
+        },
       },
     },
   },

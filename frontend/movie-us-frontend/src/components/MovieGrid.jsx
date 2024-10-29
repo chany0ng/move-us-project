@@ -1,41 +1,166 @@
-import { Box, SimpleGrid, Image, Heading, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Image,
+  Heading,
+  IconButton,
+  Button,
+  Flex,
+} from "@chakra-ui/react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation } from "swiper/modules";
+import styled from "styled-components";
+import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
+import { useRef } from "react";
+
+// Swiper 스타일 import
+import "swiper/css";
+import "swiper/css/navigation";
 
 const MovieGrid = ({ movies, title }) => {
+  const swiperRef = useRef(null);
+
   return (
     <Box mb={5}>
-      <Heading fontSize="3xl" mb={5} color="white" textAlign="left">
+      <Heading
+        fontSize="2xl"
+        mb={3}
+        px="6%"
+        color="white"
+        fontFamily={"NanumSquareRound"}
+      >
         {title}
       </Heading>
-      <SimpleGrid
-        columns={[1, 2, 3, 4]}
-        min-width="100vw"
-        spacing={5}
-        mb={20}
-        borderRadius="xl"
-      >
-        {movies.map((movie) => (
-          <Box
-            key={movie.id}
-            bg="#3f3f42"
-            borderRadius="lg"
-            overflow="hidden"
-            transition="transform 0.2s"
-            _hover={{ transform: "scale(1.05)" }}
-            width="245px" // 또는 원하는 너비 설정
-            height="342px" // 원하는 높이로 설정
-          >
-            <Image
-              src={movie.posterUrl}
-              alt={movie.title}
-              // objectFit="cover"
-              height="100%" // 원하는 높이로 설정
-              width="100%" // 너비를 100%로 설정
-            />
-          </Box>
-        ))}
-      </SimpleGrid>
+      <SwiperContainer>
+        <NavigationButton
+          icon={<ChevronLeftIcon w={8} h={8} />}
+          aria-label="Previous slides"
+          position="absolute"
+          left="0"
+          onClick={() => swiperRef.current?.swiper.slidePrev()}
+          color="var(--primary-color)"
+        />
+
+        <StyledSwiper
+          ref={swiperRef}
+          modules={[Navigation]}
+          navigation={false} // 기본 네비게이션 비활성화
+          slidesPerView={4}
+          spaceBetween={"10px"}
+          breakpoints={{
+            320: {
+              slidesPerView: 1,
+              spaceBetween: 20,
+            },
+            700: {
+              slidesPerView: 2,
+              spaceBetween: 25,
+            },
+            1100: {
+              slidesPerView: 3,
+              spaceBetween: 10,
+            },
+            1400: {
+              slidesPerView: 4,
+              spaceBetween: "10px",
+            },
+          }}
+        >
+          {movies.map((movie) => (
+            <SwiperSlide key={movie.id}>
+              <MovieBox>
+                <StyledImage src={movie.posterUrl} alt={movie.title} />
+                <DescriptionBox>
+                  <Heading as="h4" size="md" mb={10}>
+                    {movie.title}
+                  </Heading>
+                  <Flex>
+                    <Button
+                      colorScheme="brand.primary"
+                      variant={"outline"}
+                      mr={5}
+                    >
+                      상세정보
+                    </Button>
+                    <Button colorScheme="teal">예매하기</Button>
+                  </Flex>
+                </DescriptionBox>
+              </MovieBox>
+            </SwiperSlide>
+          ))}
+        </StyledSwiper>
+
+        <NavigationButton
+          icon={<ChevronRightIcon w={8} h={8} />}
+          aria-label="Next slides"
+          position="absolute"
+          right="0"
+          onClick={() => swiperRef.current?.swiper.slideNext()}
+          color="var(--primary-color)"
+        />
+      </SwiperContainer>
     </Box>
   );
 };
 
 export default MovieGrid;
+
+// styled-components
+const StyledSwiper = styled(Swiper)`
+  width: 100%;
+`;
+
+const MovieBox = styled(Box)`
+  border-radius: 8px;
+  overflow: hidden;
+  width: 245px;
+  height: 352px;
+  transition: transform 0.2s;
+  position: relative;
+  &:hover {
+    transform: translateY(-10px);
+  }
+`;
+
+const StyledImage = styled(Image)`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+`;
+const DescriptionBox = styled(Box)`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  display: flex; /* flexbox 사용하여 내용 정렬 */
+  flex-direction: column; /* 세로 방향으로 정렬 */
+  justify-content: center; /* 수직 중앙 정렬 */
+  align-items: center; /* 수평 중앙 정렬 */
+  color: white; /* 텍스트 색상 */
+  opacity: 0; /* 기본적으로 숨김 */
+  transition: opacity 0.2s; /* opacity 변화 애니메이션 */
+
+  ${MovieBox}:hover & {
+    opacity: 1;
+    background-color: rgba(0, 0, 0, 0.7);
+  }
+`;
+const NavigationButton = styled(IconButton)`
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  border-radius: 50%;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.7) !important;
+  }
+`;
+
+const SwiperContainer = styled(Box)`
+  position: relative;
+  padding: 3% 6%;
+  margin-bottom: 3%;
+`;

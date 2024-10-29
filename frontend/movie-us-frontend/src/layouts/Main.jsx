@@ -11,7 +11,7 @@ const Main = ({ children }) => {
 
 const CustomMain = styled.main`
   min-height: 100vh;
-  padding: 15%;
+  padding: 10%;
   padding-top: 0%;
   padding-bottom: 300px;
 `;

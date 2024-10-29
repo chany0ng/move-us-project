@@ -8,6 +8,7 @@ import {
 import { Link as RouterLink } from "react-router-dom";
 import NavLink from "./NavLink";
 import { useEffect, useState } from "react";
+import { UnlockIcon } from "@chakra-ui/icons";
 
 const Navigator = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -33,6 +34,18 @@ const Navigator = () => {
       height={isScrolled ? "8vh" : "inherit"}
       transition="height 0.5s ease-in-out"
     >
+      <Flex
+        direction={"column"}
+        align={"center"}
+        position={"absolute"}
+        top="10px"
+        right="50px"
+      >
+        <UnlockIcon boxSize={"15px"} />{" "}
+        <a href="/" style={{ fontSize: "15px" }}>
+          로그인
+        </a>
+      </Flex>
       <Flex align="flex-end" justify="center" height="inherit" pb={"15px"}>
         {/* 왼쪽 메뉴 아이템들 */}
         <HStack spacing={32} flex="1" justify="flex-end">
@@ -58,8 +71,8 @@ const Navigator = () => {
 
         {/* 오른쪽 메뉴 아이템들 */}
         <HStack spacing={32} flex="1" justify="flex-start">
-          <NavLink to="/community">커뮤니티</NavLink>
-          <NavLink to="/mypage">마이페이지</NavLink>
+          <NavLink to="/community">리뷰</NavLink>
+          <NavLink to="/mypage">MY</NavLink>
         </HStack>
       </Flex>
     </Box>

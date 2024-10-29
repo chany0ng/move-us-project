@@ -38,6 +38,18 @@ const Carousel = ({ movies }) => {
               borderRadius="xl" // 모서리를 둥글게 처리
               objectFit="cover"
             />
+            <Box
+              sx={{
+                position: "absolute",
+                content: '""',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                height: "200px", // 그라데이션 높이
+                background:
+                  "linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, #18181B 75%, #18181B 100%)",
+              }}
+            />
           </Box>
         </SwiperSlide>
       ))}
