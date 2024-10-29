@@ -17,7 +17,7 @@ const MainPage = () => {
         <Main>
           <Flex direction={"column"}>
             <SearchBar />
-            <Box pb={5}>
+            <Box pb={20}>
               <Carousel movies={wideMovies} />
             </Box>
             <MovieGrid title="추천 영화" movies={testMovies} />
