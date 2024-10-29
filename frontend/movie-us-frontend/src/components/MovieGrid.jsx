@@ -44,23 +44,23 @@ const MovieGrid = ({ movies, title }) => {
           ref={swiperRef}
           modules={[Navigation]}
           navigation={false} // 기본 네비게이션 비활성화
-          slidesPerView={5}
+          slidesPerView={4}
           spaceBetween={"10px"}
           breakpoints={{
             320: {
-              slidesPerView: 2,
+              slidesPerView: 1,
               spaceBetween: 20,
             },
             700: {
-              slidesPerView: 3,
+              slidesPerView: 2,
               spaceBetween: 25,
             },
             1280: {
-              slidesPerView: 4,
+              slidesPerView: 3,
               spaceBetween: 10,
             },
-            1700: {
-              slidesPerView: 5,
+            1400: {
+              slidesPerView: 4,
               spaceBetween: "10px",
             },
           }}
