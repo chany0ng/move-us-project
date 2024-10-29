@@ -1,7 +1,12 @@
 import styled from "styled-components";
+import ScrollToTop from "../components/ScrollToTop";
 
 const Main = ({ children }) => {
-  return <CustomMain>{children}</CustomMain>;
+  return (
+    <CustomMain>
+      {children} <ScrollToTop />
+    </CustomMain>
+  );
 };
 
 const CustomMain = styled.main`

@@ -9,7 +9,7 @@ const Header = () => {
 };
 
 const CustomHeader = styled.header`
-  height: 12vh;
+  height: 15vh;
   display: flex;
   border-bottom: 1px solid var(--secondary-color);
 `;
