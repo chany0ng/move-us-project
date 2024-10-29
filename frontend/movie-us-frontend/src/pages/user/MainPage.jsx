@@ -16,7 +16,6 @@ const MainPage = () => {
       const response = await getData("http://localhost:8085/movies/moviesList");
       console.log(response.data); // response.data로 데이터를 출력합니다
       setMovies(response.data);
-
     } catch (error) {
       console.error("Error fetching data:", error);
     }

@@ -34,7 +34,7 @@ const Carousel = ({ movies }) => {
               src={movie.posterUrl}
               alt={movie.title}
               width="100%"
-              height="650px"
+              height="800px"
               borderRadius="xl" // 모서리를 둥글게 처리
               objectFit="cover"
             />
