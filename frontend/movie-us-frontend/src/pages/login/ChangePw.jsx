@@ -139,6 +139,7 @@ const ChangePw = () => {
                 p={6}
                 fontSize="24px"
                 fontWeight={"thin"}
+                fontFamily={"Pretendard"}
                 borderRadius={"8px"}
                 width="100%"
                 type="submit"
@@ -150,14 +151,14 @@ const ChangePw = () => {
             </form>
 
             <Text color={"gray"} textAlign={"left"} fontSize={"15px"}>
-              Movie us 회원이 아닌가요? &nbsp;
+              비밀번호가 생각이 나셨나요? &nbsp;
               <ChakraLink
                 as={RouterLink}
-                to="/signup"
+                to="/"
                 textDecoration="underline"
                 color="white"
               >
-                지금 가입하세요.
+                로그인
               </ChakraLink>
             </Text>
           </Flex>

@@ -110,7 +110,7 @@ const Index = () => {
                 fontWeight="bold"
                 fontSize={["xl", "2xl", "3xl", "4xl"]}
               >
-                Log in
+                로그인
               </Heading>
               <img
                 src={kakaoLargeLogin}
@@ -149,7 +149,7 @@ const Index = () => {
               <form onSubmit={handleSubmitHandler} style={{ width: "100%" }}>
                 <FormControl sx={{ mb: "15px" }} isInvalid={!isExist}>
                   <FormLabel fontSize="15px" color="gainsboro">
-                    Your Email address
+                    이메일
                   </FormLabel>
                   <CustomInput
                     type="email"
@@ -167,7 +167,7 @@ const Index = () => {
 
                 <FormControl isInvalid={isError}>
                   <FormLabel fontSize="15px" color="gainsboro">
-                    Your Password
+                    비밀번호
                   </FormLabel>
                   <CustomInput
                     type="password"
@@ -189,7 +189,7 @@ const Index = () => {
                       color="gainsboro"
                       onClick={changePasswordHandler}
                     >
-                      Forget Your Password
+                      비밀번호 찾기
                     </ChakraLink>
                   </Flex>
                 </FormControl>

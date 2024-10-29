@@ -41,7 +41,7 @@ const Navigator = () => {
         top="10px"
         right="50px"
       >
-        <UnlockIcon boxSize={"15px"} />{" "}
+        {/* <UnlockIcon boxSize={"15px"} />{" "} */}
         <a href="/" style={{ fontSize: "15px" }}>
           로그인
         </a>

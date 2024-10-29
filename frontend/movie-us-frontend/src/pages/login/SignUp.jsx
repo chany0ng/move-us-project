@@ -150,7 +150,7 @@ const SignUp = () => {
                   required
                 />
                 {errors.email && (
-                  <Text color="red.500" fontSize="sm" mt={1}>
+                  <Text color="red.500" fontSize="sm" mt={1} textAlign={"left"}>
                     {errors.email}
                   </Text>
                 )}
@@ -167,7 +167,7 @@ const SignUp = () => {
                   onChange={handlePhoneChange}
                 />
                 {errors.phone && (
-                  <Text color="red.500" fontSize="sm" mt={1}>
+                  <Text color="red.500" fontSize="sm" mt={1} textAlign={"left"}>
                     {errors.phone}
                   </Text>
                 )}

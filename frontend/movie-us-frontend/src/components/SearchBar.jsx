@@ -23,7 +23,7 @@ const SearchBar = ({ onSearch }) => {
           <SearchIcon color="gray.200" boxSize={5} mr={3} />
         </InputRightElement>
         <Input
-          placeholder="영화제목을 검색해보세요"
+          placeholder="영화 제목으로 검색하기"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           size="lg" // 입력 필드 크기 조정
