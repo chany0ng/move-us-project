@@ -10,9 +10,8 @@ import {
   Divider,
   FormControl,
   FormLabel,
-  // FormErrorMessage,
+  FormErrorMessage,
   Input,
-  // FormHelperText,
   Link as ChakraLink,
 } from "@chakra-ui/react";
 import { ChevronRightIcon, CheckIcon } from "@chakra-ui/icons";
@@ -233,7 +232,7 @@ export const BackGroundDiv = styled.div`
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
-  height: 100%;
+  min-height: 100%;
 `;
 
 export const CustomInput = styled(Input)`

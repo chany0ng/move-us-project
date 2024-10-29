@@ -51,7 +51,7 @@ const ChangePw = () => {
         <Box
           m={"0 auto"}
           bg="rgba(24, 24, 27, 0.8)"
-          h="80vh"
+          minH="70vh"
           w="35vw"
           borderRadius="20px"
         >
