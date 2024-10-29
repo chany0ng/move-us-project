@@ -1,10 +1,12 @@
 package com.teamproject.teamthree.service;
 
-import com.teamproject.teamthree.dto.UserReqDTO;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.teamproject.teamthree.dto.UserReqDTO;
 import com.teamproject.teamthree.dto.UserResDTO;
 import com.teamproject.teamthree.entity.UserEntity;
 import com.teamproject.teamthree.repository.UserRepository;
+import com.teamproject.teamthree.dto.UserReqDTO;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -19,40 +21,45 @@ import java.util.List;
 public class UserService {
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
-    private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-    
-    // runner를 통한 사용자 등록 메서드
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+    // Runner를 통한 사용자 등록 메서드
     public void registerUser(String userEmail, String userName, String userPhone, String plainPassword) {
-        // 비밀번호 해시 처리
         String hashedPassword = passwordEncoder.encode(plainPassword);
 
-        // 사용자 엔티티 생성
         UserEntity userEntity = new UserEntity();
         userEntity.setUserEmail(userEmail);
         userEntity.setUserName(userName);
         userEntity.setUserPw(hashedPassword);
         userEntity.setUserPhone(userPhone);
 
-        // 데이터베이스에 사용자 저장
         userRepository.save(userEntity);
     }
 
-    // 이메일 중복체크
+    // 이메일 중복 체크 메서드
     public boolean isEmailDuplicate(String email) {
         return userRepository.findByUserEmail(email).isPresent();
     }
 
+    // 사용자 추가 메서드
     @Transactional
     public UserResDTO addUser(UserReqDTO userReqDTO) {
-//        if(isEmailDuplicate((userReqDTO.getUserEmail()))) {
-//            throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
-//        }
+        if (isEmailDuplicate(userReqDTO.getUserEmail())) {
+            throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
+        }
+
+        String encryptedPassword = passwordEncoder.encode(userReqDTO.getUserPw());
+
         UserEntity userEntity = modelMapper.map(userReqDTO, UserEntity.class);
+        userEntity.setUserPw(encryptedPassword);
+        userEntity.setRole("USER");
+
         UserEntity saved = userRepository.save(userEntity);
 
         return modelMapper.map(saved, UserResDTO.class);
     }
 
+    // 사용자 목록 조회 메서드
     public List<UserResDTO> getUsers() {
         List<UserEntity> userEntityList = userRepository.findAll();
         return userEntityList.stream()
@@ -60,5 +67,62 @@ public class UserService {
                 .toList();
     }
 
+    public UserEntity saveOrUpdateUser(UserReqDTO userDTO) {
+        UserEntity user = userRepository.findByKakaoEmail(userDTO.getKakaoEmail())
+                .orElseGet(() -> {
+                    UserEntity newUser = new UserEntity();
+                    newUser.setUserName(userDTO.getUserName());
+                    newUser.setKakaoEmail(userDTO.getKakaoEmail());
+                    newUser.setUserPhone(userDTO.getUserPhone());
+                    return newUser;
+                });
 
+// 업데이트 로직
+        user.setUserName(userDTO.getUserName());
+        user.setUserPhone(userDTO.getUserPhone());
+
+        return userRepository.save(user);
+
+    }
+
+    // 카카오 로그인 사용자 정보 추출 메서드
+    public UserReqDTO extractKakaoUserInfo(String tokenResponse, String userInfoResponse) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode tokenNode = objectMapper.readTree(tokenResponse);
+            String accessToken = tokenNode.get("access_token").asText();
+
+            JsonNode userNode = objectMapper.readTree(userInfoResponse);
+            String email = userNode.get("kakao_account").get("email").asText();
+            String name = userNode.get("kakao_account").get("profile").get("nickname").asText();
+
+            String phoneNumber = userNode.get("kakao_account").get("phone_number").asText();
+            if (phoneNumber != null) {
+                phoneNumber = phoneNumber.replace("+82", "0").replaceAll("[^0-9]", "");
+                if (phoneNumber.length() == 11) {
+                    phoneNumber = phoneNumber.substring(0, 3) + "-" + phoneNumber.substring(3, 7) + "-" + phoneNumber.substring(7);
+                } else if (phoneNumber.length() == 10) {
+                    phoneNumber = phoneNumber.substring(0, 3) + "-" + phoneNumber.substring(3, 6) + "-" + phoneNumber.substring(6);
+                }
+            }
+
+            return new UserReqDTO(email, null, null, name, phoneNumber);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    // Access token 추출 메서드
+    public String extractAccessToken(String tokenResponse) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonNode = objectMapper.readTree(tokenResponse);
+            return jsonNode.get("access_token").asText();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

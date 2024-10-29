@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입</title>
+    <script>
+        function validatePassword() {
+            const password = document.getElementById("pw").value;
+            const confirmPassword = document.getElementById("confirm_password").value;
+            const message = document.getElementById("password-error");
+
+            if (password !== confirmPassword) {
+                message.style.color = "red";
+                message.textContent = "비밀번호가 일치하지 않습니다.";
+            } else {
+                message.style.color = "green";
+                message.textContent = "비밀번호가 일치합니다.";
+            }
+        }
+
+    </script>
+</head>
+<body>
+<h2>회원가입</h2>
+<form  action="#" th:action="@{/movies/signup}" th:object="${user}" method="post">
+
+    <label for="email">이메일:</label>
+    <input type="email" th:field="*{userEmail}" id="email" name="email">
+    <button type="button" onclick="#">중복확인</button>
+    <span th:if="${#fields.hasErrors('userEmail')}" th:errors="*{userEmail}"></span>
+    <br>
+
+    <label for="name">사용자 이름:</label>
+    <input type="text" th:field="*{userName}" id="name" name="name">
+    <span th:if="${#fields.hasErrors('userName')}" th:errors="*{userName}"></span>
+    <br>
+
+    <label for="pw">비밀번호:</label>
+    <input type="password" th:field="*{userPw}" id="pw" name="pw" onkeyup="validatePassword()">
+    <span th:if="${#fields.hasErrors('userPw')}" th:errors="*{userPw}"></span>
+    <br>
+
+    <label for="confirm_password">비밀번호 확인:</label>
+    <input type="password" id="confirm_password" name="confirm_password" onkeyup="validatePassword()">
+    <span id="password-error"></span>
+    <br>
+
+    <label for="phone">휴대폰 번호:</label>
+    <input type="text" th:field="*{userPhone}" id="phone" name="phone">
+    <span th:if="${#fields.hasErrors('userPhone')}" th:errors="*{userPhone}"></span>
+    <br>
+
+    <input type="submit" value="회원가입">
+</form>
+<p>이미 회원이신가요? <a href="/movies/loginform">로그인</a></p>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<head>
+    <meta charset="UTF-8">
+    <title>My Application</title>
+
+</head>
+<body>
+
+<header th:fragment="headerFragment">
+    <div class="container">
+        <div class="row justify-content">
+            <header class="d-flex flex-wrap justify-content-center py-3 border-bottom">
+                <ul class="nav nav-pills mt-4">
+                    <!-- 로그인 전 -->
+                    <div sec:authorize="isAnonymous()">
+                        <li class="nav-item"><a href="/movies/loginform" class="nav-link">로그인</a></li>
+                    </div>
+
+                    <!-- 로그인 후 -->
+                    <div sec:authorize="isAuthenticated()">
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">User ID : <span th:text="${session.userName}"></span></a>
+                        </li>
+                        <li class="nav-item"><a href="/movies/mypage" class="nav-link">마이페이지</a></li>
+                        <li class="nav-item"><button class="nav-link" onclick="location.href='/movies/logout'">Logout</button></li>
+                        <form action="/logout" method="post" style="display:inline;">
+                            <a href="https://kauth.kakao.com/oauth/logout?client_id=b065fbf13eab4a247d0e6aab61b49d88&logout_redirect_uri=http://localhost:8080/logout">
+<!--                                <img src="/kakao_login_large_wide.png">-->
+                                카카오로그아웃
+                            </a>
+                            </a>
+                        </form>
+                    </div>
+                </ul>
+            </header>
+        </div>
+    </div>
+</header>
+
+<nav class="container" id="template_nav">
+    <ul class="nav nav-pills nav-justified navbar navbar-expand-sm bg-light">
+        <li class="nav-item">
+            <a class="nav-link" href="/movies/index">Home</a>
+        </li>
+    </ul>
+</nav>
+
+
+</body>
+</html>

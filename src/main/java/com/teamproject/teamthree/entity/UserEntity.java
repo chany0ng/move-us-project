@@ -7,6 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 @Entity
 @Table(name = "users")
@@ -38,6 +39,8 @@ public class UserEntity {
     @Column(name = "update_dt", nullable = false)
     @UpdateTimestamp  // 엔터티가 수정될 때마다 업데이트 시간 자동 설정
     private LocalDateTime updateDt = LocalDateTime.now();
+
+    private String role;
 
 
 
