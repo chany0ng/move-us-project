@@ -18,6 +18,9 @@ import { ChevronRightIcon, CheckIcon } from "@chakra-ui/icons";
 import { Link as RouterLink } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { postData } from "../../api/axios";
+import { userStore } from "../../../store";
+
 const Index = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
@@ -44,13 +47,32 @@ const Index = () => {
       setIsExist(false);
     }
   };
+  const kakaoLoginHandler = () => {
+    window.location.href = "http://localhost:8080/kakao/login";
+  };
   const handleSubmitHandler = async (e) => {
     e.preventDefault();
     if (!email || !password) {
       alert("이메일과 비밀번호를 모두 입력해주세요!");
-    } else {
-      alert(email + "\n" + password);
-      // 로그인 API 호출
+      return;
+    }
+    // 로그인 API 호출
+    try {
+      const response = await postData("/api/movies/loginform", {
+        useremail: email,
+        password: password,
+      });
+      console.log(response);
+      // API 호출 성공 후 사용자 정보 zustand store에 저장 및 /main 이동
+      if (response.data) {
+        userStore.getState().setUser(response.data.user); // 사용자 정보 저장
+        navigate("/main");
+      } else {
+        alert("로그인에 실패했습니다. 다시 시도해주세요.");
+      }
+    } catch (error) {
+      console.error("로그인 오류:", error);
+      alert("로그인 중 문제가 발생했습니다. 다시 시도해주세요.");
     }
   };
   return (
@@ -114,6 +136,7 @@ const Index = () => {
               </Heading>
               <img
                 src={kakaoLargeLogin}
+                onClick={kakaoLoginHandler}
                 alt="카카오 로그인"
                 style={{ cursor: "pointer" }}
               />
