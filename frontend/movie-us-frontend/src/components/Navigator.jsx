@@ -9,6 +9,7 @@ import { Link as RouterLink } from "react-router-dom";
 import NavLink from "./NavLink";
 import { useEffect, useState } from "react";
 import { UnlockIcon } from "@chakra-ui/icons";
+import { userStore } from "./../../store";
 
 const Navigator = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -41,9 +42,9 @@ const Navigator = () => {
         top="10px"
         right="50px"
       >
-        {/* <UnlockIcon boxSize={"15px"} />{" "} */}
+        <UnlockIcon boxSize={"15px"} />{" "}
         <a href="/" style={{ fontSize: "15px" }}>
-          로그인
+          로그아웃
         </a>
       </Flex>
       <Flex align="flex-end" justify="center" height="inherit" pb={"15px"}>

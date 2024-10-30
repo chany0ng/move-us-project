@@ -14,7 +14,7 @@ import {
   Input,
   Link as ChakraLink,
 } from "@chakra-ui/react";
-import { ChevronRightIcon, CheckIcon } from "@chakra-ui/icons";
+import { ChevronRightIcon, CheckIcon, EmailIcon } from "@chakra-ui/icons";
 import { Link as RouterLink } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
@@ -212,7 +212,8 @@ const Index = () => {
                       비밀번호는 8자리 이상입니다.
                     </FormErrorMessage>
                   )}
-                  <Flex justify="flex-end" mt={2}>
+                  <Flex justify="flex-end" mt={2} align={"center"}>
+                    <EmailIcon boxSize={4} mr={1} />
                     <ChakraLink
                       textDecoration="underline"
                       fontWeight="thin"
