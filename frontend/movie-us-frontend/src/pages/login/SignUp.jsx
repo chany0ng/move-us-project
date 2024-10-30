@@ -14,8 +14,11 @@ import { useState } from "react";
 import { CheckIcon, CloseIcon } from "@chakra-ui/icons";
 import { Link as RouterLink } from "react-router-dom";
 import { CustomInput } from "./Index";
-
+import { postData } from "../../api/axios";
+import { useNavigate } from "react-router-dom";
 const SignUp = () => {
+  const navigate = useNavigate();
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
@@ -25,8 +28,8 @@ const SignUp = () => {
     phone: "",
   });
 
-  const handleSubmit = () => {
-    if (!email || !phone || !password || !passwordConfirm) {
+  const handleSubmit = async () => {
+    if (!name || !email || !phone || !password || !passwordConfirm) {
       alert("모든 필드를 입력해주세요.");
       return;
     }
@@ -52,8 +55,20 @@ const SignUp = () => {
       alert("비밀번호가 일치하지 않습니다.");
       return;
     }
-
-    console.log("회원가입 성공!");
+    try {
+      const response = await postData("/api/movies/signup", {
+        userName: name,
+        userEmail: email,
+        userPhone: phone,
+        userPw: password,
+      });
+      console.log(response);
+      alert("회원가입 성공!");
+      navigate("/");
+    } catch (error) {
+      console.error("회원가입 오류:", error);
+      alert("회원가입 중 문제가 발생했습니다. 다시 시도해주세요.");
+    }
   };
 
   // 비밀번호 유효성 검사 조건
@@ -139,6 +154,18 @@ const SignUp = () => {
             </Text>
 
             <VStack p={4} spacing={4} align="stretch">
+              <FormControl>
+                <FormLabel fontSize="15px">이름</FormLabel>
+                <CustomInput
+                  type="text"
+                  size={"lg"}
+                  fontSize={"md"}
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                />
+              </FormControl>
+
               <FormControl isInvalid={errors.email !== ""}>
                 <FormLabel fontSize="15px">이메일</FormLabel>
                 <CustomInput
