@@ -34,7 +34,7 @@ const Carousel = ({ movies }) => {
               src={movie.posterUrl}
               alt={movie.title}
               width="100%"
-              height="650px"
+              height="800px"
               borderRadius="xl" // 모서리를 둥글게 처리
               objectFit="cover"
             />
@@ -47,7 +47,7 @@ const Carousel = ({ movies }) => {
                 right: 0,
                 height: "200px", // 그라데이션 높이
                 background:
-                  "linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, #18181B 75%, #18181B 100%)",
+                  "linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, black 75%, black 100%)",
               }}
             />
           </Box>

@@ -3,7 +3,7 @@ import { createGlobalStyle } from "styled-components";
 const GlobalStyle = createGlobalStyle`
   :root {
     --primary-color: #F7CE46;  /* 메인 색상 */
-    --black-color: #18181B; // 검은색 대용 색상
+    --black-color: black; // 검은색 대용 색상
     --secondary-color: #D9D9D9; /* 보조 색상 */
     --brighter-color: #F8E8E1;    /* 밝은 색상 */
     --darker-color: #A6725C; /* 어두운 색상 */
