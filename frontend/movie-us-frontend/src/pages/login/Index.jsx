@@ -18,7 +18,7 @@ import { ChevronRightIcon, CheckIcon } from "@chakra-ui/icons";
 import { Link as RouterLink } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { postData } from "../../api/axios";
+import { getData, postData } from "../../api/axios";
 import { userStore } from "../../../store";
 
 const Index = () => {
@@ -36,15 +36,22 @@ const Index = () => {
       setIsError(false);
     }
   };
-  const changePasswordHandler = (e) => {
+  const changePasswordHandler = async (e) => {
     //todo email을 db에 user찾기를 한다
-    const a = true;
-    if (a) {
-      alert("해당 이메일에 비밀번호 변경 링크를 발송했습니다!");
-      setIsExist(true);
-    } else {
-      alert("존재하지 않는 이메일입니다.");
-      setIsExist(false);
+    if(email.trim().length === 0){
+      alert("이메일을 입력해주세요!");
+    }
+    try {
+      const response = await getData(`/api/movies/check-email/${email}`);
+      if(response.data.isDuplicated){
+        alert("해당 이메일에 비밀번호 변경 링크를 발송했습니다!");
+        setIsExist(true);
+      }else {
+        alert("존재하지 않는 이메일입니다.");
+        setIsExist(false);
+      }
+    } catch (error) {
+      console.error("Error checking email duplication:", error);
     }
   };
   const kakaoLoginHandler = () => {

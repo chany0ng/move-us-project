@@ -11,7 +11,7 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/change-pw" element={<ChangePw />} />
+          <Route path="/change-pw/:email" element={<ChangePw />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/main" element={<MainPage />} />
         </Routes>

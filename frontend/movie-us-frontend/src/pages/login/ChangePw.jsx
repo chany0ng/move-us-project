@@ -14,10 +14,12 @@ import { useState } from "react";
 import { CheckIcon, CloseIcon } from "@chakra-ui/icons";
 import { Link as RouterLink } from "react-router-dom";
 import { CustomInput } from "./Index";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { postData } from "../../api/axios";
 
 const ChangePw = () => {
   const navigate = useNavigate();
+  const { email } = useParams();
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
 
@@ -31,12 +33,18 @@ const ChangePw = () => {
     e.preventDefault();
     if (password.length < 8 || passwordConfirm.length < 8) {
       alert("비밀번호는 8자 이상이어야 합니다!");
+      return;
     } else if (password !== passwordConfirm) {
       alert("비밀번호 동일여부를 확인해주세요!");
-    } else {
-      alert(password + "\n" + passwordConfirm);
+      return;
+    }
+    try {
+      const response = await postData("/api/movies/passwordReset", {userEmail: email, userPw: password} );
+      console.log(response.data);
       navigate("/");
-      // 로그인 API 호출
+    } catch (error) {
+      console.error(error);
+      alert("비밀번호 변경 중 에러가 발생했습니다!");
     }
   };
   return (
