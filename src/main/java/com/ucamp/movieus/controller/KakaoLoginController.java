@@ -1,4 +1,4 @@
-//package com.teamproject.teamthree.controller;
+package com.ucamp.movieus.controller;//package com.teamproject.teamthree.controller;
 //
 //import com.teamproject.teamthree.dto.UserReqDTO;
 //import com.teamproject.teamthree.service.UserService;

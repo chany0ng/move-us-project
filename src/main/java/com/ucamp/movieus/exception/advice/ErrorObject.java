@@ -1,4 +1,4 @@
-package com.teamproject.teamthree.exception.advice;
+package com.ucamp.movieus.exception.advice;
 
 import lombok.Data;
 

@@ -1,12 +1,11 @@
-package com.teamproject.teamthree.service;
+package com.ucamp.movieus.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.teamproject.teamthree.dto.UserReqDTO;
-import com.teamproject.teamthree.dto.UserResDTO;
-import com.teamproject.teamthree.entity.UserEntity;
-import com.teamproject.teamthree.repository.UserRepository;
-import com.teamproject.teamthree.dto.UserReqDTO;
+import com.ucamp.movieus.dto.UserReqDTO;
+import com.ucamp.movieus.dto.UserResDTO;
+import com.ucamp.movieus.entity.UserEntity;
+import com.ucamp.movieus.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;

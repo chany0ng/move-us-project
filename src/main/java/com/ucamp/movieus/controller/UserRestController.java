@@ -1,8 +1,9 @@
-package com.teamproject.teamthree.controller;
+package com.ucamp.movieus.controller;
 
-import com.teamproject.teamthree.dto.UserReqDTO;
-import com.teamproject.teamthree.dto.UserReqFormDTO;
-import com.teamproject.teamthree.service.UserService;
+import com.ucamp.movieus.dto.UserLoginDto;
+import com.ucamp.movieus.dto.UserReqDTO;
+import com.ucamp.movieus.dto.UserReqFormDTO;
+import com.ucamp.movieus.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -20,7 +21,7 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/movies")
-@CrossOrigin(origins = "http://localhost:3000")
+//@CrossOrigin(origins = "http://localhost:3000")
 public class UserRestController {
     private final UserService userService;
     private final UserDetailsService userDetailsService;
@@ -42,10 +43,12 @@ public class UserRestController {
         return ResponseEntity.ok("로그인 페이지"); // 로그인 페이지 접근 가능 메시지
     }
 
+
     @PostMapping("/login")
-    public String login(@RequestParam String useremail, @RequestParam String password, Model model) {
+    public String login(@RequestBody UserLoginDto userLoginDto, Model model) {
+        System.out.println(userLoginDto.getUserPw());
         // 로그인 처리 로직
-        return "redirect:/movies/index"; // 로그인 후 리다이렉트할 페이지
+        return ("성공"); // 로그인 후 리다이렉트할 페이지
     }
 
 
@@ -76,6 +79,7 @@ public class UserRestController {
 
     @PostMapping("/signup")
     public ResponseEntity<String> addUser(@Valid @RequestBody UserReqDTO userReqDTO) {
+        System.out.println(userReqDTO);
         userService.addUser(userReqDTO);
         return ResponseEntity.ok("회원가입이 완료되었습니다. 로그인 해주세요."); // 성공 메시지 반환
     }

@@ -1,4 +1,4 @@
-//package com.teamproject.teamthree.config;
+package com.ucamp.movieus.config;//package com.teamproject.teamthree.config;
 //
 //import org.springframework.context.annotation.Bean;
 //import org.springframework.context.annotation.Configuration;

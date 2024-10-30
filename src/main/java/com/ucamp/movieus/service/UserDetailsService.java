@@ -1,7 +1,7 @@
-package com.teamproject.teamthree.service;
+package com.ucamp.movieus.service;
 
-import com.teamproject.teamthree.entity.UserEntity;
-import com.teamproject.teamthree.repository.UserRepository;
+import com.ucamp.movieus.entity.UserEntity;
+import com.ucamp.movieus.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;

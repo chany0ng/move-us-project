@@ -1,4 +1,4 @@
-package com.teamproject.teamthree.dto;
+package com.ucamp.movieus.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;

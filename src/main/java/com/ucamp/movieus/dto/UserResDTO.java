@@ -1,4 +1,4 @@
-package com.teamproject.teamthree.dto;
+package com.ucamp.movieus.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;

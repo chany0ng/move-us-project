@@ -1,4 +1,4 @@
-package com.teamproject.teamthree.exception;
+package com.ucamp.movieus.exception;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;

@@ -1,4 +1,4 @@
-package com.teamproject.teamthree.config;
+package com.ucamp.movieus.config;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
