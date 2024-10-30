@@ -5,9 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ucamp.movieus.dto.UserReqDTO;
 import com.ucamp.movieus.dto.UserResDTO;
 import com.ucamp.movieus.entity.UserEntity;
+import com.ucamp.movieus.exception.BusinessException;
 import com.ucamp.movieus.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -123,5 +126,23 @@ public class UserService {
             e.printStackTrace();
             return null;
         }
+    }
+
+    /////
+    public Boolean checkEmailDuplication(String email) {
+        return userRepository.getByUserEmail(email).isPresent();
+    }
+
+    public void passwordReset(String email, String newPassword) {
+        UserEntity user = userRepository.findByUserEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with email: " + email));
+        user.setUserPw(newPassword); // 비밀번호 업데이트
+    }
+
+    public UserResDTO getUser(String email){
+        return userRepository.findByUserEmail(email)
+                .map(user -> modelMapper.map(user, UserResDTO.class)).orElseThrow(
+                        () -> new BusinessException("User not Found", HttpStatus.NOT_FOUND)
+                );
     }
 }
