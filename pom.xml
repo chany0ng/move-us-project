@@ -8,10 +8,7 @@
 		<version>3.3.5</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.ucamp</groupId>
-	<artifactId>movieus</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>movieus</name>
 	<description>Demo project for Spring Boot</description>
 	<url/>
 	<licenses>
@@ -90,9 +87,6 @@
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-core</artifactId>
 		</dependency>
-
-
-
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>
