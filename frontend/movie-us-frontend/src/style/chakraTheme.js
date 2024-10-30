@@ -18,7 +18,7 @@ const theme = extendTheme({
     brand: {
       primary: "#F7CE46", // 원하는 버튼 색상
       primaryHover: "#D1A832",
-      black: "#18181B",
+      black: "black",
       white: "#FFFFFF",
       light: "#F8E8E1",
       dark: "#A6725C",

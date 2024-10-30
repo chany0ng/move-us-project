@@ -48,6 +48,7 @@ const Index = () => {
     }
   };
   const kakaoLoginHandler = () => {
+    console.log("hi");
     window.location.href = "http://localhost:8080/kakao/login";
   };
   const handleSubmitHandler = async (e) => {
@@ -58,9 +59,9 @@ const Index = () => {
     }
     // 로그인 API 호출
     try {
-      const response = await postData("/api/movies/loginform", {
-        useremail: email,
-        password: password,
+      const response = await postData("/api/movies/login", {
+        userEmail: email,
+        userPw: password,
       });
       console.log(response);
       // API 호출 성공 후 사용자 정보 zustand store에 저장 및 /main 이동

@@ -18,6 +18,7 @@ import { postData } from "../../api/axios";
 import { useNavigate } from "react-router-dom";
 const SignUp = () => {
   const navigate = useNavigate();
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
@@ -28,7 +29,7 @@ const SignUp = () => {
   });
 
   const handleSubmit = async () => {
-    if (!email || !phone || !password || !passwordConfirm) {
+    if (!name || !email || !phone || !password || !passwordConfirm) {
       alert("모든 필드를 입력해주세요.");
       return;
     }
@@ -56,6 +57,7 @@ const SignUp = () => {
     }
     try {
       const response = await postData("/api/movies/signup", {
+        userName: name,
         userEmail: email,
         userPhone: phone,
         userPw: password,
@@ -152,6 +154,18 @@ const SignUp = () => {
             </Text>
 
             <VStack p={4} spacing={4} align="stretch">
+              <FormControl>
+                <FormLabel fontSize="15px">이름</FormLabel>
+                <CustomInput
+                  type="text"
+                  size={"lg"}
+                  fontSize={"md"}
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                />
+              </FormControl>
+
               <FormControl isInvalid={errors.email !== ""}>
                 <FormLabel fontSize="15px">이메일</FormLabel>
                 <CustomInput
