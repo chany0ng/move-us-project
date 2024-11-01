@@ -1,82 +1,75 @@
+import { Box, Text, Link, Stack, HStack, VStack } from "@chakra-ui/react";
 import styled from "styled-components";
-import { Link } from "react-router-dom";
-
 const Footer = () => {
   return (
-    <CustomFooter>
-      <ContentWrapper>
-        <MovieusLogo>
-          <Link to="/main" style={{ textDecoration: "none" }}>
-            <h2>Movie us</h2>
+    <FooterContainer as="footer">
+      <Stack
+        direction={["column", "row"]}
+        spacing={8}
+        justify="space-between"
+        maxW="1200px"
+        margin="0 auto"
+        padding="10px"
+      >
+        {/* Left Section */}
+        <VStack align="start">
+          <Text fontSize="2xl" fontWeight="bold" color="brand.primary">
+            Movie us
+          </Text>
+          <Text>© 2024 Movie us All rights reserved.</Text>
+          <Text>Project by U-CAMP Team 3</Text>
+        </VStack>
+
+        {/* Middle Section (Quick Links) */}
+        <VStack align="start">
+          <Text fontSize="lg" fontWeight="bold">
+            Quick Links
+          </Text>
+          <Link href="/main" color="#D9D9D9">
+            홈 화면
           </Link>
-          <p>© 2024 Movie us All rights reserved.</p>
-          <p>Project by U-CAMP Team 3</p>
-        </MovieusLogo>
-        <SocialMediaIcons>
-          <a
-            href="https://facebook.com"
+          <Link href="/" color="#D9D9D9">
+            로그인
+          </Link>
+          <Link href="/signup" color="#D9D9D9">
+            회원가입
+          </Link>
+          <Link href="/terms" color="#D9D9D9">
+            Terms of Service
+          </Link>
+        </VStack>
+
+        {/* Right Section (Contact & Social Media) */}
+        <VStack align="start">
+          <Text fontSize="lg" fontWeight="bold">
+            Contact & Development
+          </Text>
+          <Text>
+            <Link
+              href="https://github.com/chany0ng/move-us-project"
+              target="_blank"
+              color="#D9D9D9"
+            >
+              Github
+            </Link>
+          </Text>
+          <Link
+            href="https://developer.themoviedb.org/reference/intro/getting-started"
             target="_blank"
-            rel="noopener noreferrer"
+            color="#D9D9D9"
           >
-            Facebook
-          </a>
-          <a
-            href="https://twitter.com"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Twitter
-          </a>
-          <a
-            href="https://instagram.com"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Instagram
-          </a>
-        </SocialMediaIcons>
-      </ContentWrapper>
-    </CustomFooter>
+            API Reference
+          </Link>
+        </VStack>
+      </Stack>
+    </FooterContainer>
   );
 };
 
-const CustomFooter = styled.footer`
-  height: 20vh;
-  background-color: #1f1f1f;
-  color: #ffffff;
+const FooterContainer = styled(Box)`
+  background-color: #333;
+  color: #fff;
   padding: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
-const ContentWrapper = styled.div`
-  width: 100%;
-  max-width: 1200px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`;
-
-const MovieusLogo = styled.div`
-  h2 {
-    margin: 0;
-    font-size: 1.5rem;
-    color: #f7ce46;
-    font-weight: bold;
-  }
-`;
-
-const SocialMediaIcons = styled.div`
-  a {
-    color: #ffffff;
-    margin: 0 10px;
-    text-decoration: none;
-
-    &:hover {
-      text-decoration: underline;
-    }
-  }
 `;
 
 export default Footer;
