@@ -1,7 +1,11 @@
 import avatar from "../images/avartar.jpg";
 import devil from "../images/DeliverUsFromEvil_EntertainmentMedia_09.jpg";
+import April from "../images/April.jpg";
 import beast from "../images/fantasticbeasts.jpg";
 import lalaland from "../images/lalaland.jpg";
+import deadline from "../images/Deadline.jpg";
+import minutes from "../images/Minutes.jpg";
+
 export const testMovies = [
   {
     id: 1,
@@ -70,7 +74,7 @@ export const wideMovies = [
     id: 2,
     title: "블레이드 러너 2049",
     englishTitle: "Blade Runner 2049",
-    posterUrl: avatar,
+    posterUrl: devil,
     releaseDate: "2017-10-03",
     rating: 4.4,
     genre: ["SF", "드라마", "액션"],
@@ -79,7 +83,7 @@ export const wideMovies = [
     id: 3,
     title: "1917",
     englishTitle: "1917",
-    posterUrl: beast,
+    posterUrl: devil,
     releaseDate: "2019-12-25",
     rating: 4.3,
     genre: ["전쟁", "드라마", "액션"],
@@ -88,7 +92,16 @@ export const wideMovies = [
     id: 4,
     title: "매드 맥스: 분노의 도로",
     englishTitle: "Mad Max: Fury Road",
-    posterUrl: lalaland,
+    posterUrl: April,
+    releaseDate: "2015-05-14",
+    rating: 4.6,
+    genre: ["액션", "모험", "SF"],
+  },
+  {
+    id: 5,
+    title: "매드 맥스: 분노의 도로",
+    englishTitle: "Mad Max: Fury Road",
+    posterUrl: deadline,
     releaseDate: "2015-05-14",
     rating: 4.6,
     genre: ["액션", "모험", "SF"],
