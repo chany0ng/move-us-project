@@ -5,6 +5,7 @@ import beast from "../images/fantasticbeasts.jpg";
 import lalaland from "../images/lalaland.jpg";
 import deadline from "../images/Deadline.jpg";
 import minutes from "../images/Minutes.jpg";
+import oppenheimer from "../images/oppenheimer.jpg";
 
 export const testMovies = [
   {
@@ -64,8 +65,7 @@ export const wideMovies = [
     id: 1,
     title: "듄",
     englishTitle: "Dune",
-    posterUrl:
-      "https://image.tmdb.org/t/p/original/jYEW5xZkZk2WTrdbMGAPFuBqbDc.jpg",
+    posterUrl: oppenheimer,
     releaseDate: "2021-10-20",
     rating: 4.5,
     genre: ["SF", "모험", "드라마"],
@@ -83,7 +83,7 @@ export const wideMovies = [
     id: 3,
     title: "1917",
     englishTitle: "1917",
-    posterUrl: devil,
+    posterUrl: minutes,
     releaseDate: "2019-12-25",
     rating: 4.3,
     genre: ["전쟁", "드라마", "액션"],
