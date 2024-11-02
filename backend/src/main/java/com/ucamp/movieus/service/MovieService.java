@@ -4,6 +4,7 @@ import com.ucamp.movieus.dto.TMDBResponse;
 import com.ucamp.movieus.entity.Movie;
 import com.ucamp.movieus.repository.MovieRepository;
 import jakarta.annotation.PostConstruct;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -89,5 +90,10 @@ public class MovieService {
         }
 
         return allMovies; // 모든 영화 리스트 반환
+    }
+
+    public Movie getMovie(Long id) {
+        return movieRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Movie not found with ID: " + id));
     }
 }
