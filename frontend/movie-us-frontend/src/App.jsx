@@ -3,7 +3,8 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Index from "./pages/login/Index";
 import ChangePw from "./pages/login/ChangePw";
 import SignUp from "./pages/login/SignUp";
-import MainPage from "./pages/user/MainPage";
+import MainPage from "./pages/MainPage";
+import Main from './layouts/Main';
 function App() {
   return (
     <>
@@ -13,6 +14,7 @@ function App() {
           <Route path="/" element={<Index />} />
           <Route path="/change-pw/:email" element={<ChangePw />} />
           <Route path="/signup" element={<SignUp />} />
+
           <Route path="/main" element={<MainPage />} />
         </Routes>
       </Router>

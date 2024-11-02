@@ -10,11 +10,12 @@ const NavLink = ({ to, children }) => {
       fontSize={"lg"}
       fontFamily={"Noto Sans KR"}
       fontWeight={"bold"}
+      transition="all 0.3s ease-in-out" // 모든 변화에 트랜지션 추가
       _hover={{
         color: "brand.primary",
         textDecoration: "underline",
-        textUnderlineOffset: "10px",
-        textDecorationThickness: "3px",
+        textUnderlineOffset: "8px",
+        textDecorationThickness: "2px",
       }}
     >
       {children}

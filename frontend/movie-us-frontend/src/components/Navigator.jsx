@@ -33,7 +33,7 @@ const Navigator = () => {
       bg={"brand.black"}
       borderBottom="1px solid white"
       height={isScrolled ? "8vh" : "inherit"}
-      transition="height 0.5s ease-in-out"
+      transition="height 0.6s ease-in-out"
     >
       <Flex
         direction={"column"}
@@ -50,8 +50,8 @@ const Navigator = () => {
       <Flex align="flex-end" justify="center" height="inherit" pb={"15px"}>
         {/* 왼쪽 메뉴 아이템들 */}
         <HStack spacing={32} flex="1" justify="flex-end">
-          <NavLink to="/movies">영화</NavLink>
-          <NavLink to="/ticket">예매</NavLink>
+          <NavLink to="/movies">전체 영화</NavLink>
+          <NavLink to="/ticketing">영화 예매</NavLink>
         </HStack>
 
         {!isScrolled ? ( // 스크롤 여부에 따라 로고 표시 여부 결정
@@ -61,19 +61,37 @@ const Navigator = () => {
               to="/main"
               _hover={{ textDecoration: "none" }}
             >
-              <Heading size="3xl" color="brand.primary">
+              <Heading
+                size="3xl"
+                color="brand.primary"
+                fontFamily="Georgia, serif"
+              >
                 Movie us
               </Heading>
             </ChakraLink>
           </Box>
         ) : (
-          <Box px={16}></Box>
+          <Box px={16}>
+            <ChakraLink
+              as={RouterLink}
+              to="/main"
+              _hover={{ textDecoration: "none" }}
+            >
+              <Heading
+                size="xl"
+                color="brand.primary"
+                fontFamily="Georgia, serif"
+              >
+                Movie us
+              </Heading>
+            </ChakraLink>
+          </Box>
         )}
 
         {/* 오른쪽 메뉴 아이템들 */}
         <HStack spacing={32} flex="1" justify="flex-start">
-          <NavLink to="/community">리뷰</NavLink>
-          <NavLink to="/mypage">MY</NavLink>
+          <NavLink to="/community/reviews">커뮤니티</NavLink>
+          <NavLink to="/mypage/myinfo">마이페이지</NavLink>
         </HStack>
       </Flex>
     </Box>
