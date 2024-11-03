@@ -8,8 +8,8 @@ import {
 import { Link as RouterLink } from "react-router-dom";
 import NavLink from "./NavLink";
 import { useEffect, useState } from "react";
-import { UnlockIcon } from "@chakra-ui/icons";
 import { userStore } from "./../../store";
+import MyMenu from "./MyMenu";
 
 const Navigator = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -39,18 +39,15 @@ const Navigator = () => {
         direction={"column"}
         align={"center"}
         position={"absolute"}
-        top="10px"
-        right="50px"
+        top="20%"
+        right="1%"
       >
-        <UnlockIcon boxSize={"15px"} />{" "}
-        <a href="/" style={{ fontSize: "15px" }}>
-          로그아웃
-        </a>
+        <MyMenu />
       </Flex>
       <Flex align="flex-end" justify="center" height="inherit" pb={"15px"}>
         {/* 왼쪽 메뉴 아이템들 */}
         <HStack spacing={32} flex="1" justify="flex-end">
-          <NavLink to="/movies">전체 영화</NavLink>
+          <NavLink to="/movies">영화 조회</NavLink>
           <NavLink to="/ticketing">영화 예매</NavLink>
         </HStack>
 
@@ -90,8 +87,8 @@ const Navigator = () => {
 
         {/* 오른쪽 메뉴 아이템들 */}
         <HStack spacing={32} flex="1" justify="flex-start">
-          <NavLink to="/community/reviews">커뮤니티</NavLink>
-          <NavLink to="/mypage/myinfo">마이페이지</NavLink>
+          <NavLink to="/community/movie-reviews">커뮤니티</NavLink>
+          <NavLink to="/my-page/user-info">마이페이지</NavLink>
         </HStack>
       </Flex>
     </Box>
