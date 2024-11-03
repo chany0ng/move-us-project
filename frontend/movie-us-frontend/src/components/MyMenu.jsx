@@ -61,7 +61,9 @@ const MyMenu = () => {
                   bg: "#464646",
                 },
               }}
-              onClick={() => navigate("/my-page/user-reservation-history")}
+              onClick={() =>
+                navigate("/my-page/activity/user-reservation-history")
+              }
             >
               내 예매 내역
             </MenuItem>
@@ -75,7 +77,7 @@ const MyMenu = () => {
                   bg: "#464646",
                 },
               }}
-              onClick={() => navigate("/my-page/user-review-history")}
+              onClick={() => navigate("/my-page/activity/user-review-history")}
             >
               내가 작성한 리뷰
             </MenuItem>

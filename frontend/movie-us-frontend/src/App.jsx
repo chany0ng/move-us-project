@@ -34,17 +34,17 @@ function App() {
             <Route path="/movie-detail/:id" element={<MovieDetail />} />
             <Route path="/community/movie-reviews" element={<MovieReviews />} />
             <Route path="/community/notice" element={<Notice />} />
-            <Route
-              path="/my-page/user-liked-movies"
-              element={<UserLikedMovies />}
-            />
             <Route path="/my-page/user-info" element={<UserInfo />} />
             <Route
-              path="/my-page/user-reservation-history"
+              path="/my-page/activity/user-liked-movies"
+              element={<UserLikedMovies />}
+            />
+            <Route
+              path="/my-page/activity/user-reservation-history"
               element={<UserReservationHistory />}
             />
             <Route
-              path="/my-page/user-review-history"
+              path="/my-page/activity/user-review-history"
               element={<UserReviewHistory />}
             />
             <Route path="/ticketing" element={<MovieTicketing />} />
