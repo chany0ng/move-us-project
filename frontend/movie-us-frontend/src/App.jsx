@@ -4,7 +4,8 @@ import Index from "./pages/login/Index";
 import ChangePw from "./pages/login/ChangePw";
 import SignUp from "./pages/login/SignUp";
 import MainPage from "./pages/MainPage";
-import Main from './layouts/Main';
+import Layout from "./layouts/Layout";
+
 function App() {
   return (
     <>
@@ -15,7 +16,10 @@ function App() {
           <Route path="/change-pw/:email" element={<ChangePw />} />
           <Route path="/signup" element={<SignUp />} />
 
-          <Route path="/main" element={<MainPage />} />
+          {/* Header/Footer Layout적용하는 페이지 */}
+          <Route element={<Layout />}>
+            <Route path="/main" element={<MainPage />} />
+          </Route>
         </Routes>
       </Router>
     </>
