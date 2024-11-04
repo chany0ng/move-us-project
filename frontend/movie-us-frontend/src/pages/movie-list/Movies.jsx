@@ -1,8 +1,55 @@
 import { Box, Flex, Heading, Text } from "@chakra-ui/react";
 import { AiFillFolder } from "react-icons/ai";
 import { Select } from "@chakra-ui/react";
-import { Tabs, TabList, TabPanels, Tab, TabPanel } from "@chakra-ui/react";
+import { Tabs, TabList, TabPanels, Tab } from "@chakra-ui/react";
+import MovieTabPanel from "../../components/MovieTabPanel";
+import { getData } from "../../api/axios";
+import { useEffect, useState } from "react";
+import Toast from "./../../components/Toast";
+import { useToast } from "@chakra-ui/react";
+const GENRES = [
+  "All",
+  "드라마",
+  "액션",
+  "SF",
+  "공포",
+  "애니메이션",
+  "로맨스",
+  "코미디",
+];
+
 const Movies = () => {
+  const toast = useToast();
+  const [genre, setGenre] = useState("All");
+  const [sort, setSort] = useState("latest");
+  const [movies, setMovies] = useState([]);
+
+  useEffect(() => {
+    const fetchAndSetMovies = async () => {
+      const data = await fetchMovies(genre, sort);
+      setMovies(data);
+    };
+
+    fetchAndSetMovies();
+  }, [genre, sort]);
+
+  const fetchMovies = async (genre, sort) => {
+    try {
+      const response = await getData("/api/movies", {
+        params: { genre, sort },
+      });
+      return response.data;
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: `Failed to fetch movies / ${error}`,
+        status: "error",
+        duration: 2000,
+        isClosable: true,
+      });
+      console.error("Error fetching data:", error);
+    }
+  };
   return (
     <Flex direction="column" mt="100px" minHeight="inherit" p={5}>
       <Box color="white" p={5}>
@@ -12,7 +59,7 @@ const Movies = () => {
         </Flex>
         <Flex align={"center"} gap={3} pl={3} color="#cfcfcf">
           <Text fontSize={"lg"} fontWeight={"bold"}>
-            총 34건의 영화가 검색되었습니다
+            총 {movies?.length}건의 영화가 검색되었습니다
           </Text>
         </Flex>
       </Box>
@@ -28,39 +75,29 @@ const Movies = () => {
           top={0}
           right={5}
           _focus={{ border: "1px solid white", boxShadow: "none" }}
+          onChange={(e) => setSort(e.target.value)}
         >
-          <option value="option1">최신순</option>
-          <option value="option2">리뷰 많은 순</option>
-          <option value="option3">좋아요 많은 순</option>
+          <option value="lastest">최신순</option>
+          <option value="review">리뷰 많은 순</option>
+          <option value="like">좋아요 많은 순</option>
         </Select>
       </Box>
-
       <Box flex="1" border={"1px solid gray"} color="white" p={5}>
-        {/* <Grid templateColumns="repeat(auto-fill, minmax(200px, 1fr))" gap={6}>
-      {movies.map((movie) => (
-        <Box key={movie.id} borderWidth="1px" borderRadius="lg" overflow="hidden">
-          <Image src={movie.posterUrl} alt={movie.title} />
-          <Text p={2} fontWeight="bold" textAlign="center">{movie.title}</Text>
-        </Box>
-      ))}
-    </Grid> */}
-        <Tabs variant="soft-rounded" colorScheme="orange" size={"lg"}>
+        <Tabs
+          variant="soft-rounded"
+          colorScheme="green"
+          size={"md"}
+          onChange={(index) => setGenre(GENRES[index])}
+        >
           <TabList gap={10} justifyContent={"center"}>
-            <Tab width="10%">드라마</Tab>
-            <Tab width="10%">액션</Tab>
-            <Tab width="10%">SF</Tab>
-            <Tab width="10%">공포</Tab>
-            <Tab width="10%">애니메이션</Tab>
-            <Tab width="10%">로맨스</Tab>
-            <Tab width="10%">코미디</Tab>
+            {GENRES.map((genre) => (
+              <Tab key={genre} width="10%">
+                {genre}
+              </Tab>
+            ))}
           </TabList>
           <TabPanels>
-            <TabPanel>
-              <p>one!</p>
-            </TabPanel>
-            <TabPanel>
-              <p>two!</p>
-            </TabPanel>
+            <MovieTabPanel key={genre} movies={movies} />
           </TabPanels>
         </Tabs>
       </Box>
