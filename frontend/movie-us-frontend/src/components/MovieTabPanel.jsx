@@ -17,11 +17,12 @@ import styled from "styled-components";
 
 const MovieTabPanel = ({ movies, isLoading }) => {
   const navigate = useNavigate();
+  console.log(movies);
   return movies ? (
     <TabPanel minHeight="inherit">
       {isLoading ? (
         <SimpleGrid columns={[2, 3, 4, 5]} spacing={8} mt={5}>
-          {Array.from({ length: 12 }).map((_, index) => (
+          {Array.from({ length: 20 }).map((_, index) => (
             <Skeleton
               key={index}
               height="250px"

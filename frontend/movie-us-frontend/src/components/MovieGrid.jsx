@@ -6,14 +6,12 @@ import {
   Button,
   Flex,
   Skeleton,
-  SkeletonText,
 } from "@chakra-ui/react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import styled from "styled-components";
-import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
+import { ChevronLeftIcon, ChevronRightIcon, CloseIcon } from "@chakra-ui/icons";
 import { useRef } from "react";
-import { useNavigate } from "react-router-dom";
 
 // Swiper 스타일 import
 import "swiper/css";
@@ -21,7 +19,6 @@ import "swiper/css/navigation";
 
 const MovieGrid = ({ movies, title, isLoading }) => {
   const swiperRef = useRef(null);
-  const navigate = useNavigate();
 
   return (
     <Box mb={5}>
@@ -69,60 +66,76 @@ const MovieGrid = ({ movies, title, isLoading }) => {
             },
           }}
         >
-          {isLoading
-            ? // 로딩 중일 때 Skeleton 표시
-              Array.from({ length: 5 }).map((_, index) => (
-                <SwiperSlide key={index}>
+          {isLoading ? (
+            // 로딩 중일 때 Skeleton 표시
+            Array.from({ length: 5 }).map((_, index) => (
+              <SwiperSlide key={index}>
+                <Box
+                  position="relative"
+                  width="200px"
+                  height="300px"
+                  borderRadius="md"
+                  overflow="hidden"
+                >
+                  <Skeleton height="100%" />
+                </Box>
+              </SwiperSlide>
+            ))
+          ) : // 로딩 완료 후 실제 콘텐츠 표시
+          movies.length !== 0 ? (
+            movies.map((movie) => (
+              <SwiperSlide key={movie.id}>
+                <MovieBox position="relative">
+                  <StyledImage
+                    src={"https://image.tmdb.org/t/p/w500" + movie.posterPath}
+                    alt={movie.title}
+                  />
                   <Box
-                    position="relative"
-                    width="200px"
-                    height="300px"
+                    position="absolute"
+                    bottom="-10px"
+                    left="5px"
+                    color="white"
+                    fontWeight="extrabold"
                     borderRadius="md"
-                    overflow="hidden"
+                    fontSize="4rem"
+                    fontFamily={"Noto Sans KR"}
+                    fontStyle={"italic"}
                   >
-                    <Skeleton height="100%" />
+                    {movie.id}
                   </Box>
-                </SwiperSlide>
-              ))
-            : // 로딩 완료 후 실제 콘텐츠 표시
-              movies.map((movie) => (
-                <SwiperSlide key={movie.id}>
-                  <MovieBox position="relative">
-                    <StyledImage
-                      src={"https://image.tmdb.org/t/p/w500" + movie.posterPath}
-                      alt={movie.title}
-                    />
-                    <Box
-                      position="absolute"
-                      bottom="-10px"
-                      left="5px"
-                      color="white"
-                      fontWeight="extrabold"
-                      borderRadius="md"
-                      fontSize="4rem"
-                      fontFamily={"Noto Sans KR"}
-                      fontStyle={"italic"}
-                    >
-                      {movie.id}
-                    </Box>
-                    <DescriptionBox>
-                      <Heading as="h4" size="md" mb={10}>
-                        {movie.title}
-                      </Heading>
-                      <Flex>
-                        <Button
-                          colorScheme="brand.primary"
-                          variant={"outline"}
-                          mr={5}
-                        >
-                          상세정보
-                        </Button>
-                        <Button colorScheme="teal">예매하기</Button>
-                      </Flex>
-                    </DescriptionBox>
-                  </MovieBox>
-                </SwiperSlide>
-              ))}
+                  <DescriptionBox>
+                    <Heading as="h4" size="md" mb={10}>
+                      {movie.title}
+                    </Heading>
+                    <Flex>
+                      <Button
+                        colorScheme="brand.primary"
+                        variant={"outline"}
+                        mr={5}
+                      >
+                        상세정보
+                      </Button>
+                      <Button colorScheme="teal">예매하기</Button>
+                    </Flex>
+                  </DescriptionBox>
+                </MovieBox>
+              </SwiperSlide>
+            ))
+          ) : (
+            <Flex
+              justify={"center"}
+              align={"center"}
+              direction="column"
+              minHeight="inherit"
+              gap={5}
+            >
+              <CloseIcon color="red" />
+              <Heading fontSize="lg" fontWeight={"medium"}>
+                영화가 존재하지 않습니다!
+              </Heading>
+              <Button onClick={() => window.location.reload()}>새로고침</Button>
+            </Flex>
+          )}
         </StyledSwiper>
 
         <NavigationButton

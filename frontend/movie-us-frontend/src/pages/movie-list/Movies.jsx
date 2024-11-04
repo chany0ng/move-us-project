@@ -7,6 +7,7 @@ import { getData } from "../../api/axios";
 import { useEffect, useState } from "react";
 import { useToast } from "@chakra-ui/react";
 import { useLocation, useNavigate } from "react-router-dom";
+
 const GENRES = [
   "All",
   "드라마",
@@ -22,15 +23,22 @@ const Movies = () => {
   const toast = useToast();
   const navigate = useNavigate();
   const location = useLocation();
-  const [genre, setGenre] = useState("All");
-  const [sort, setSort] = useState("latest");
+
+  // URL 파라미터에서 초기값 설정
+  const initialGenre =
+    new URLSearchParams(location.search).get("genre") || "All";
+  const initialSort =
+    new URLSearchParams(location.search).get("sort") || "latest";
+
+  const [genre, setGenre] = useState(initialGenre);
+  const [sort, setSort] = useState(initialSort);
   const [movies, setMovies] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchAndSetMovies = async () => {
       const data = await fetchMovies(genre, sort);
-      setMovies(data.filter((movie) => movie.posterPath !== null));
+      setMovies(data?.filter((movie) => movie.posterPath !== null));
     };
 
     fetchAndSetMovies();
@@ -56,6 +64,7 @@ const Movies = () => {
       setIsLoading(false);
     }
   };
+
   const handleSortChange = (e) => {
     const newSort = e.target.value;
     setSort(newSort);
@@ -67,6 +76,7 @@ const Movies = () => {
     setGenre(newGenre);
     navigate(`?genre=${newGenre}&sort=${sort}`);
   };
+
   return (
     <Flex direction="column" mt="50px" minHeight="inherit" p={5}>
       <Box color="white" p={5}>
@@ -93,12 +103,14 @@ const Movies = () => {
           right={5}
           _focus={{ border: "1px solid white", boxShadow: "none" }}
           onChange={(e) => handleSortChange(e)}
+          value={sort}
         >
-          <option value="lastest">최신순</option>
+          <option value="latest">최신순</option>
           <option value="review">리뷰 많은 순</option>
           <option value="like">좋아요 많은 순</option>
         </Select>
       </Box>
+
       <Box flex="1" color="white" p={5}>
         <Tabs
           variant="soft-rounded"
@@ -106,6 +118,7 @@ const Movies = () => {
           size={"md"}
           onChange={(index) => handleTabChange(index)}
           minHeight="50vh"
+          index={GENRES.indexOf(genre)} // Tab의 초기 인덱스 설정
         >
           <TabList gap={10} justifyContent={"center"}>
             {GENRES.map((genre) => (
