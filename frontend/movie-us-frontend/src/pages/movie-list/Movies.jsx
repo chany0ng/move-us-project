@@ -53,7 +53,7 @@ const Movies = () => {
       return response.data;
     } catch (error) {
       toast({
-        title: "Error",
+        title: "영화 조회 Error",
         description: `Failed to fetch movies / ${error}`,
         status: "error",
         duration: 2000,

@@ -17,7 +17,7 @@ const MainPage = () => {
       setMovies(response.data);
     } catch (error) {
       toast({
-        title: "Error",
+        title: "메인 페이지 조회 Error",
         description: `Failed to fetch movies / ${error}`,
         status: "error",
         duration: 2000,
