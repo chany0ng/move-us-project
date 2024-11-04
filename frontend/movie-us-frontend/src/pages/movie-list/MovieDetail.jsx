@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 import {
   Box,
   Container,
@@ -13,11 +13,11 @@ import {
   Divider,
 } from "@chakra-ui/react";
 import { getData } from "../../api/axios";
-import netflixLogo from '../../assets/images/ott/Netflix.png';
-import tvingLogo from '../../assets/images/ott/Tving.png';
-import ReviewModal from '../../components/ReviewModal';
-import ReviewList from '../../components/ReviewList.jsx';
-import reviewsData from '../../assets/data/reviews.json';
+import netflixLogo from "../../assets/images/ott/Netflix.png";
+import tvingLogo from "../../assets/images/ott/Tving.png";
+import ReviewModal from "../../components/ReviewModal";
+import ReviewList from "../../components/ReviewList.jsx";
+import reviewsData from "../../assets/data/reviews.json";
 
 const MovieDetail = () => {
   const { movieId } = useParams();
@@ -28,13 +28,13 @@ const MovieDetail = () => {
   useEffect(() => {
     const fetchMovieDetail = async () => {
       try {
-        console.log('Fetching movie ID:', movieId);
+        console.log("Fetching movie ID:", movieId);
         const response = await getData(`/movies/${movieId}`);
-        console.log('API Response:', response);
+        console.log("API Response:", response);
         if (response && response.data) {
           setMovie(response.data);
         } else {
-          console.error('No data in response');
+          console.error("No data in response");
         }
       } catch (error) {
         console.error("Error fetching movie details:", error.response || error);
@@ -49,7 +49,7 @@ const MovieDetail = () => {
   useEffect(() => {
     // 리뷰 데이터 로드
     const movieReviews = reviewsData.reviews.filter(
-      review => review.movieId === parseInt(movieId)
+      (review) => review.movieId === parseInt(movieId)
     );
     setReviews(movieReviews);
   }, [movieId]);
@@ -62,10 +62,11 @@ const MovieDetail = () => {
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+    <div
+      style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
+    >
       <Container maxW="container.xl" flex="1" py={10}>
         <Flex direction={{ base: "column", md: "row" }} gap={8}>
-
           {/* 영화 정보 */}
           <VStack flex="2" align="start" spacing={4}>
             <Heading size="xl">{movie.title}</Heading>
@@ -74,7 +75,7 @@ const MovieDetail = () => {
               {/* <Text>장르: {movie.genre}</Text>
               <Text>러닝타임: {movie.runtime}분</Text> */}
             </HStack>
-            
+
             <Divider borderColor="#3F3F3F" />
 
             {/* OTT 링크 버튼 */}
@@ -90,12 +91,9 @@ const MovieDetail = () => {
                     target="_blank"
                     variant="ghost"
                     p={2}
+                    cursor="pointer"
                   >
-                    <Image 
-                      src={netflixLogo}
-                      alt="Netflix" 
-                      height="30px"
-                    />
+                    <Image src={netflixLogo} alt="Netflix" height="30px" />
                   </Button>
                 )}
                 {movie.ottLinks?.tving || (
@@ -105,17 +103,14 @@ const MovieDetail = () => {
                     target="_blank"
                     variant="ghost"
                     p={2}
+                    cursor="pointer"
                   >
-                    <Image 
-                      src={tvingLogo}
-                      alt="Tving" 
-                      height="30px"
-                    />
+                    <Image src={tvingLogo} alt="Tving" height="30px" />
                   </Button>
                 )}
               </HStack>
             </Box>
-                
+
             {/* 줄거리 */}
             <Box>
               <Text fontSize="lg" fontWeight="bold" mb={2}>
@@ -140,7 +135,7 @@ const MovieDetail = () => {
               <Text>{movie.director}</Text>
             </Box>
           </VStack>
-          
+
           {/* 영화 포스터 */}
           <Box flex="1" maxWidth="280px" mb={4}>
             <Image
@@ -152,14 +147,13 @@ const MovieDetail = () => {
               fallback={<Box>이미지를 불러올 수 없습니다.</Box>}
             />
             <Button
-            colorScheme="blue"
-            onClick={() => setIsReviewModalOpen(true)}
-            mt={4}
-            width="100%"
+              colorScheme="blue"
+              onClick={() => setIsReviewModalOpen(true)}
+              mt={4}
+              width="100%"
             >
-            리뷰 작성하기
+              리뷰 작성하기
             </Button>
-
           </Box>
         </Flex>
 
@@ -171,11 +165,10 @@ const MovieDetail = () => {
           </Flex>
           <ReviewList movieId={movieId} reviews={reviews} />
         </Box>
-
       </Container>
 
       {/* ReviewModal 컴포넌트 추가 */}
-      <ReviewModal 
+      <ReviewModal
         isOpen={isReviewModalOpen}
         onClose={handleCloseModal}
         movieId={movieId}
@@ -185,4 +178,4 @@ const MovieDetail = () => {
   );
 };
 
-export default MovieDetail; 
+export default MovieDetail;

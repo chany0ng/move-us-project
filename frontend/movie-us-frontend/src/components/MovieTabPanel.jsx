@@ -12,9 +12,11 @@ import {
   Button,
   Tooltip,
 } from "@chakra-ui/react";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 const MovieTabPanel = ({ movies, isLoading }) => {
+  const navigate = useNavigate();
   return movies ? (
     <TabPanel minHeight="inherit">
       {isLoading ? (
@@ -33,7 +35,13 @@ const MovieTabPanel = ({ movies, isLoading }) => {
       ) : (
         <Grid templateColumns="repeat(auto-fill, minmax(200px, 1fr))" gap={8}>
           {movies.map((movie) => (
-            <Box key={movie.id} borderRadius="lg" overflow="hidden">
+            <Box
+              key={movie.id}
+              borderRadius="lg"
+              overflow="hidden"
+              cursor="pointer"
+              onClick={() => navigate(`/movie-detail/${movie.id}`)}
+            >
               <Tooltip label={movie.title} hasArrow placement="top">
                 <StyledImage
                   src={"https://image.tmdb.org/t/p/w500" + movie.posterPath}
