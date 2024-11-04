@@ -1,10 +1,11 @@
 import styled from "styled-components";
-import ScrollToTop from "../components/ScrollToTop";
+import ScrollToTop from "../components/ScrollToTopButton";
+import { Outlet } from "react-router-dom";
 
-const Main = ({ children }) => {
+const Main = () => {
   return (
     <CustomMain>
-      {children} <ScrollToTop />
+      <Outlet /> <ScrollToTop />
     </CustomMain>
   );
 };

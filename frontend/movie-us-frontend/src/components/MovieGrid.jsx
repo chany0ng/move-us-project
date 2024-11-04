@@ -11,6 +11,7 @@ import { Navigation } from "swiper/modules";
 import styled from "styled-components";
 import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
 import { useRef } from "react";
+import { useNavigate } from "react-router-dom";
 
 // Swiper 스타일 import
 import "swiper/css";
@@ -18,6 +19,7 @@ import "swiper/css/navigation";
 
 const MovieGrid = ({ movies, title }) => {
   const swiperRef = useRef(null);
+  const navigate = useNavigate();
 
   return (
     <Box mb={5}>
@@ -68,8 +70,10 @@ const MovieGrid = ({ movies, title }) => {
           {movies.map((movie) => (
             <SwiperSlide key={movie.id}>
               <MovieBox position="relative">
-                <StyledImage src={"https://image.tmdb.org/t/p/w500" + movie.posterPath} alt={movie.title} />
-                      {/* 좌측 하단 순위 표시 */}
+                <StyledImage
+                  src={"https://image.tmdb.org/t/p/w500" + movie.posterPath}
+                  alt={movie.title}
+                />
                 <Box
                   position="absolute"
                   bottom="-10px"
@@ -92,6 +96,7 @@ const MovieGrid = ({ movies, title }) => {
                       colorScheme="brand.primary"
                       variant={"outline"}
                       mr={5}
+                      onClick={() => navigate(`/movie-detail/${movie.id}`)}
                     >
                       상세정보
                     </Button>
