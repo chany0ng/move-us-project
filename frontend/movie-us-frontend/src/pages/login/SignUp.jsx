@@ -46,8 +46,8 @@ const SignUp = () => {
       return;
     }
 
-    if (!checks.length(password)) {
-      alert("비밀번호는 8글자 이상이어야 합니다.");
+    if (!checks.length(password) || !checks.pattern(password)) {
+      alert("비밀번호는 영문, 숫자, 특수문자를 포함하여 최소 8자 이상이어야 합니다.");
       return;
     }
 
@@ -75,6 +75,10 @@ const SignUp = () => {
   const checks = {
     length: (pwd) => pwd.length >= 8,
     match: (pwd, confirmPwd) => pwd === confirmPwd,
+    pattern: (pwd) => {
+      const regex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
+      return regex.test(pwd);
+    }
   };
 
   // 이메일 유효성 검사
@@ -209,22 +213,33 @@ const SignUp = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
-                <Flex mt={2} flexWrap="wrap">
-                  <Box flex="1" minW="250px">
-                    <Text
-                      fontSize="sm"
-                      color="gray.600"
-                      display="flex"
-                      alignItems="center"
-                    >
-                      {checks.length(password) ? (
-                        <CheckIcon color="green.500" mr={2} />
-                      ) : (
-                        <CloseIcon color="red.500" mr={2} />
-                      )}
-                      8글자 이상
-                    </Text>
-                  </Box>
+                <Flex mt={2} flexWrap="wrap" gap={4}>
+                  <Text
+                    fontSize="sm"
+                    color="gray.600"
+                    display="flex"
+                    alignItems="center"
+                  >
+                    {checks.length(password) ? (
+                      <CheckIcon color="green.500" mr={2} />
+                    ) : (
+                      <CloseIcon color="red.500" mr={2} />
+                    )}
+                    8글자 이상
+                  </Text>
+                  <Text
+                    fontSize="sm"
+                    color="gray.600"
+                    display="flex"
+                    alignItems="center"
+                  >
+                    {checks.pattern(password) ? (
+                      <CheckIcon color="green.500" mr={2} />
+                    ) : (
+                      <CloseIcon color="red.500" mr={2} />
+                    )}
+                    영문, 숫자, 특수문자 포함
+                  </Text>
                 </Flex>
               </FormControl>
 
