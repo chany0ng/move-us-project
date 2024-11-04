@@ -12,8 +12,6 @@ import {
   HStack,
   Divider,
 } from "@chakra-ui/react";
-import Header from "../../layouts/Header";
-import Footer from "../../layouts/Footer";
 import { getData } from "../../api/axios";
 import netflixLogo from '../../assets/images/ott/Netflix.png';
 import tvingLogo from '../../assets/images/ott/Tving.png';
@@ -65,7 +63,6 @@ const MovieDetail = () => {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
-      <Header />
       <Container maxW="container.xl" flex="1" py={10}>
         <Flex direction={{ base: "column", md: "row" }} gap={8}>
 
@@ -78,7 +75,7 @@ const MovieDetail = () => {
               <Text>러닝타임: {movie.runtime}분</Text> */}
             </HStack>
             
-            <Divider />
+            <Divider borderColor="#3F3F3F" />
 
             {/* OTT 링크 버튼 */}
             <Box width="100%">
@@ -166,7 +163,7 @@ const MovieDetail = () => {
           </Box>
         </Flex>
 
-        <Divider />
+        <Divider borderColor="#3F3F3F" />
         {/* 리뷰 섹션 */}
         <Box mt={10} width="100%">
           <Flex justify="space-between" align="center" mb={4}>
@@ -184,8 +181,6 @@ const MovieDetail = () => {
         movieId={movieId}
         movie={movie}
       />
-      
-      <Footer />
     </div>
   );
 };

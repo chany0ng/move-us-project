@@ -82,16 +82,16 @@ import {
     return (
       <Modal isOpen={isOpen} onClose={handleClose} size="xl">
         <ModalOverlay />
-        <ModalContent>
+        <ModalContent bg="brand.black">
           <ModalHeader>리뷰 작성</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <FormControl mb={4}>
               <FormLabel>영화 제목</FormLabel>
-              <Input
+            <Input
                 value={movie?.title || ''}
-                isReadOnly
-                bg="gray.100"
+                isReadOnly={!!movie?.title}
+                bg="gray.900"
               />
             </FormControl>
             <FormControl mb={4}>
@@ -129,7 +129,15 @@ import {
             >
               등록하기
             </Button>
-            <Button variant="ghost" onClick={handleClose}>
+            <Button 
+              backgroundColor="gray.900" 
+              color="white" 
+              variant="ghost" 
+              onClick={handleClose}
+              _hover={{
+                backgroundColor: 'gray.700'  // hover 시 배경색 변경
+              }}
+            >
               취소
             </Button>
           </ModalFooter>

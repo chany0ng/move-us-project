@@ -23,6 +23,7 @@ const ReviewList = ({ reviews }) => {
           <Box 
             key={review.id} 
             p={4} 
+            borderColor="#3F3F3F"
             borderWidth="1px" 
             borderRadius="lg"
             boxShadow="sm"
