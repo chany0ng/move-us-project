@@ -31,7 +31,7 @@ function App() {
           <Route element={<Layout />}>
             <Route path="/main" element={<MainPage />} />
             <Route path="/movies" element={<Movies />} />
-            <Route path="/movie-detail/:id" element={<MovieDetail />} />
+            <Route path="/movie-detail/:movieId" element={<MovieDetail />} />
             <Route path="/community/movie-reviews" element={<MovieReviews />} />
             <Route path="/community/notice" element={<Notice />} />
             <Route path="/my-page/user-info" element={<UserInfo />} />

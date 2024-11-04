@@ -5,7 +5,7 @@ import { Tabs, TabList, TabPanels, Tab } from "@chakra-ui/react";
 import MovieTabPanel from "../../components/MovieTabPanel";
 import { getData } from "../../api/axios";
 import { useEffect, useState } from "react";
-import Toast from "./../../components/Toast";
+// import Toast from "./../../components/Toast";
 import { useToast } from "@chakra-ui/react";
 const GENRES = [
   "All",
@@ -48,7 +48,7 @@ const Movies = () => {
         status: "error",
         duration: 2000,
         isClosable: true,
-        position: "top",
+        // position: "top",
       });
       console.error("Error fetching data:", error);
     } finally {
