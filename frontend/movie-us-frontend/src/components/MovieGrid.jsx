@@ -5,6 +5,8 @@ import {
   IconButton,
   Button,
   Flex,
+  Skeleton,
+  SkeletonText,
 } from "@chakra-ui/react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
@@ -17,7 +19,7 @@ import { useNavigate } from "react-router-dom";
 import "swiper/css";
 import "swiper/css/navigation";
 
-const MovieGrid = ({ movies, title }) => {
+const MovieGrid = ({ movies, title, isLoading }) => {
   const swiperRef = useRef(null);
   const navigate = useNavigate();
 
@@ -67,45 +69,60 @@ const MovieGrid = ({ movies, title }) => {
             },
           }}
         >
-          {movies.map((movie) => (
-            <SwiperSlide key={movie.id}>
-              <MovieBox position="relative">
-                <StyledImage
-                  src={"https://image.tmdb.org/t/p/w500" + movie.posterPath}
-                  alt={movie.title}
-                />
-                <Box
-                  position="absolute"
-                  bottom="-10px"
-                  left="5px"
-                  color="white"
-                  fontWeight="extrabold"
-                  borderRadius="md"
-                  fontSize="4rem"
-                  fontFamily={"Noto Sans KR"}
-                  fontStyle={"italic"}
-                >
-                  {movie.id}
-                </Box>
-                <DescriptionBox>
-                  <Heading as="h4" size="md" mb={10}>
-                    {movie.title}
-                  </Heading>
-                  <Flex>
-                    <Button
-                      colorScheme="brand.primary"
-                      variant={"outline"}
-                      mr={5}
-                      onClick={() => navigate(`/movie-detail/${movie.id}`)}
+          {isLoading
+            ? // 로딩 중일 때 Skeleton 표시
+              Array.from({ length: 5 }).map((_, index) => (
+                <SwiperSlide key={index}>
+                  <Box
+                    position="relative"
+                    width="200px"
+                    height="300px"
+                    borderRadius="md"
+                    overflow="hidden"
+                  >
+                    <Skeleton height="100%" />
+                  </Box>
+                </SwiperSlide>
+              ))
+            : // 로딩 완료 후 실제 콘텐츠 표시
+              movies.map((movie) => (
+                <SwiperSlide key={movie.id}>
+                  <MovieBox position="relative">
+                    <StyledImage
+                      src={"https://image.tmdb.org/t/p/w500" + movie.posterPath}
+                      alt={movie.title}
+                    />
+                    <Box
+                      position="absolute"
+                      bottom="-10px"
+                      left="5px"
+                      color="white"
+                      fontWeight="extrabold"
+                      borderRadius="md"
+                      fontSize="4rem"
+                      fontFamily={"Noto Sans KR"}
+                      fontStyle={"italic"}
                     >
-                      상세정보
-                    </Button>
-                    <Button colorScheme="teal">예매하기</Button>
-                  </Flex>
-                </DescriptionBox>
-              </MovieBox>
-            </SwiperSlide>
-          ))}
+                      {movie.id}
+                    </Box>
+                    <DescriptionBox>
+                      <Heading as="h4" size="md" mb={10}>
+                        {movie.title}
+                      </Heading>
+                      <Flex>
+                        <Button
+                          colorScheme="brand.primary"
+                          variant={"outline"}
+                          mr={5}
+                        >
+                          상세정보
+                        </Button>
+                        <Button colorScheme="teal">예매하기</Button>
+                      </Flex>
+                    </DescriptionBox>
+                  </MovieBox>
+                </SwiperSlide>
+              ))}
         </StyledSwiper>
 
         <NavigationButton

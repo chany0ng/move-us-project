@@ -7,9 +7,11 @@ import { getData } from "../api/axios";
 import { testMovies, wideMovies } from "../assets/contents/movieData";
 const MainPage = () => {
   const [movies, setMovies] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const toast = useToast();
   const fetchData = async () => {
     try {
+      setIsLoading(true);
       const response = await getData("/movies/moviesList");
       console.log(response.data); // response.data로 데이터를 출력합니다
       setMovies(response.data);
@@ -22,6 +24,8 @@ const MainPage = () => {
         isClosable: true,
       });
       console.error("Error fetching data:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -35,8 +39,16 @@ const MainPage = () => {
       <Box pb={20}>
         <Carousel movies={wideMovies} />
       </Box>
-      <MovieGrid title="현재 상영영화 순위" movies={movies} />
-      <MovieGrid title="최근 5점 평가 영화" movies={movies} />
+      <MovieGrid
+        title="현재 상영영화 순위"
+        movies={movies}
+        isLoading={isLoading}
+      />
+      <MovieGrid
+        title="최근 5점 평가 영화"
+        movies={movies}
+        isLoading={isLoading}
+      />
     </Flex>
   );
 };
