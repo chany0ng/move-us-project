@@ -23,6 +23,7 @@ const Movies = () => {
   const [genre, setGenre] = useState("All");
   const [sort, setSort] = useState("latest");
   const [movies, setMovies] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchAndSetMovies = async () => {
@@ -35,7 +36,8 @@ const Movies = () => {
 
   const fetchMovies = async (genre, sort) => {
     try {
-      const response = await getData("/api/movies", {
+      setIsLoading(true);
+      const response = await getData("/movies", {
         params: { genre, sort },
       });
       return response.data;
@@ -46,8 +48,11 @@ const Movies = () => {
         status: "error",
         duration: 2000,
         isClosable: true,
+        position: "top",
       });
       console.error("Error fetching data:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
   return (
@@ -88,6 +93,7 @@ const Movies = () => {
           colorScheme="green"
           size={"md"}
           onChange={(index) => setGenre(GENRES[index])}
+          minHeight="50vh"
         >
           <TabList gap={10} justifyContent={"center"}>
             {GENRES.map((genre) => (
@@ -96,8 +102,8 @@ const Movies = () => {
               </Tab>
             ))}
           </TabList>
-          <TabPanels>
-            <MovieTabPanel key={genre} movies={movies} />
+          <TabPanels minHeight="inherit" p={10}>
+            <MovieTabPanel key={genre} movies={movies} isLoading={isLoading} />
           </TabPanels>
         </Tabs>
       </Box>

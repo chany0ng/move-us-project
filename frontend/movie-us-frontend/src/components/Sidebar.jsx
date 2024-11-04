@@ -5,9 +5,9 @@ const Sidebar = () => {
   const basicStyle = { bg: "brand.primary", color: "black" };
   const targetStyle = { bg: "none", color: "white" };
   return (
-    <Box as="nav" width="250px" color="white" p="3">
+    <Box as="nav" color="white" p="3">
       <VStack align="start" spacing="10">
-        <Box width="80%">
+        <Box>
           <Heading
             size="md"
             p={2}
@@ -16,7 +16,7 @@ const Sidebar = () => {
             sx={
               location.pathname.includes("user-info") ? basicStyle : targetStyle
             }
-            _hover={{ bg: "brand.primary", color: "white" }}
+            _hover={{ bg: "brand.primary", color: "black" }}
           >
             <Link as={NavLink} to="/my-page/user-info">
               회원정보
@@ -31,6 +31,7 @@ const Sidebar = () => {
                   : "brand.light"
               }
               to="/my-page/user-info"
+              fontSize="lg"
               _hover={{ color: "yellow.400" }}
             >
               회원정보 조회
@@ -50,7 +51,7 @@ const Sidebar = () => {
           </VStack>
         </Box>
 
-        <Box width="80%">
+        <Box>
           <Heading
             size="md"
             p={2}
@@ -78,6 +79,7 @@ const Sidebar = () => {
                   : "brand.light"
               }
               to="/my-page/activity/user-reservation-history"
+              fontSize="lg"
               _hover={{ color: "yellow.400" }}
             >
               예매 내역 조회
@@ -90,6 +92,7 @@ const Sidebar = () => {
                   : "brand.light"
               }
               to="/my-page/activity/user-review-history"
+              fontSize="lg"
               _hover={{ color: "yellow.400" }}
             >
               리뷰 내역 조회
@@ -102,6 +105,7 @@ const Sidebar = () => {
                   : "brand.light"
               }
               to="/my-page/activity/user-liked-movies"
+              fontSize="lg"
               _hover={{ color: "yellow.400" }}
             >
               내가 좋아요 누른 영화
