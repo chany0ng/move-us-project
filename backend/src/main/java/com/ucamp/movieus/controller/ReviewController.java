@@ -1,5 +1,6 @@
 package com.ucamp.movieus.controller;
 
+import com.ucamp.movieus.dto.MovieDTO;
 import com.ucamp.movieus.dto.ReviewRequestDTO;
 import com.ucamp.movieus.dto.ReviewResponseDTO;
 import com.ucamp.movieus.entity.UserEntity;
@@ -26,9 +27,15 @@ public class ReviewController {
     }
 
     // 회원 리뷰
-    @GetMapping("/{user}")
+    @GetMapping("/userReview/{user}")
     public List<ReviewResponseDTO> userReview(@PathVariable("user") UserEntity user) {
         return reviewService.getUserReview(user);
+    }
+
+    // 영화 리뷰
+    @GetMapping("/movieReview/{id}")
+    public List<ReviewResponseDTO> userReview(@PathVariable("id") Long id) {
+        return reviewService.getMovieReview(id);
     }
 
     // 리뷰 등록
@@ -42,6 +49,20 @@ public class ReviewController {
             // 모든 예외 처리
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("An error occurred while creating the review.");
+        }
+    }
+
+    // 리뷰 수정
+    @PutMapping
+    public ResponseEntity<String> updateReview(@Valid @RequestBody ReviewRequestDTO reviewRequestDTO) {
+        try {
+            reviewService.updateReview(reviewRequestDTO);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body("Review has been updated successfully.");
+        } catch (Exception e) {
+            // 모든 예외 처리
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An error occurred while updating the review.");
         }
     }
 
