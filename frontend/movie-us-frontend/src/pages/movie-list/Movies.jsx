@@ -5,8 +5,8 @@ import { Tabs, TabList, TabPanels, Tab } from "@chakra-ui/react";
 import MovieTabPanel from "../../components/MovieTabPanel";
 import { getData } from "../../api/axios";
 import { useEffect, useState } from "react";
-import Toast from "./../../components/Toast";
 import { useToast } from "@chakra-ui/react";
+import { useLocation, useNavigate } from "react-router-dom";
 const GENRES = [
   "All",
   "드라마",
@@ -20,6 +20,8 @@ const GENRES = [
 
 const Movies = () => {
   const toast = useToast();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [genre, setGenre] = useState("All");
   const [sort, setSort] = useState("latest");
   const [movies, setMovies] = useState([]);
@@ -54,6 +56,17 @@ const Movies = () => {
       setIsLoading(false);
     }
   };
+  const handleSortChange = (e) => {
+    const newSort = e.target.value;
+    setSort(newSort);
+    navigate(`?genre=${genre}&sort=${newSort}`);
+  };
+
+  const handleTabChange = (index) => {
+    const newGenre = GENRES[index];
+    setGenre(newGenre);
+    navigate(`?genre=${newGenre}&sort=${sort}`);
+  };
   return (
     <Flex direction="column" mt="50px" minHeight="inherit" p={5}>
       <Box color="white" p={5}>
@@ -79,7 +92,7 @@ const Movies = () => {
           top={0}
           right={5}
           _focus={{ border: "1px solid white", boxShadow: "none" }}
-          onChange={(e) => setSort(e.target.value)}
+          onChange={(e) => handleSortChange(e)}
         >
           <option value="lastest">최신순</option>
           <option value="review">리뷰 많은 순</option>
@@ -91,7 +104,7 @@ const Movies = () => {
           variant="soft-rounded"
           colorScheme="green"
           size={"md"}
-          onChange={(index) => setGenre(GENRES[index])}
+          onChange={(index) => handleTabChange(index)}
           minHeight="50vh"
         >
           <TabList gap={10} justifyContent={"center"}>
