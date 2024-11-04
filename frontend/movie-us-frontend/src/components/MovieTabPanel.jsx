@@ -10,17 +10,20 @@ import {
   Skeleton,
   SimpleGrid,
   Button,
+  Tooltip,
 } from "@chakra-ui/react";
+import styled from "styled-components";
 
 const MovieTabPanel = ({ movies, isLoading }) => {
   return movies ? (
     <TabPanel minHeight="inherit">
       {isLoading ? (
-        <SimpleGrid columns={[2, 3, 4]} spacing={6} mt={5}>
+        <SimpleGrid columns={[2, 3, 4, 5]} spacing={8} mt={5}>
           {Array.from({ length: 12 }).map((_, index) => (
             <Skeleton
               key={index}
               height="250px"
+              width="200px"
               borderRadius="md"
               startColor="#1f1f1f"
               endColor="#6b6b6b"
@@ -28,16 +31,24 @@ const MovieTabPanel = ({ movies, isLoading }) => {
           ))}
         </SimpleGrid>
       ) : (
-        <Grid templateColumns="repeat(auto-fill, minmax(200px, 1fr))" gap={6}>
+        <Grid templateColumns="repeat(auto-fill, minmax(200px, 1fr))" gap={8}>
           {movies.map((movie) => (
-            <Box
-              key={movie.id}
-              borderWidth="1px"
-              borderRadius="lg"
-              overflow="hidden"
-            >
-              <Image src={movie.posterUrl} alt={movie.title} />
-              <Text p={2} fontWeight="bold" textAlign="center">
+            <Box key={movie.id} borderRadius="lg" overflow="hidden">
+              <Tooltip label={movie.title} hasArrow placement="top">
+                <StyledImage
+                  src={"https://image.tmdb.org/t/p/w500" + movie.posterPath}
+                  alt="No Poster"
+                />
+              </Tooltip>
+              <Text
+                p={2}
+                height="2em"
+                fontWeight="bold"
+                textAlign="center"
+                overflow="hidden"
+                textOverflow="ellipsis"
+                whiteSpace="nowrap"
+              >
                 {movie.title}
               </Text>
             </Box>
@@ -63,3 +74,9 @@ const MovieTabPanel = ({ movies, isLoading }) => {
 };
 
 export default MovieTabPanel;
+
+const StyledImage = styled(Image)`
+  width: 100%;
+  height: 90%;
+  object-fit: cover;
+`;

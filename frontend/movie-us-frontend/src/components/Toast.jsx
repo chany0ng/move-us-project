@@ -10,7 +10,6 @@ const Toast = ({ title, description, status = "success" }) => {
           status: status,
           duration: 2000,
           isClosable: true,
-          position: "top",
         })
       }
     >

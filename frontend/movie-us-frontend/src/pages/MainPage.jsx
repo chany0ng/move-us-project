@@ -20,7 +20,6 @@ const MainPage = () => {
         status: "error",
         duration: 2000,
         isClosable: true,
-        position: "top",
       });
       console.error("Error fetching data:", error);
     }

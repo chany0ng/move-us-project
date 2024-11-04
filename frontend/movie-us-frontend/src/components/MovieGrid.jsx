@@ -68,8 +68,10 @@ const MovieGrid = ({ movies, title }) => {
           {movies.map((movie) => (
             <SwiperSlide key={movie.id}>
               <MovieBox position="relative">
-                <StyledImage src={"https://image.tmdb.org/t/p/w500" + movie.posterPath} alt={movie.title} />
-                      {/* 좌측 하단 순위 표시 */}
+                <StyledImage
+                  src={"https://image.tmdb.org/t/p/w500" + movie.posterPath}
+                  alt={movie.title}
+                />
                 <Box
                   position="absolute"
                   bottom="-10px"

@@ -28,7 +28,7 @@ const Movies = () => {
   useEffect(() => {
     const fetchAndSetMovies = async () => {
       const data = await fetchMovies(genre, sort);
-      setMovies(data);
+      setMovies(data.filter((movie) => movie.posterPath !== null));
     };
 
     fetchAndSetMovies();
@@ -37,7 +37,7 @@ const Movies = () => {
   const fetchMovies = async (genre, sort) => {
     try {
       setIsLoading(true);
-      const response = await getData("/movies", {
+      const response = await getData("/movies/moviesList", {
         params: { genre, sort },
       });
       return response.data;
@@ -48,7 +48,6 @@ const Movies = () => {
         status: "error",
         duration: 2000,
         isClosable: true,
-        position: "top",
       });
       console.error("Error fetching data:", error);
     } finally {
@@ -56,7 +55,7 @@ const Movies = () => {
     }
   };
   return (
-    <Flex direction="column" mt="100px" minHeight="inherit" p={5}>
+    <Flex direction="column" mt="50px" minHeight="inherit" p={5}>
       <Box color="white" p={5}>
         <Flex align={"center"} gap={3} p={2} mb={3}>
           <AiFillFolder size={40} />
@@ -69,7 +68,7 @@ const Movies = () => {
         </Flex>
       </Box>
 
-      <Box color="black" p={10} position="relative">
+      <Box color="black" p={5} position="relative">
         <Select
           bg="brand.primary"
           width="150px"
@@ -87,7 +86,7 @@ const Movies = () => {
           <option value="like">좋아요 많은 순</option>
         </Select>
       </Box>
-      <Box flex="1" border={"1px solid gray"} color="white" p={5}>
+      <Box flex="1" color="white" p={5}>
         <Tabs
           variant="soft-rounded"
           colorScheme="green"
@@ -97,7 +96,12 @@ const Movies = () => {
         >
           <TabList gap={10} justifyContent={"center"}>
             {GENRES.map((genre) => (
-              <Tab key={genre} width="10%">
+              <Tab
+                key={genre}
+                width="10%"
+                border="1px solid grey"
+                color="white"
+              >
                 {genre}
               </Tab>
             ))}
