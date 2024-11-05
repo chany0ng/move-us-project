@@ -12,6 +12,7 @@ import { Navigation } from "swiper/modules";
 import styled from "styled-components";
 import { ChevronLeftIcon, ChevronRightIcon, CloseIcon } from "@chakra-ui/icons";
 import { useRef } from "react";
+import { Link } from "react-router-dom";
 
 // Swiper 스타일 import
 import "swiper/css";
@@ -108,13 +109,15 @@ const MovieGrid = ({ movies, title, isLoading }) => {
                       {movie.title}
                     </Heading>
                     <Flex>
-                      <Button
-                        colorScheme="brand.primary"
-                        variant={"outline"}
-                        mr={5}
-                      >
-                        상세정보
-                      </Button>
+                      <Link to={`/movie-detail/${movie.tmdbId}`}>
+                        <Button
+                          colorScheme="brand.primary"
+                          variant={"outline"}
+                          mr={5}
+                        >
+                          상세정보
+                        </Button>
+                      </Link>
                       <Button colorScheme="teal">예매하기</Button>
                     </Flex>
                   </DescriptionBox>

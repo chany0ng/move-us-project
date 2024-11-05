@@ -18,7 +18,7 @@ import {
   import { postData } from "../api/axios";
   import { Input } from "@chakra-ui/react";
   
-  const ReviewModal = ({ isOpen, onClose, movieId, movie, onReviewSubmitted }) => {
+  const ReviewModal = ({ isOpen, onClose, tmdbId, movie, onReviewSubmitted }) => {
     const [rating, setRating] = useState(0);
     const [content, setContent] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -46,7 +46,7 @@ import {
       setIsSubmitting(true);
       try {
         await postData("/reviews", {
-          movieId,
+          tmdbId,
           rating,
           content,
         });
