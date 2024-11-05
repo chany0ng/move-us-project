@@ -21,6 +21,8 @@ import { useState } from "react";
 import { getData, postData } from "../../api/axios";
 import { userStore } from "../../../store";
 
+//todo 로그인창으로 오기전 path를 기억해내서 로그인 후 redirect 시켜야 한다
+//todo location.state.from.pathname || "/main" -> navigate(from, {replace: true})
 const Index = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
@@ -38,15 +40,15 @@ const Index = () => {
   };
   const changePasswordHandler = async (e) => {
     //todo email을 db에 user찾기를 한다
-    if(email.trim().length === 0){
+    if (email.trim().length === 0) {
       alert("이메일을 입력해주세요!");
     }
     try {
       const response = await getData(`/api/movies/check-email/${email}`);
-      if(response.data.isDuplicated){
+      if (response.data.isDuplicated) {
         alert("해당 이메일에 비밀번호 변경 링크를 발송했습니다!");
         setIsExist(true);
-      }else {
+      } else {
         alert("존재하지 않는 이메일입니다.");
         setIsExist(false);
       }

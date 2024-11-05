@@ -2,7 +2,6 @@ import axios from "axios";
 
 // Axios instance 생성
 export const customAxios = axios.create({
-  // baseURL: "https://api.comission-platform.store", // AWS EC2 API서버의 BASE URL
   baseURL: "http://localhost:8080", // 개발용 로컬서버의 BASE URL
   timeout: 5000,
   withCredentials: true,
@@ -30,6 +29,7 @@ export const customAxios = axios.create({
 //   (response) => response,
 //   async (error) => {
 //     const errorStatus = error.response?.status;
+//     const prevRequest = error?.config;
 //     const requestUrl = error.config.url;
 
 //     if (requestUrl === "/api/reissue") {
@@ -65,16 +65,6 @@ export const customAxios = axios.create({
 //   localStorage.setItem("accessToken", newAccessToken); // 로컬 스토리지에 저장
 //   return newAccessToken; // 필요한 경우 반환
 // };
-
-//todo config에 Query Parameter 전달하는법
-/*
-{
-  params: {
-    search: 'John',  // 검색 키워드
-    sort: 'asc',     // 정렬 순서
-  },
-}
-*/
 
 // GET Method
 export const getData = async (url, config) => {
