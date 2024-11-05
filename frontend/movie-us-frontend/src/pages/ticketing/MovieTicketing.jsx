@@ -62,6 +62,7 @@ const MovieTicketing = () => {
   useEffect(() => {
     fetchData();
   }, []);
+  console.log(timeTable[selectedDate]?.[selectedTheater]?.[selectedMovie]);
 
   const resetHandler = () => {
     setSelectedGu(Object.keys(theaterData["서울시"])[0]);
@@ -267,12 +268,28 @@ const MovieTicketing = () => {
             height="calc(100% - 50px)"
             color="#333333"
             p="10px"
+            width="300px"
           >
-            <Box flex="1">
+            <Box display="flex" alignItems="center" justifyContent="center">
               {selectedDate && selectedMovie && selectedTheater ? (
-                <div>true</div>
+                <VStack>
+                  {timeTable[selectedDate]?.[selectedTheater]?.[
+                    selectedMovie
+                  ].map((session, index) => (
+                    <Box
+                      key={index}
+                      p={3}
+                      borderWidth="1px"
+                      borderRadius="md"
+                      width="100%"
+                    >
+                      <Text>시간: {session.time}</Text>
+                      <Text>남은 좌석: {session.availableSeats}석</Text>
+                    </Box>
+                  ))}
+                </VStack>
               ) : (
-                <div>영화, 극장, 날짜를 모두 선택해주세요</div>
+                <Text>영화, 극장, 날짜를 모두 선택해주세요</Text>
               )}
             </Box>
           </Flex>
