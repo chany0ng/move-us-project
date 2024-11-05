@@ -4,6 +4,7 @@ import com.ucamp.movieus.entity.Movie;
 import com.ucamp.movieus.repository.MovieRepository;
 import com.ucamp.movieus.service.MovieService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,5 +36,15 @@ public class MovieController {
     @GetMapping("/{id}")
     public Movie getMovie(@PathVariable("id") Long id) {
         return movieService.getMovie(id);
+    }
+
+    @GetMapping("/genre/{genreName}")
+    public ResponseEntity<List<Movie>> getMoviesByGenre(@PathVariable String genreName) {
+        System.out.println("Received request for genre: " + genreName);
+        List<Movie> movies = movieService.getMoviesByGenreName(genreName);
+        if (movies.isEmpty()) {
+            return ResponseEntity.notFound().build(); // 영화가 없을 경우 404 반환
+        }
+        return ResponseEntity.ok(movies); // 영화 목록 반환
     }
 }

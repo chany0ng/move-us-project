@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Data
@@ -27,7 +29,11 @@ public class Movie {
     private int voteCount;
     private LocalDate releaseDate;
 
-    @ElementCollection
-    private List<Long> genreIds; // 장르 ID 리스트
-
+    @ManyToMany
+    @JoinTable(
+            name = "movie_genre_ids",
+            joinColumns = @JoinColumn(name = "movie_id"),
+            inverseJoinColumns = @JoinColumn(name = "genre_id") // 변경됨
+    )
+    private Set<Genre> genres = new HashSet<>(); // 장르 리스트
 }
