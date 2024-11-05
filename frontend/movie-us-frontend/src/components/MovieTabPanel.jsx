@@ -41,7 +41,7 @@ const MovieTabPanel = ({ movies, isLoading }) => {
               borderRadius="lg"
               overflow="hidden"
               cursor="pointer"
-              onClick={() => navigate(`/movie-detail/${movie.id}`)}
+              onClick={() => navigate(`/movie-detail/${movie.tmdbId}`)}
             >
               <Tooltip label={movie.title} hasArrow placement="top">
                 <StyledImage

@@ -22,14 +22,14 @@ const SignUp = () => {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
-  const [passwordConfirm, setPasswordConfirm] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState({
     email: "",
     phone: "",
   });
 
   const handleSubmit = async () => {
-    if (!name || !email || !phone || !password || !passwordConfirm) {
+    if (!name || !email || !phone || !password || !confirmPassword) {
       alert("모든 필드를 입력해주세요.");
       return;
     }
@@ -47,11 +47,13 @@ const SignUp = () => {
     }
 
     if (!checks.length(password) || !checks.pattern(password)) {
-      alert("비밀번호는 영문, 숫자, 특수문자를 포함하여 최소 8자 이상이어야 합니다.");
+      alert(
+        "비밀번호는 영문, 숫자, 특수문자를 포함하여 최소 8자 이상이어야 합니다."
+      );
       return;
     }
 
-    if (!checks.match(password, passwordConfirm)) {
+    if (!checks.match(password, confirmPassword)) {
       alert("비밀번호가 일치하지 않습니다.");
       return;
     }
@@ -76,9 +78,10 @@ const SignUp = () => {
     length: (pwd) => pwd.length >= 8,
     match: (pwd, confirmPwd) => pwd === confirmPwd,
     pattern: (pwd) => {
-      const regex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
+      const regex =
+        /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
       return regex.test(pwd);
-    }
+    },
   };
 
   // 이메일 유효성 검사
@@ -249,8 +252,8 @@ const SignUp = () => {
                   type="password"
                   size={"lg"}
                   fontSize={"md"}
-                  value={passwordConfirm}
-                  onChange={(e) => setPasswordConfirm(e.target.value)}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
                 />
                 <Flex mt={2} flexWrap="wrap">
                   <Box flex="1" minW="250px">
@@ -261,7 +264,7 @@ const SignUp = () => {
                       alignItems="center"
                     >
                       {checks.length(password) &&
-                      checks.match(password, passwordConfirm) ? (
+                      checks.match(password, confirmPassword) ? (
                         <CheckIcon color="green.500" mr={2} />
                       ) : (
                         <CloseIcon color="red.500" mr={2} />
