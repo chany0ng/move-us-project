@@ -32,7 +32,7 @@ public class MovieController {
         return movieRepository.findAll();
     }
 
-    // 영화 조회
+    // 영화 조회 (DB movie table)
     @GetMapping("/{id}")
     public Movie getMovie(@PathVariable("id") Long id) {
         return movieService.getMovie(id);
@@ -49,6 +49,7 @@ public class MovieController {
         return ResponseEntity.ok(movies); // 영화 목록 반환
     }
 
+    // 영화 조회 (TMDB API)
     @GetMapping("/{id}/credits")
     public ResponseEntity<Object> getMovieCredits(@PathVariable Long id) {
         Object credits = movieService.getMovieCredits(id);
