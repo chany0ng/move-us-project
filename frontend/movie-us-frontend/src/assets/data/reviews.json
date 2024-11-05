@@ -2,7 +2,7 @@
   "reviews": [
     {
       "id": 1,
-      "movieId": 1,
+      "tmdbId": 912649,
       "userId": "user1",
       "username": "영화광",
       "rating": 4.5,
@@ -12,7 +12,7 @@
     },
     {
       "id": 2,
-      "movieId": 1,
+      "tmdbId": 912649,
       "userId": "user2",
       "username": "무비러버",
       "rating": 5.0,
@@ -22,7 +22,7 @@
     },
     {
       "id": 3,
-      "movieId": 2,
+      "tmdbId": 1184918,
       "userId": "user3",
       "username": "시네필",
       "rating": 4.0,
@@ -32,7 +32,7 @@
     },
     {
       "id": 4,
-      "movieId": 2,
+      "tmdbId": 1184918,
       "userId": "user4",
       "username": "영화덕후",
       "rating": 4.5,
@@ -42,7 +42,7 @@
     },
     {
       "id": 5,
-      "movieId": 3,
+      "tmdbId": 698687,
       "userId": "user5",
       "username": "무비매니아",
       "rating": 5.0,
@@ -52,7 +52,7 @@
     },
     {
       "id": 6,
-      "movieId": 3,
+      "tmdbId": 698687,
       "userId": "user6",
       "username": "필름마스터",
       "rating": 4.0,
