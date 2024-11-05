@@ -38,6 +38,7 @@ public class MovieController {
         return movieService.getMovie(id);
     }
 
+    // 장르 조회
     @GetMapping("/genre/{genreName}")
     public ResponseEntity<List<Movie>> getMoviesByGenre(@PathVariable String genreName) {
         System.out.println("Received request for genre: " + genreName);
@@ -46,5 +47,11 @@ public class MovieController {
             return ResponseEntity.notFound().build(); // 영화가 없을 경우 404 반환
         }
         return ResponseEntity.ok(movies); // 영화 목록 반환
+    }
+
+    @GetMapping("/{id}/credits")
+    public ResponseEntity<Object> getMovieCredits(@PathVariable Long id) {
+        Object credits = movieService.getMovieCredits(id);
+        return ResponseEntity.ok(credits);
     }
 }

@@ -26,6 +26,7 @@ public class MovieService {
     private final GenreRepository genreRepository;
     private final RestTemplate restTemplate;
     private final String API_KEY = "40405429a36ddf7b1d4337a022992fbc";
+    private final String BASE_URL = "https://api.themoviedb.org/3/movie/";
 
     @PostConstruct
     public void init() {
@@ -56,8 +57,8 @@ public class MovieService {
 
         do {
             String url = String.format(
-                    "https://api.themoviedb.org/3/movie/now_playing?api_key=%s&region=KR&language=ko&sort_by=popularity.desc&page=%d",
-                    API_KEY, page);
+                    "%snow_playing?api_key=%s&region=KR&language=ko&sort_by=popularity.desc&page=%d",
+                    BASE_URL, API_KEY, page);
             response = restTemplate.getForObject(url, TMDBResponse.class);
 
             if (response != null && response.getResults() != null) {
@@ -91,5 +92,10 @@ public class MovieService {
 
     public List<Movie> getMoviesByGenreName(String genreName) {
         return genreRepository.findByGenreName(genreName);
+    }
+
+    public Object getMovieCredits(Long movieId) {
+        String url = BASE_URL + movieId + "/credits?api_key=" + API_KEY + "&language=ko-KR";
+        return restTemplate.getForObject(url, Object.class);
     }
 }
