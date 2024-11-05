@@ -1,5 +1,6 @@
+// 필요한 라이브러리 및 컴포넌트 임포트
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";  // URL 파라미터를 가져오기 위한 hook
 import {
   Box,
   Container,
@@ -12,26 +13,30 @@ import {
   HStack,
   Divider,
   SimpleGrid,
-} from "@chakra-ui/react";
-import { getData } from "../../api/axios";
-import netflixLogo from "../../assets/images/ott/Netflix.png";
+} from "@chakra-ui/react";  // UI 컴포넌트 라이브러리
+
+// API 및 에셋 임포트
+import { getData } from "../../api/axios";  // API 호출 함수
+import netflixLogo from "../../assets/images/ott/Netflix.png";  // OTT 로고 이미지
 import tvingLogo from "../../assets/images/ott/Tving.png";
-import ReviewModal from "../../components/ReviewModal";
-import ReviewList from "../../components/ReviewList.jsx";
-import reviewsData from "../../assets/data/reviews.json";
-import movieCredits from '../../assets/data/movieCredits.json';
+import ReviewModal from "../../components/ReviewModal";  // 리뷰 작성 모달 컴포넌트
+import ReviewList from "../../components/ReviewList.jsx";  // 리뷰 목록 컴포넌트
+import reviewsData from "../../assets/data/reviews.json";  // 임시 리뷰 데이터
+import movieCredits from '../../assets/data/movieCredits.json';  // 임시 출연진 데이터
 
 const MovieDetail = () => {
-  // 영화 ID를 가져오는 파라미터
+  // URL에서 영화 ID 파라미터 추출
   const { tmdbId } = useParams();
-  // 영화 정보, 리뷰 모달 상태, 리뷰 목록 상태
-  const [movie, setMovie] = useState(null);
-  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
-  const [reviews, setReviews] = useState([]);
+  
+  // 상태 관리
+  const [movie, setMovie] = useState(null);  // 영화 정보 상태
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);  // 리뷰 모달 표시 여부
+  const [reviews, setReviews] = useState([]);  // 리뷰 목록 상태
 
-  const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w185"; // 프로필 이미지용 사이즈
+  // TMDB 이미지 기본 URL (프로필 이미지용)
+  const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w185";
 
-  // 영화 정보 가져오기
+  // 영화 상세 정보 가져오기
   useEffect(() => {
     const fetchMovieDetail = async () => {
       try {
@@ -53,7 +58,7 @@ const MovieDetail = () => {
     }
   }, [tmdbId]);
 
-  // 리뷰 목록 가져오기
+  // 현재 영화의 리뷰 데이터 필터링
   useEffect(() => {
     const movieReviews = reviewsData.reviews.filter(
       (review) => review.tmdbId === parseInt(tmdbId)
@@ -61,16 +66,16 @@ const MovieDetail = () => {
     setReviews(movieReviews);
   }, [tmdbId]);
 
-  // movieCredits에서 현재 영화의 출연진과 감독 정보 가져오기
+  // 출연진과 감독 정보 추출 함수
   const getCastInfo = () => {
-    // cast 정보 가져오기 (처음 5명만)
+    // 상위 5명의 출연진만 추출
     const castMembers = movieCredits.cast?.slice(0, 5).map(actor => ({
       name: actor.name,
       profilePath: actor.profile_path,
       character: actor.character
     })) || [];
     
-    // 감독 정보 가져오기
+    // 감독 정보 찾기
     const director = movieCredits.crew?.find(member => member.job === "Director");
     
     return { 
@@ -84,10 +89,10 @@ const MovieDetail = () => {
 
   const { castMembers, director } = getCastInfo();
 
-  // 영화 정보가 없으면 로딩중 표시
+  // 로딩 상태 처리
   if (!movie) return <div>로딩중...</div>;
 
-  // 리뷰 모달 닫기 
+  // 리뷰 모달 닫기 핸들러
   const handleCloseModal = () => {
     setIsReviewModalOpen(false);
   };

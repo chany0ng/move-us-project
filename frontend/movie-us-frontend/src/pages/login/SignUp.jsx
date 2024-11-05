@@ -22,14 +22,14 @@ const SignUp = () => {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
-  const [passwordConfirm, setPasswordConfirm] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState({
     email: "",
     phone: "",
   });
 
   const handleSubmit = async () => {
-    if (!name || !email || !phone || !password || !passwordConfirm) {
+    if (!name || !email || !phone || !password || !confirmPassword) {
       alert("모든 필드를 입력해주세요.");
       return;
     }
@@ -51,7 +51,7 @@ const SignUp = () => {
       return;
     }
 
-    if (!checks.match(password, passwordConfirm)) {
+    if (!checks.match(password, confirmPassword)) {
       alert("비밀번호가 일치하지 않습니다.");
       return;
     }
@@ -61,6 +61,7 @@ const SignUp = () => {
         userEmail: email,
         userPhone: phone,
         userPw: password,
+        confirmPassword: confirmPassword
       });
       console.log(response);
       alert("회원가입 성공!");
@@ -249,8 +250,8 @@ const SignUp = () => {
                   type="password"
                   size={"lg"}
                   fontSize={"md"}
-                  value={passwordConfirm}
-                  onChange={(e) => setPasswordConfirm(e.target.value)}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
                 />
                 <Flex mt={2} flexWrap="wrap">
                   <Box flex="1" minW="250px">
@@ -261,7 +262,7 @@ const SignUp = () => {
                       alignItems="center"
                     >
                       {checks.length(password) &&
-                      checks.match(password, passwordConfirm) ? (
+                      checks.match(password, confirmPassword) ? (
                         <CheckIcon color="green.500" mr={2} />
                       ) : (
                         <CloseIcon color="red.500" mr={2} />
