@@ -49,7 +49,7 @@ public class MovieController {
         return ResponseEntity.ok(movies); // 영화 목록 반환
     }
 
-    // 영화 조회 (TMDB API)
+    // 영화 조회 (TMDB API - TMDB id)
     @GetMapping("/{id}/credits")
     public ResponseEntity<Object> getMovieCredits(@PathVariable Long id) {
         Object credits = movieService.getMovieCredits(id);
