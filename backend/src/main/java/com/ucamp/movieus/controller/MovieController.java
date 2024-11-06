@@ -32,11 +32,6 @@ public class MovieController {
         return movieRepository.findAll();
     }
 
-    // 영화 조회 (DB movie table)
-    @GetMapping("/{id}")
-    public Movie getMovie(@PathVariable("id") Long id) {
-        return movieService.getMovie(id);
-    }
 
     // 장르 조회
     @GetMapping("/genre/{genreName}")
@@ -54,5 +49,13 @@ public class MovieController {
     public ResponseEntity<Object> getMovieCredits(@PathVariable Long id) {
         Object credits = movieService.getMovieCredits(id);
         return ResponseEntity.ok(credits);
+    }
+
+    // 특정 영화 상세정보 정보 조회
+    @GetMapping("/{tmdbId}")
+    public ResponseEntity<Movie> getMovieByTmdbId(@PathVariable Long tmdbId) {
+        return movieRepository.findByTmdbId(tmdbId)
+                .map(ResponseEntity::ok)
+                .orElseThrow(() -> new RuntimeException("Movie not found with TMDB ID: " + tmdbId));
     }
 }
