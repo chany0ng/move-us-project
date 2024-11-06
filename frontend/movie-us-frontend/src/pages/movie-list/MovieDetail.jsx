@@ -14,6 +14,7 @@ import {
   Divider,
   SimpleGrid,
 } from "@chakra-ui/react";  // UI 컴포넌트 라이브러리
+import { AiFillHeart} from "react-icons/ai";  // 하트 아이콘
 
 // API 및 에셋 임포트
 import { getData } from "../../api/axios";  // API 호출 함수
@@ -21,8 +22,6 @@ import netflixLogo from "../../assets/images/ott/Netflix.png";  // OTT 로고 �
 import tvingLogo from "../../assets/images/ott/Tving.png";
 import ReviewModal from "../../components/ReviewModal";  // 리뷰 작성 모달 컴포넌트
 import ReviewList from "../../components/ReviewList.jsx";  // 리뷰 목록 컴포넌트
-import reviewsData from "../../assets/data/reviews.json";  // 임시 리뷰 데이터
-import movieCredits from '../../assets/data/movieCredits.json';  // 임시 출연진 데이터
 
 const MovieDetail = () => {
   // URL에서 영화 ID 파라미터 추출
@@ -32,6 +31,8 @@ const MovieDetail = () => {
   const [movie, setMovie] = useState(null);  // 영화 정보 상태
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);  // 리뷰 모달 표시 여부
   const [reviews, setReviews] = useState([]);  // 리뷰 목록 상태
+  const [isWishlist, setIsWishlist] = useState(false);  // 찜 상태
+  const [credits, setCredits] = useState({ cast: [], crew: [] });
 
   // TMDB 이미지 기본 URL (프로필 이미지용)
   const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w185";
@@ -58,25 +59,60 @@ const MovieDetail = () => {
     }
   }, [tmdbId]);
 
-  // 현재 영화의 리뷰 데이터 필터링
+  // 리뷰 데이터 가져오기
   useEffect(() => {
-    const movieReviews = reviewsData.reviews.filter(
-      (review) => review.tmdbId === parseInt(tmdbId)
-    );
-    setReviews(movieReviews);
+    const fetchReviews = async () => {
+      try {
+        const response = await getData(`/review/movieReview/${tmdbId}`);
+        if (response && response.data) {
+          setReviews(response.data);
+        }
+      } catch (error) {
+        console.error("리뷰 데이터 가져오기 실패:", error);
+        setReviews([]);
+      }
+    };
+
+    if (tmdbId) {
+      fetchReviews();
+    }
   }, [tmdbId]);
+
+  // 출연진 정보 가져오기
+  useEffect(() => {
+    const fetchMovieCredits = async () => {
+      try {
+        const response = await getData(`/movies/${tmdbId}/credits`);
+        if (response && response.data) {
+          setCredits(response.data);
+        }
+      } catch (error) {
+        console.error("출연진 정보 가져오기 실패:", error);
+        setCredits({ cast: [], crew: [] });
+      }
+    };
+
+    if (tmdbId) {
+      fetchMovieCredits();
+    }
+  }, [tmdbId]);
+
+  // 찜하기 토글 함수
+  const handleWishlist = async () => {
+    setIsWishlist(prev => !prev);
+  };
 
   // 출연진과 감독 정보 추출 함수
   const getCastInfo = () => {
     // 상위 5명의 출연진만 추출
-    const castMembers = movieCredits.cast?.slice(0, 5).map(actor => ({
+    const castMembers = credits.cast?.slice(0, 5).map(actor => ({
       name: actor.name,
       profilePath: actor.profile_path,
       character: actor.character
     })) || [];
     
     // 감독 정보 찾기
-    const director = movieCredits.crew?.find(member => member.job === "Director");
+    const director = credits.crew?.find(member => member.job === "Director");
     
     return { 
       castMembers, 
@@ -107,11 +143,39 @@ const MovieDetail = () => {
           {/* 왼쪽 영화 상세 정보 */}
           <VStack flex="2" align="start" spacing={4}>
             {/* 영화 제목 */}
-            <Heading size="xl">{movie.title}</Heading>
+            <Flex align="center" gap={4}>
+              <Heading size="xl">{movie.title}</Heading>
+            </Flex>
             
             {/* 개봉일 정보 */}
-            <HStack spacing={4}>
-              <Text>개봉일: {movie.releaseDate}</Text>
+            <HStack spacing={4} width="100%" justify="space-between">
+              <HStack spacing={4}>
+                <Text>개봉일: {movie.releaseDate}</Text>
+                {movie.runtime && (
+                  <Text>• {Math.floor(movie.runtime / 60)}시간 {movie.runtime % 60}분</Text>
+                )}
+              </HStack>
+              <Button
+                onClick={handleWishlist}
+                variant="ghost"
+                size="md"
+                _hover={{ bg: 'transparent' }}
+              >
+                {/* 찜하기 버튼 */}
+                <HStack spacing={1}>
+                  {isWishlist ? (
+                    <>
+                      <AiFillHeart size={24} color="#E53E3E" />
+                      <Text color="#E53E3E">찜하기</Text>
+                    </>
+                  ) : (
+                    <>
+                      <AiFillHeart size={24} color="#718096" />
+                      <Text color="#718096">찜하기</Text>
+                    </>
+                  )}
+                </HStack>
+              </Button>
             </HStack>
 
             <Divider borderColor="#3F3F3F" />
@@ -280,4 +344,4 @@ const MovieDetail = () => {
   );
 };
 
-export default MovieDetail;
+export default MovieDetail; 
