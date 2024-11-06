@@ -26,16 +26,33 @@ public class MovieController {
         return "Movies fetched and saved!";
     }
 
-    // 저장된 영화 리스트 반환
+    // 영화 리스트 조회
     @GetMapping("/moviesList")
     public List<Movie> getMovies() {
         return movieRepository.findAll();
     }
-    // 특정 영화 상세정보 정보 조회
-    @GetMapping("/{tmdbId}")
-    public ResponseEntity<Movie> getMovieByTmdbId(@PathVariable Long tmdbId) {
-        return movieRepository.findByTmdbId(tmdbId)
-                .map(ResponseEntity::ok)
-                .orElseThrow(() -> new RuntimeException("Movie not found with TMDB ID: " + tmdbId));
+
+    // 영화 조회 (DB movie table)
+    @GetMapping("/{id}")
+    public Movie getMovie(@PathVariable("id") Long id) {
+        return movieService.getMovie(id);
+    }
+
+    // 장르 조회
+    @GetMapping("/genre/{genreName}")
+    public ResponseEntity<List<Movie>> getMoviesByGenre(@PathVariable String genreName) {
+        System.out.println("Received request for genre: " + genreName);
+        List<Movie> movies = movieService.getMoviesByGenreName(genreName);
+        if (movies.isEmpty()) {
+            return ResponseEntity.notFound().build(); // 영화가 없을 경우 404 반환
+        }
+        return ResponseEntity.ok(movies); // 영화 목록 반환
+    }
+
+    // 영화 조회 (TMDB API - TMDB id)
+    @GetMapping("/{id}/credits")
+    public ResponseEntity<Object> getMovieCredits(@PathVariable Long id) {
+        Object credits = movieService.getMovieCredits(id);
+        return ResponseEntity.ok(credits);
     }
 }
