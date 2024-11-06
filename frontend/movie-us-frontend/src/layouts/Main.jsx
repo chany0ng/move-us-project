@@ -16,11 +16,11 @@ const Main = () => {
 
 const CustomMain = styled.main`
   min-height: 100vh;
-  padding: ${(props) => (props.isticketing ? "0px" : "10%")};
+  padding: ${(props) => (props.isticketing === "true" ? "0px" : "10%")};
   padding-top: 0%;
   padding-bottom: 500px;
-  width: ${(props) => (props.isticketing ? "1200px" : "auto")};
-  margin: ${(props) => (props.isticketing ? "0 auto" : "initial")};
+  width: ${(props) => (props.isticketing === "true" ? "1500px" : "auto")};
+  margin: ${(props) => (props.isticketing === "true" ? "0 auto" : "initial")};
 `;
 
 export default Main;

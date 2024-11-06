@@ -15,6 +15,7 @@ import UserInfo from "./pages/my-page/UserInfo";
 import UserReservationHistory from "./pages/my-page/UserReservationHistory";
 import UserReviewHistory from "./pages/my-page/UserReviewHistory";
 import MovieTicketing from "./pages/ticketing/MovieTicketing";
+import SeatSelection from "./pages/ticketing/SeatSelection";
 
 function App() {
   return (
@@ -34,6 +35,11 @@ function App() {
             <Route path="/movie-detail/:tmdbId" element={<MovieDetail />} />
             <Route path="/community/movie-reviews" element={<MovieReviews />} />
             <Route path="/community/notice" element={<Notice />} />
+            <Route path="/ticketing" element={<MovieTicketing />} />
+            <Route
+              path="/ticketing/seat-selection"
+              element={<SeatSelection />}
+            />
             {/*//todo useAuth 만들어서, 로그인 여부 체크 후 my-page 접근 여부 확인,
                //todo RequireAuth 컴포넌트로 상위 Route 구현 */}
             <Route path="/my-page/user-info" element={<UserInfo />} />
@@ -49,7 +55,6 @@ function App() {
               path="/my-page/activity/user-review-history"
               element={<UserReviewHistory />}
             />
-            <Route path="/ticketing" element={<MovieTicketing />} />
           </Route>
         </Routes>
       </Router>

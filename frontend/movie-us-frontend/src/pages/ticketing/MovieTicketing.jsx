@@ -10,6 +10,9 @@ import {
   Text,
   useToast,
   VStack,
+  Skeleton,
+  GridItem,
+  Grid,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { getData } from "../../api/axios";
@@ -17,6 +20,7 @@ import theaterData from "../../assets/data/theater.json";
 import DateSelector from "../../components/DateSelector";
 import { RepeatClockIcon } from "@chakra-ui/icons";
 import timeTable from "../../assets/data/timeTable.json";
+import TicketSummary from "../../components/TicketSummary";
 
 const MovieTicketing = () => {
   const [selectedDate, setSelectedDate] = useState(null);
@@ -25,6 +29,7 @@ const MovieTicketing = () => {
   const [selectedGu, setSelectedGu] = useState(
     Object.keys(theaterData["서울시"])[0]
   );
+  const [selectedTime, setSelectedTime] = useState(null);
 
   const formatDate = (date) => {
     const year = date.getFullYear();
@@ -62,21 +67,22 @@ const MovieTicketing = () => {
   useEffect(() => {
     fetchData();
   }, []);
-  console.log(timeTable[selectedDate]?.[selectedTheater]?.[selectedMovie]);
 
   const resetHandler = () => {
     setSelectedGu(Object.keys(theaterData["서울시"])[0]);
     setSelectedDate(null);
     setSelectedMovie(null);
     setSelectedTheater(null);
-    alert(
-      `${selectedMovie}, ${selectedGu}, ${selectedTheater}, ${formatDate(
-        selectedDate
-      )}`
-    );
+    setSelectedTime(null);
   };
   return (
-    <Flex direction="column" align="flex-end">
+    <Flex
+      direction="column"
+      align="flex-end"
+      width="90%"
+      margin="0 auto"
+      position="relative"
+    >
       <Button onClick={resetHandler} width="fit-content" m={5}>
         <RepeatClockIcon mr={2} />
         예매 다시하기
@@ -101,29 +107,53 @@ const MovieTicketing = () => {
             p="10px"
           >
             <Box flex="1" overflowY="scroll">
-              <VStack align="flex-start">
-                {movies.map((movie) => (
-                  <Box
-                    key={movie.tmdbId}
-                    fontWeight="bold"
-                    cursor="pointer"
-                    p={2}
-                    width="90%"
-                    bg={
-                      selectedMovie === movie.tmdbId ? "#333333" : "transparent"
-                    }
-                    color={selectedMovie === movie.tmdbId ? "#d4d3c9" : "black"}
-                    onClick={() => setSelectedMovie(movie.tmdbId)}
-                    _hover={{
-                      bg:
-                        selectedMovie === movie.tmdbId ? "#444444" : "#d5d3c7",
-                    }}
-                    borderRadius={6}
-                  >
-                    {movie.title}
-                  </Box>
-                ))}
-              </VStack>
+              {isLoading ? (
+                <VStack align="flex-start" width="100%">
+                  {" "}
+                  {/* 100%로 고정 */}
+                  {[...Array(5)].map((_, i) => (
+                    <Skeleton
+                      key={i}
+                      height="40px"
+                      width="280px"
+                      padding="2px"
+                      borderRadius="6px"
+                      startColor="#d5d3c7"
+                      endColor="#f0efea"
+                    />
+                  ))}
+                </VStack>
+              ) : (
+                <VStack align="flex-start" width="100%">
+                  {movies.map((movie) => (
+                    <Box
+                      key={movie.tmdbId}
+                      fontWeight="bold"
+                      cursor="pointer"
+                      p={2}
+                      width="280px"
+                      bg={
+                        selectedMovie === movie.tmdbId
+                          ? "#333333"
+                          : "transparent"
+                      }
+                      color={
+                        selectedMovie === movie.tmdbId ? "#d4d3c9" : "black"
+                      }
+                      onClick={() => setSelectedMovie(movie.tmdbId)}
+                      _hover={{
+                        bg:
+                          selectedMovie === movie.tmdbId
+                            ? "#444444"
+                            : "#d5d3c7",
+                      }}
+                      borderRadius={6}
+                    >
+                      {movie.title}
+                    </Box>
+                  ))}
+                </VStack>
+              )}
             </Box>
           </Flex>
         </Box>
@@ -171,7 +201,8 @@ const MovieTicketing = () => {
                   {Object.keys(theaterData["서울시"]).map((gu) => (
                     <TabPanel key={gu}>
                       <Box>
-                        {Object.entries(theaterData["서울시"][gu]).map(
+                        {/* Object.entries(theaterData["서울시"][gu] */}
+                        {Object.entries(theaterData["서울시"][gu])?.map(
                           ([brand, theaters]) => (
                             <Box key={brand} mt={2}>
                               <Text
@@ -267,34 +298,73 @@ const MovieTicketing = () => {
             direction="column"
             height="calc(100% - 50px)"
             color="#333333"
-            p="10px"
+            p="5px"
             width="300px"
           >
-            <Box display="flex" alignItems="center" justifyContent="center">
-              {selectedDate && selectedMovie && selectedTheater ? (
-                <VStack>
-                  {timeTable[selectedDate]?.[selectedTheater]?.[
-                    selectedMovie
-                  ].map((session, index) => (
-                    <Box
-                      key={index}
-                      p={3}
-                      borderWidth="1px"
-                      borderRadius="md"
-                      width="100%"
-                    >
-                      <Text>시간: {session.time}</Text>
-                      <Text>남은 좌석: {session.availableSeats}석</Text>
-                    </Box>
-                  ))}
-                </VStack>
-              ) : (
+            <Box>
+              {!selectedDate || !selectedMovie || !selectedTheater ? (
+                // 1. 옵션을 아직 선택하지 않은 경우
                 <Text>영화, 극장, 날짜를 모두 선택해주세요</Text>
+              ) : !timeTable[formatDate(selectedDate)]?.[selectedTheater]?.[
+                  selectedMovie
+                ] ? (
+                // 2. 옵션은 선택했지만 Data가 없는 경우
+                <Text>해당 일자에 상영 일정이 없습니다</Text>
+              ) : (
+                // 3. 옵션을 모두 선택하고 Data가 있는 경우
+                <VStack align="flex-start">
+                  <Grid
+                    templateColumns="repeat(auto-fill, minmax(100px, 1fr))"
+                    gap={1}
+                    width="100%"
+                  >
+                    {timeTable[formatDate(selectedDate)][selectedTheater][
+                      selectedMovie
+                    ].map((session, index) => (
+                      <GridItem key={index}>
+                        <Flex
+                          p={1}
+                          align="center"
+                          borderWidth="1px"
+                          borderRadius="md"
+                          width="100%"
+                          justify="space-evenly"
+                        >
+                          <Button
+                            size="sm"
+                            backgroundColor={
+                              selectedTime === session.time
+                                ? "#333333"
+                                : "brand.primary"
+                            }
+                            color={
+                              selectedTime === session.time
+                                ? "#d4d3c9"
+                                : "black"
+                            }
+                            onClick={() => setSelectedTime(session.time)}
+                          >
+                            {session.time}
+                          </Button>
+                          <Text>{session.availableSeats}석</Text>
+                        </Flex>
+                      </GridItem>
+                    ))}
+                  </Grid>
+                </VStack>
               )}
             </Box>
           </Flex>
         </Box>
       </Flex>
+      {selectedMovie && selectedTheater && selectedDate && selectedTime && (
+        <TicketSummary
+          selectedMovie={selectedMovie}
+          selectedTheater={selectedTheater}
+          selectedDate={selectedDate}
+          selectedTime={selectedTime}
+        />
+      )}
     </Flex>
   );
 };
