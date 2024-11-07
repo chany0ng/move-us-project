@@ -201,7 +201,6 @@ const MovieTicketing = () => {
                   {Object.keys(theaterData["서울시"]).map((gu) => (
                     <TabPanel key={gu}>
                       <Box>
-                        {/* Object.entries(theaterData["서울시"][gu] */}
                         {Object.entries(theaterData["서울시"][gu])?.map(
                           ([brand, theaters]) => (
                             <Box key={brand} mt={2}>
@@ -361,7 +360,7 @@ const MovieTicketing = () => {
         <TicketSummary
           selectedMovie={selectedMovie}
           selectedTheater={selectedTheater}
-          selectedDate={selectedDate}
+          selectedDate={formatDate(selectedDate)}
           selectedTime={selectedTime}
         />
       )}

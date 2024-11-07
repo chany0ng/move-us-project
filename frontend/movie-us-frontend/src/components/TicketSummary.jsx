@@ -1,34 +1,34 @@
-import { Box, Button, Flex, Text, useToast } from "@chakra-ui/react";
+import { Box, Button, Flex, Heading, Text, useToast } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getData } from "../api/axios";
 import { ArrowRightIcon } from "@chakra-ui/icons";
+
+const SEAT_PRICE = 10000;
+
 const TicketSummary = ({
   selectedMovie,
   selectedTheater,
   selectedDate,
   selectedTime,
+  selectedSeats,
+  selectedPeople,
 }) => {
   const navigate = useNavigate();
   const toast = useToast();
   const [title, setTitle] = useState("");
   const [posterPath, setPosterPath] = useState("");
   const [releaseDate, setReleaseDate] = useState("");
-
   const handleGoToSeatSelection = () => {
-    navigate(`/ticketing/seat-selection?movie=${selectedMovie}&theater=${selectedTheater}&date=${formatDate(selectedDate)}&time=${selectedTime}`);
+    navigate(
+      `/ticketing/seat-selection?movie=${selectedMovie}&poster=${posterPath}&title=${title}&theater=${selectedTheater}&date=${selectedDate}&time=${selectedTime}`
+    );
   };
-
-  const formatDate = (date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-
-    // 요일 구하기
-    const daysOfWeek = ["일", "월", "화", "수", "목", "금", "토"];
-    const dayOfWeek = daysOfWeek[date.getDay()];
-
-    return `${year}-${month}-${day} (${dayOfWeek})`;
+  const isSelectAllSeats = () => {
+    if (selectedSeats && selectedPeople === selectedSeats.length) {
+      return true;
+    }
+    return false;
   };
 
   useEffect(() => {
@@ -38,7 +38,6 @@ const TicketSummary = ({
   const fetchMovieData = async () => {
     try {
       const response = await getData(`/movies/${selectedMovie}`);
-      console.log(response.data);
       setTitle(response.data.title);
       setPosterPath(response.data.posterPath);
       setReleaseDate(response.data.releaseDate);
@@ -65,8 +64,7 @@ const TicketSummary = ({
       zIndex="10"
       opacity={0.95}
     >
-      <Flex justify="space-evenly" pl={64} pr={64} align="center">
-        {/* Left section: Movie information */}
+      <Flex justify="space-evenly" pl={32} pr={32} align="center">
         <Box flex="1" p={2}>
           <Flex align="center">
             {posterPath && (
@@ -88,33 +86,48 @@ const TicketSummary = ({
           </Flex>
         </Box>
 
-        {/* Center section: User's selection */}
         <Box flex="1" p={2}>
           <Text fontWeight="bold" fontSize="xl" mb={1}>
             선택한 옵션
           </Text>
           <Text>극장: {selectedTheater}</Text>
           <Text>
-            일시: {formatDate(selectedDate)} {selectedTime}
+            일시: {selectedDate} {selectedTime}
           </Text>
         </Box>
 
-        {/* Right section: Seat selection button */}
         <Box
           flex="1"
           display="flex"
           justifyContent="center"
           alignItems="center"
         >
+          <Box flex="1">
+            {selectedSeats ? (
+              <Box flex="1" p={2}>
+                <Text fontWeight="bold" fontSize="xl" mb={1}>
+                  좌석 선택
+                </Text>
+                <Text>좌석번호 {selectedSeats.join(",")}</Text>
+              </Box>
+            ) : (
+              <Text fontWeight="bold" fontSize="xl" mb={1}>
+                <ArrowRightIcon /> 좌석 선택
+              </Text>
+            )}
+          </Box>
+        </Box>
+        <Box flex="1">
           <Button
             onClick={handleGoToSeatSelection}
             size="lg"
             display="flex"
             flexDirection="column"
             p={10}
+            disabled={selectedSeats && !isSelectAllSeats()}
           >
             <ArrowRightIcon size="5xl" />
-            좌석 선택
+            {selectedSeats ? <Text>결제 선택</Text> : <Text>좌석 선택</Text>}
           </Button>
         </Box>
       </Flex>
