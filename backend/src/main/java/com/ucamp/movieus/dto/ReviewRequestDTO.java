@@ -9,10 +9,8 @@ import java.math.BigDecimal;
 public class ReviewRequestDTO {
     private Long reviewId; // 리뷰 ID (Primary Key)
 
-    @NotNull(message = "User number은 필수 입력 항목입니다.")
-    private Long userNum;       // 사용자 ID
+    private Integer userNum;       // 사용자 ID
 
-    @NotNull(message = "Movie ID는 필수 입력 항목입니다.")
     private Long movieId;       // 영화 ID
 
     @NotNull(message = "Rating은 필수 입력 항목입니다.")
