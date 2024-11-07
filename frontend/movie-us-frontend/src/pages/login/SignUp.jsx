@@ -9,6 +9,7 @@ import {
   FormLabel,
   Button,
   Link,
+  useToast,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { CheckIcon, CloseIcon } from "@chakra-ui/icons";
@@ -18,6 +19,7 @@ import { postData } from "../../api/axios";
 import { useNavigate } from "react-router-dom";
 const SignUp = () => {
   const navigate = useNavigate();
+  const toast = useToast();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -30,31 +32,60 @@ const SignUp = () => {
 
   const handleSubmit = async () => {
     if (!name || !email || !phone || !password || !confirmPassword) {
-      alert("모든 필드를 입력해주세요.");
+      toast({
+        title: "모든 필드를 입력해주세요",
+        status: "warning",
+        duration: 2000,
+        isClosable: true,
+        position: "top",
+      });
       return;
     }
 
     const emailError = validateEmail(email);
     if (emailError) {
-      alert(emailError);
+      toast({
+        title: emailError,
+        status: "warning",
+        duration: 2000,
+        isClosable: true,
+        position: "top",
+      });
       return;
     }
 
     const phoneError = validatePhone(phone);
     if (phoneError) {
-      alert(phoneError);
+      toast({
+        title: phoneError,
+        status: "warning",
+        duration: 2000,
+        isClosable: true,
+        position: "top",
+      });
       return;
     }
 
     if (!checks.length(password) || !checks.pattern(password)) {
-      alert(
-        "비밀번호는 영문, 숫자, 특수문자를 포함하여 최소 8자 이상이어야 합니다."
-      );
+      toast({
+        title:
+          "비밀번호는 영문, 숫자, 특수문자를 포함하여 최소 8자 이상이어야 합니다.",
+        status: "warning",
+        duration: 2000,
+        isClosable: true,
+        position: "top",
+      });
       return;
     }
 
     if (!checks.match(password, confirmPassword)) {
-      alert("비밀번호가 일치하지 않습니다.");
+      toast({
+        title: "비밀번호가 일치하지 않습니다",
+        status: "warning",
+        duration: 2000,
+        isClosable: true,
+        position: "top",
+      });
       return;
     }
     try {
@@ -63,14 +94,26 @@ const SignUp = () => {
         userEmail: email,
         userPhone: phone,
         userPw: password,
-        confirmPassword: confirmPassword
+        confirmPassword: confirmPassword,
       });
       console.log(response);
-      alert("회원가입 성공!");
+      toast({
+        title: "회원가입 성공",
+        status: "success",
+        duration: 2000,
+        isClosable: true,
+        position: "top",
+      });
       navigate("/");
     } catch (error) {
-      console.error("회원가입 오류:", error);
-      alert("회원가입 중 문제가 발생했습니다. 다시 시도해주세요.");
+      toast({
+        title: "회원가입 중 문제가 발생했습니다. 다시 시도해주세요.",
+        description: error,
+        status: "error",
+        duration: 2000,
+        isClosable: true,
+        position: "top",
+      });
     }
   };
 
