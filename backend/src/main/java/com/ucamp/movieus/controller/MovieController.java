@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/movies")
@@ -49,10 +51,17 @@ public class MovieController {
         return ResponseEntity.ok(movies); // 영화 목록 반환
     }
 
-    // 영화 조회 (TMDB API - TMDB id)
+    // 영화 Credits 조회 (TMDB API - TMDB id)
     @GetMapping("/{id}/credits")
     public ResponseEntity<Object> getMovieCredits(@PathVariable Long id) {
         Object credits = movieService.getMovieCredits(id);
         return ResponseEntity.ok(credits);
+    }
+
+    // TMDB API의 인기 영화 목록에 DB 존재 여부 표시
+    @GetMapping("/AllPopularMovies")
+    public ResponseEntity<List<Map<String, Object>>> getAllPopularMovies() {
+        List<Map<String, Object>> moviesWithDbInfo = movieService.getAllPopularMovies();
+        return ResponseEntity.ok(moviesWithDbInfo);
     }
 }
