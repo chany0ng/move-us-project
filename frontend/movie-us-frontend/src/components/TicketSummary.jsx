@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getData } from "../api/axios";
 import { ArrowRightIcon } from "@chakra-ui/icons";
+import { userStore } from "../../store";
 
 const SEAT_PRICE = 10000;
 
@@ -16,6 +17,7 @@ const TicketSummary = ({
 }) => {
   const navigate = useNavigate();
   const toast = useToast();
+  const user = userStore((state) => state.user);
   const [title, setTitle] = useState("");
   const [posterPath, setPosterPath] = useState("");
   const [releaseDate, setReleaseDate] = useState("");
@@ -23,6 +25,21 @@ const TicketSummary = ({
     navigate(
       `/ticketing/seat-selection?movie=${selectedMovie}&poster=${posterPath}&title=${title}&theater=${selectedTheater}&date=${selectedDate}&time=${selectedTime}`
     );
+  };
+  const requireLoginHandler = () => {
+    toast({
+      title: "로그인이 필요합니다",
+      description: "예매 하시려면 로그인을 먼저 해주세요",
+      status: "warning",
+      duration: 2000,
+      isClosable: true,
+      position: "top",
+    });
+  };
+  const isLogin = () => {
+    console.log(user.user_email);
+    if (user.user_email) return true;
+    return false;
   };
   const isSelectAllSeats = () => {
     if (selectedSeats && selectedPeople === selectedSeats.length) {
@@ -53,6 +70,9 @@ const TicketSummary = ({
     }
   };
 
+  const payHandler = () => {
+    alert("결제요청!");
+  };
   return (
     <Box
       bg="#333333"
@@ -119,7 +139,13 @@ const TicketSummary = ({
         </Box>
         <Box flex="1">
           <Button
-            onClick={handleGoToSeatSelection}
+            onClick={
+              selectedSeats && isSelectAllSeats()
+                ? isLogin()
+                  ? payHandler
+                  : requireLoginHandler
+                : handleGoToSeatSelection
+            }
             size="lg"
             display="flex"
             flexDirection="column"
