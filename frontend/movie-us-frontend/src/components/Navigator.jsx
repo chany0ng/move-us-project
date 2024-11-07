@@ -4,16 +4,17 @@ import {
   Heading,
   HStack,
   Link as ChakraLink,
+  VStack,
 } from "@chakra-ui/react";
 import { Link as RouterLink } from "react-router-dom";
 import NavLink from "./NavLink";
 import { useEffect, useState } from "react";
-import { userStore } from "./../../store";
 import MyMenu from "./MyMenu";
 
 const Navigator = () => {
   const [isScrolled, setIsScrolled] = useState(false);
-
+  const [isCommunityHover, setIsCommunityHover] = useState(false);
+  const [isMyPageHover, setIsMyPageHover] = useState(false);
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 100); // 스크롤 위치에 따라 상태 변경
@@ -23,6 +24,7 @@ const Navigator = () => {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
+
   return (
     <Box
       position="fixed"
@@ -87,8 +89,93 @@ const Navigator = () => {
 
         {/* 오른쪽 메뉴 아이템들 */}
         <HStack spacing={32} flex="1" justify="flex-start">
-          <NavLink to="/community/movie-reviews">커뮤니티</NavLink>
-          <NavLink to="/my-page/user-info">마이페이지</NavLink>
+          {/* 커뮤니티 NavLink */}
+          <Box
+            position="relative"
+            onMouseEnter={() => setIsCommunityHover(true)}
+            onMouseLeave={() => setIsCommunityHover(false)}
+          >
+            <NavLink to="/community/movie-reviews">커뮤니티</NavLink>
+            <Box
+              position="absolute"
+              top="100%"
+              left="50%"
+              transform="translateX(-50%)"
+              width="200px"
+              bg="brand.black"
+              border="1px solid white"
+              display={isCommunityHover ? "block" : "none"}
+              boxShadow="md"
+            >
+              <VStack spacing={2} p={2}>
+                <ChakraLink
+                  as={RouterLink}
+                  to="/community/movie-reviews"
+                  color="gainsboro"
+                >
+                  영화 리뷰
+                </ChakraLink>
+                <ChakraLink
+                  as={RouterLink}
+                  to="/community/notice"
+                  color="gainsboro"
+                >
+                  공지사항
+                </ChakraLink>
+              </VStack>
+            </Box>
+          </Box>
+
+          {/* 마이페이지 NavLink */}
+          <Box
+            position="relative"
+            onMouseEnter={() => setIsMyPageHover(true)}
+            onMouseLeave={() => setIsMyPageHover(false)}
+          >
+            <NavLink to="/my-page/user-info">마이페이지</NavLink>
+            <Box
+              position="absolute"
+              top="100%"
+              left="50%" // 가운데 정렬을 위한 설정
+              transform="translateX(-50%)" // 정확히 가운데 위치하도록 이동
+              width="200px"
+              bg="brand.black"
+              border="1px solid white"
+              display={isMyPageHover ? "block" : "none"}
+              boxShadow="md"
+            >
+              <VStack spacing={2} p={2}>
+                <ChakraLink
+                  as={RouterLink}
+                  to="/my-page/user-info"
+                  color="gainsboro"
+                >
+                  회원정보 조회
+                </ChakraLink>
+                <ChakraLink
+                  as={RouterLink}
+                  to="/my-page/activity/user-reservation-history"
+                  color="gainsboro"
+                >
+                  예매 내역 조회
+                </ChakraLink>
+                <ChakraLink
+                  as={RouterLink}
+                  to="/my-page/activity/user-review-history"
+                  color="gainsboro"
+                >
+                  리뷰 내역 조회
+                </ChakraLink>
+                <ChakraLink
+                  as={RouterLink}
+                  to="/my-page/activity/user-liked-movies"
+                  color="gainsboro"
+                >
+                  내가 좋아요 누른 영화
+                </ChakraLink>
+              </VStack>
+            </Box>
+          </Box>
         </HStack>
       </Flex>
     </Box>
