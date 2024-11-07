@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/movies")
@@ -44,11 +46,32 @@ public class MovieController {
         return ResponseEntity.ok(movies); // 영화 목록 반환
     }
 
-    // 영화 조회 (TMDB API - TMDB id)
+    // 영화 Credits 조회 (TMDB API - TMDB id)
     @GetMapping("/{id}/credits")
     public ResponseEntity<Object> getMovieCredits(@PathVariable Long id) {
         Object credits = movieService.getMovieCredits(id);
         return ResponseEntity.ok(credits);
+    }
+
+    // 영화 Runtime 조회 (TMDB API - TMDB id)
+    @GetMapping("/{id}/runtime")
+    public ResponseEntity<Object> getMovieRuntime(@PathVariable Long id) {
+        Object credits = movieService.getMovieRuntime(id);
+        return ResponseEntity.ok(credits);
+    }
+
+    // TMDB API의 인기 영화 목록에 DB 존재 여부 표시 page1
+    @GetMapping("/popularMovies")
+    public ResponseEntity<List<Map<String, Object>>> getPopularMovies() {
+        List<Map<String, Object>> moviesWithDbInfo = movieService.getPopularMovies();
+        return ResponseEntity.ok(moviesWithDbInfo);
+    }
+
+    // TMDB API의 인기 영화 목록에 DB 존재 여부 표시 page1~page5
+    @GetMapping("/allPopularMovies")
+    public ResponseEntity<List<Map<String, Object>>> getAllPopularMovies() {
+        List<Map<String, Object>> moviesWithDbInfo = movieService.getAllPopularMovies();
+        return ResponseEntity.ok(moviesWithDbInfo);
     }
 
     // 특정 영화 상세정보 정보 조회

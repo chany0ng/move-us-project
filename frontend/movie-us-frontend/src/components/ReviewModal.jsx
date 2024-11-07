@@ -18,7 +18,7 @@ import {
   import { postData } from "../api/axios";
   import { Input } from "@chakra-ui/react";
   
-  const ReviewModal = ({ isOpen, onClose, tmdbId, movie, onReviewSubmitted }) => {
+  const ReviewModal = ({ isOpen, onClose, tmdbId, movie, onReviewSubmitted, userNum }) => {
     const [rating, setRating] = useState(0);
     const [content, setContent] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -45,11 +45,11 @@ import {
   
       setIsSubmitting(true);
       try {
-        await postData("/review", {
-          userNum: 1,
-          tmdbId,
-          rating,
-          content,
+        await postData("/api/review", {
+          userNum: userNum,
+          movieId: tmdbId,
+          rating: rating * 2,
+          comment: content,
         });
   
         toast({
@@ -58,7 +58,7 @@ import {
           duration: 3000,
         });
   
-        onReviewSubmitted?.(); // 리뷰 목록 새로고침
+        onReviewSubmitted?.();
         onClose();
         setRating(0);
         setContent("");

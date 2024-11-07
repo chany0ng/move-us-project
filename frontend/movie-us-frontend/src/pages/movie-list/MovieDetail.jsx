@@ -30,12 +30,15 @@ const MovieDetail = () => {
   // 상태 관리
   const [movie, setMovie] = useState(null);  // 영화 정보 상태
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);  // 리뷰 모달 표시 여부
-  const [reviews, setReviews] = useState([]);  // 리뷰 목록 상태
   const [isWishlist, setIsWishlist] = useState(false);  // 찜 상태
   const [credits, setCredits] = useState({ cast: [], crew: [] });
+  const [runtime, setRuntime] = useState(null);  // runtime 상태 
+  const [movieReviews, setMovieReviews] = useState([]); // 영화 리뷰 상태
 
   // TMDB 이미지 기본 URL (프로필 이미지용)
   const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w185";
+
+  const userNum = 1; // 임시 유저 번호 설정
 
   // 영화 상세 정보 가져오기
   useEffect(() => {
@@ -59,24 +62,24 @@ const MovieDetail = () => {
     }
   }, [tmdbId]);
 
-  // 리뷰 데이터 가져오기
+  // 특정 영화의 리뷰 데이터 가져오기
   useEffect(() => {
-    const fetchReviews = async () => {
+    const fetchMovieReviews = async () => {
       try {
-        const response = await getData(`/review/movieReview/${tmdbId}`);
+        const response = await getData(`/api/review/movieReview/${tmdbId}`);
         if (response && response.data) {
-          setReviews(response.data);
+          setMovieReviews(response.data);
         }
       } catch (error) {
-        console.error("리뷰 데이터 가져오기 실패:", error);
-        setReviews([]);
+        console.error("영화 리뷰 데이터 가져오기 실패:", error);
+        setMovieReviews([]);
       }
     };
 
     if (tmdbId) {
-      fetchReviews();
+      fetchMovieReviews();
     }
-  }, [tmdbId]);
+  }, [tmdbId]); // tmdbId가 변경될 때마다 리뷰를 다시 가져옵니다
 
   // 출연진 정보 가져오기
   useEffect(() => {
@@ -87,13 +90,32 @@ const MovieDetail = () => {
           setCredits(response.data);
         }
       } catch (error) {
-        console.error("출연진 정보 가져오기 실패:", error);
+        console.error("출연진 정보 져오기 실패:", error);
         setCredits({ cast: [], crew: [] });
       }
     };
 
     if (tmdbId) {
       fetchMovieCredits();
+    }
+  }, [tmdbId]);
+
+  // runtime 정보 가져오기
+  useEffect(() => {
+    const fetchMovieRuntime = async () => {
+      try {
+        const response = await getData(`/movies/${tmdbId}/runtime`);
+        if (response && response.data) {
+          console.log("Runtime Response:", response.data.runtime);  // runtime 값만 콘솔 출력
+          setRuntime(response.data.runtime);
+        }
+      } catch (error) {
+        console.error("상영시간 정보 가져오기 실패:", error);
+      }
+    };
+
+    if (tmdbId) {
+      fetchMovieRuntime();
     }
   }, [tmdbId]);
 
@@ -147,8 +169,8 @@ const MovieDetail = () => {
             <HStack spacing={4} width="100%" justify="space-between">
               <HStack spacing={4}>
                 <Text>개봉일: {movie.releaseDate}</Text>
-                {movie.runtime && (
-                  <Text>• {Math.floor(movie.runtime / 60)}시간 {movie.runtime % 60}분</Text>
+                {runtime && (
+                  <Text ml={10}>런타임 : {Math.floor(runtime / 60)}시간 {runtime % 60}분</Text>
                 )}
               </HStack>
               <Button
@@ -182,32 +204,30 @@ const MovieDetail = () => {
                 시청 가능한 곳
               </Text>
               <HStack spacing={4}>
-                {movie.ottLinks?.netflix || (
-                  <Button
-                    as="a"
-                    target="_blank"
-                    sx={styles.ottButton}
-                  >
-                    <Image 
-                      src={netflixLogo} 
-                      alt="Netflix" 
-                      sx={styles.ottImage} 
-                    />
-                  </Button>
-                )}
-                {movie.ottLinks?.tving || (
-                  <Button
-                    as="a"
-                    target="_blank"
-                    sx={styles.ottButton}
-                  >
-                    <Image 
-                      src={tvingLogo} 
-                      alt="Tving" 
-                      sx={styles.ottImage} 
-                    />
-                  </Button>
-                )}
+                <Button
+                  as="a"
+                  href="https://www.netflix.com/kr/title/81787451"
+                  target="_blank"
+                  sx={styles.ottButton}
+                >
+                  <Image 
+                    src={netflixLogo} 
+                    alt="Netflix" 
+                    sx={styles.ottImage} 
+                  />
+                </Button>
+                <Button
+                  as="a"
+                  href="https://www.tving.com/contents/M000377290"
+                  target="_blank"
+                  sx={styles.ottButton}
+                >
+                  <Image 
+                    src={tvingLogo} 
+                    alt="Tving" 
+                    sx={styles.ottImage} 
+                  />
+                </Button>
               </HStack>
             </Box>
 
@@ -301,7 +321,7 @@ const MovieDetail = () => {
           <Flex justify="space-between" align="center" mb={4}>
             <Heading size="lg">리뷰</Heading>
           </Flex>
-          <ReviewList tmdbId={tmdbId} reviews={reviews} />
+          <ReviewList reviews={movieReviews} />
         </Box>
       </Container>
 
@@ -311,6 +331,7 @@ const MovieDetail = () => {
         onClose={handleCloseModal}
         tmdbId={tmdbId}
         movie={movie}
+        userNum={userNum}
       />
     </div>
   );
