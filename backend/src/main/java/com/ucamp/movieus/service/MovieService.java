@@ -105,6 +105,34 @@ public class MovieService {
     }
 
     @SuppressWarnings("unchecked")
+    public List<Map<String, Object>> getPopularMovies() {
+        List<Map<String, Object>> moviesWithDbInfo = new ArrayList<>();
+
+        // DB에 저장된 영화의 TMDB ID 목록 가져오기
+        List<Integer> dbMovieIds = movieRepository.findAllTmdbIds();
+        Set<Integer> dbMovieIdSet = new HashSet<>(dbMovieIds);
+
+        // TMDB API에서 인기 영화 목록 가져오기
+        String url = BASE_URL + "popular?api_key=" + API_KEY + "&language=ko-KR&region=KR";
+
+        // TMDB API 요청
+        Map<String, Object> response = restTemplate.getForObject(url, Map.class);
+        List<Map<String, Object>> movies = (List<Map<String, Object>>) response.get("results");
+
+        // API에서 가져온 영화 목록에 DB 존재 여부 표시
+        for (Map<String, Object> movie : movies) {
+            Integer tmdbId = (Integer) movie.get("id");
+            boolean existsInDb = dbMovieIdSet.contains(tmdbId);
+
+            // exists_in_db 필드 추가
+            movie.put("exists_in_db", existsInDb);
+            moviesWithDbInfo.add(movie);
+        }
+
+        return moviesWithDbInfo;
+    }
+
+    @SuppressWarnings("unchecked")
     public List<Map<String, Object>> getAllPopularMovies() {
         List<Map<String, Object>> moviesWithDbInfo = new ArrayList<>();
 
