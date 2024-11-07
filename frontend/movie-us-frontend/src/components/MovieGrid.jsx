@@ -84,11 +84,11 @@ const MovieGrid = ({ movies, title, isLoading }) => {
             ))
           ) : // 로딩 완료 후 실제 콘텐츠 표시
           movies.length !== 0 ? (
-            movies.map((movie) => (
+            movies.map((movie, index) => (
               <SwiperSlide key={movie.id}>
                 <MovieBox position="relative">
                   <StyledImage
-                    src={"https://image.tmdb.org/t/p/w500" + movie.posterPath}
+                    src={"https://image.tmdb.org/t/p/w500" + movie.poster_path}
                     alt={movie.title}
                   />
                   <Box
@@ -102,25 +102,28 @@ const MovieGrid = ({ movies, title, isLoading }) => {
                     fontFamily={"Noto Sans KR"}
                     fontStyle={"italic"}
                   >
-                    {movie.id}
+                    {index + 1}
                   </Box>
                   <DescriptionBox>
                     <Heading as="h4" size="md" mb={10}>
                       {movie.title}
                     </Heading>
                     <Flex>
-                      <Link to={`/movie-detail/${movie.tmdbId}`}>
+                      <Link to={`/movie-detail/${movie.id}`}>
                         <Button
                           colorScheme="brand.primary"
                           variant={"outline"}
                           mr={5}
+                          mx={movie.exists_in_db ? "none" : "auto"}
                         >
                           상세정보
                         </Button>
                       </Link>
-                      <Link to={`/ticketing/${movie.tmdbId}`}>
-                        <Button colorScheme="teal">예매하기</Button>
-                      </Link>
+                      {movie.exists_in_db && (
+                        <Link to={`/ticketing/${movie.id}`}>
+                          <Button colorScheme="teal">예매하기</Button>
+                        </Link>
+                      )}
                     </Flex>
                   </DescriptionBox>
                 </MovieBox>

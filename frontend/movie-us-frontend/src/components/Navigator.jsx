@@ -103,6 +103,7 @@ const Navigator = () => {
               transform="translateX(-50%)"
               width="200px"
               bg="brand.black"
+              borderRadius="5px"
               border="1px solid white"
               display={isCommunityHover ? "block" : "none"}
               boxShadow="md"
@@ -140,6 +141,7 @@ const Navigator = () => {
               transform="translateX(-50%)" // 정확히 가운데 위치하도록 이동
               width="200px"
               bg="brand.black"
+              borderRadius="5px"
               border="1px solid white"
               display={isMyPageHover ? "block" : "none"}
               boxShadow="md"
