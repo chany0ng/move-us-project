@@ -9,7 +9,7 @@ const MainPage = () => {
   const [movies, setMovies] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const toast = useToast();
-  const fetchData = async () => {
+  const fetchNowPlayingMovies = async () => {
     try {
       setIsLoading(true);
       const response = await getData("/movies/moviesList");
@@ -30,7 +30,7 @@ const MainPage = () => {
   };
 
   useEffect(() => {
-    fetchData();
+    fetchNowPlayingMovies();
   }, []);
 
   return (

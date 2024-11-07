@@ -159,7 +159,9 @@ const SeatSelection = () => {
                 <p>{selectedTheater}</p>
                 <p>{selectedTitle}</p>
                 <p>
-                  남은 좌석 <span>100</span>/100
+                  남은 좌석{" "}
+                  <span style={{ color: " red", fontWeight: "bold" }}>98</span>
+                  /100
                 </p>
               </Flex>
               <Flex pt={4}>

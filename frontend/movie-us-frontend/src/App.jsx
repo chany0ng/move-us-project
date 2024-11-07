@@ -35,7 +35,7 @@ function App() {
             <Route path="/movie-detail/:tmdbId" element={<MovieDetail />} />
             <Route path="/community/movie-reviews" element={<MovieReviews />} />
             <Route path="/community/notice" element={<Notice />} />
-            <Route path="/ticketing" element={<MovieTicketing />} />
+            <Route path="/ticketing/:tmdbId?" element={<MovieTicketing />} />
             <Route
               path="/ticketing/seat-selection"
               element={<SeatSelection />}

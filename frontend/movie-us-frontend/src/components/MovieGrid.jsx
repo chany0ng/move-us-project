@@ -118,7 +118,9 @@ const MovieGrid = ({ movies, title, isLoading }) => {
                           상세정보
                         </Button>
                       </Link>
-                      <Button colorScheme="teal">예매하기</Button>
+                      <Link to={`/ticketing/${movie.tmdbId}`}>
+                        <Button colorScheme="teal">예매하기</Button>
+                      </Link>
                     </Flex>
                   </DescriptionBox>
                 </MovieBox>

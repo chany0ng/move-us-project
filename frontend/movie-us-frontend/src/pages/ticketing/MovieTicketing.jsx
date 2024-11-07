@@ -21,10 +21,12 @@ import DateSelector from "../../components/DateSelector";
 import { RepeatClockIcon } from "@chakra-ui/icons";
 import timeTable from "../../assets/data/timeTable.json";
 import TicketSummary from "../../components/TicketSummary";
+import { useParams } from "react-router-dom";
 
 const MovieTicketing = () => {
+  const { tmdbId } = useParams();
   const [selectedDate, setSelectedDate] = useState(null);
-  const [selectedMovie, setSelectedMovie] = useState(null);
+  const [selectedMovie, setSelectedMovie] = useState(parseInt(tmdbId));
   const [selectedTheater, setSelectedTheater] = useState(null);
   const [selectedGu, setSelectedGu] = useState(
     Object.keys(theaterData["서울시"])[0]
@@ -35,7 +37,12 @@ const MovieTicketing = () => {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0"); // 월을 두 자리로 포맷
     const day = String(date.getDate()).padStart(2, "0"); // 일을 두 자리로 포맷
-    return `${year}-${month}-${day}`;
+
+    // 요일 배열 (일요일부터 토요일까지)
+    const daysOfWeek = ["일", "월", "화", "수", "목", "금", "토"];
+    const dayOfWeek = daysOfWeek[date.getDay()]; // 요일 이름 가져오기
+
+    return `${year}-${month}-${day} (${dayOfWeek})`;
   };
 
   const handleDateSelect = (date) => {
@@ -109,8 +116,6 @@ const MovieTicketing = () => {
             <Box flex="1" overflowY="scroll">
               {isLoading ? (
                 <VStack align="flex-start" width="100%">
-                  {" "}
-                  {/* 100%로 고정 */}
                   {[...Array(5)].map((_, i) => (
                     <Skeleton
                       key={i}
