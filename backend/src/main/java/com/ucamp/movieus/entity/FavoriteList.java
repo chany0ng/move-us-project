@@ -18,6 +18,6 @@ public class FavoriteList {
     private UserEntity user;
 
     @ManyToOne
-    @JoinColumn(name = "movie_id", nullable = false)
+    @JoinColumn(name = "movie_id", referencedColumnName = "tmdbId", nullable = false)
     private Movie movie;
 }
