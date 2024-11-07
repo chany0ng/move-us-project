@@ -10,6 +10,7 @@ import java.util.Optional;
 
 public interface MovieRepository extends JpaRepository<Movie, Long> {
     Optional<Movie> findByTmdbId(Long tmdbId);
+    
 
     // DB에 저장된 모든 TMDB ID 조회
     @Query("SELECT m.tmdbId FROM Movie m")

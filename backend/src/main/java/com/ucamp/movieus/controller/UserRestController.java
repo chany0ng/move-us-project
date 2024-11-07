@@ -1,6 +1,7 @@
 package com.ucamp.movieus.controller;
 
 import com.ucamp.movieus.dto.UserLoginDto;
+import com.ucamp.movieus.dto.UserMyPageDTO;
 import com.ucamp.movieus.dto.UserReqDTO;
 import com.ucamp.movieus.dto.UserReqFormDTO;
 import com.ucamp.movieus.dto.UserResDTO;
@@ -143,4 +144,22 @@ public class UserRestController {
 //        user.setEmail("john.doe@example.com");
         // 성공 시 UserEntity JSON 반환
     }
+
+        //재하 추가 코드 (회원정보 조회)
+        @GetMapping("/mypage/{userEmail}")
+        public ResponseEntity<UserMyPageDTO> myPage(@PathVariable String userEmail) {
+            UserMyPageDTO userInfo = userService.getUserMyPage(userEmail);
+        return ResponseEntity.ok(userInfo);
+    }
+
+        //재하 추가 코드 (회원정보 수정)
+        @PutMapping("/mypage/{userEmail}")
+        public ResponseEntity<UserMyPageDTO> updateUserInfo(
+            @PathVariable String userEmail,
+            @RequestBody UserMyPageDTO updateDto
+        ) {
+            UserMyPageDTO updatedUser = userService.updateUserInfo(userEmail, updateDto);
+            return ResponseEntity.ok(updatedUser);
+        }
+
 }
