@@ -16,7 +16,7 @@ import UserReservationHistory from "./pages/my-page/UserReservationHistory";
 import UserReviewHistory from "./pages/my-page/UserReviewHistory";
 import MovieTicketing from "./pages/ticketing/MovieTicketing";
 import SeatSelection from "./pages/ticketing/SeatSelection";
-
+import ProtectedRoute from "./ProtectedRoute";
 function App() {
   return (
     <>
@@ -40,20 +40,60 @@ function App() {
               path="/ticketing/seat-selection"
               element={<SeatSelection />}
             />
-            {/*//todo useAuth 만들어서, 로그인 여부 체크 후 my-page 접근 여부 확인,
-               //todo RequireAuth 컴포넌트로 상위 Route 구현 */}
-            <Route path="/my-page/user-info" element={<UserInfo />} />
+            <Route
+              path="/my-page"
+              element={
+                <ProtectedRoute>
+                  {/* 모든 중첩된 경로에 대해 ProtectedRoute 적용 */}
+                  <Routes>
+                    <Route path="user-info" element={<UserInfo />} />
+                    <Route
+                      path="activity/user-liked-movies"
+                      element={<UserLikedMovies />}
+                    />
+                    <Route
+                      path="activity/user-reservation-history"
+                      element={<UserReservationHistory />}
+                    />
+                    <Route
+                      path="activity/user-review-history"
+                      element={<UserReviewHistory />}
+                    />
+                  </Routes>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/my-page/user-info"
+              element={
+                <ProtectedRoute>
+                  <UserInfo />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/my-page/activity/user-liked-movies"
-              element={<UserLikedMovies />}
+              element={
+                <ProtectedRoute>
+                  <UserLikedMovies />
+                </ProtectedRoute>
+              }
             />
             <Route
               path="/my-page/activity/user-reservation-history"
-              element={<UserReservationHistory />}
+              element={
+                <ProtectedRoute>
+                  <UserReservationHistory />
+                </ProtectedRoute>
+              }
             />
             <Route
               path="/my-page/activity/user-review-history"
-              element={<UserReviewHistory />}
+              element={
+                <ProtectedRoute>
+                  <UserReviewHistory />
+                </ProtectedRoute>
+              }
             />
           </Route>
         </Routes>
