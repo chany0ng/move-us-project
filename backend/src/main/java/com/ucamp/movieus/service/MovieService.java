@@ -104,7 +104,6 @@ public class MovieService {
         return restTemplate.getForObject(url, Object.class);
     }
 
-
     @SuppressWarnings("unchecked")
     public List<Map<String, Object>> getAllPopularMovies() {
         List<Map<String, Object>> moviesWithDbInfo = new ArrayList<>();

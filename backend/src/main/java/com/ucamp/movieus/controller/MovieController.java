@@ -58,6 +58,13 @@ public class MovieController {
         return ResponseEntity.ok(credits);
     }
 
+    // 영화 Runtime 조회 (TMDB API - TMDB id)
+    @GetMapping("/{id}/runtime")
+    public ResponseEntity<Object> getMovieRuntime(@PathVariable Long id) {
+        Object credits = movieService.getMovieRuntime(id);
+        return ResponseEntity.ok(credits);
+    }
+
     // TMDB API의 인기 영화 목록에 DB 존재 여부 표시
     @GetMapping("/AllPopularMovies")
     public ResponseEntity<List<Map<String, Object>>> getAllPopularMovies() {
