@@ -21,7 +21,7 @@ const ReviewList = ({ reviews }) => {
       ) : (
         reviews.map((review) => (
           <Box 
-            key={review.id} 
+            key={review.reviewId}
             p={4} 
             borderColor="#3F3F3F"
             borderWidth="1px" 
@@ -30,8 +30,8 @@ const ReviewList = ({ reviews }) => {
           >
             <Flex justify="space-between" align="center" mb={2}>
               <Flex align="center" gap={2}>
-                <Avatar size="sm" name={review.username} />
-                <Text fontWeight="bold">{review.username}</Text>
+                <Avatar size="sm" name={review.user.username} />
+                <Text fontWeight="bold">{review.user.username}</Text>
               </Flex>
               <Flex align="center" gap={2}>
                 <Flex>
@@ -39,16 +39,16 @@ const ReviewList = ({ reviews }) => {
                     <Icon
                       key={i}
                       as={StarIcon}
-                      color={i < review.rating ? "yellow.400" : "gray.300"}
+                      color={i < (review.rating / 2) ? "yellow.400" : "gray.300"}
                     />
                   ))}
                 </Flex>
                 <Text fontSize="sm" color="gray.600">
-                  {new Date(review.createdAt).toLocaleDateString()}
+                  {new Date(review.reviewDate).toLocaleDateString()}
                 </Text>
               </Flex>
             </Flex>
-            <Text>{review.content}</Text>
+            <Text>{review.comment}</Text>
           </Box>
         ))
       )}

@@ -63,6 +63,7 @@ const SignUp = () => {
         userEmail: email,
         userPhone: phone,
         userPw: password,
+        confirmPassword: confirmPassword
       });
       console.log(response);
       alert("회원가입 성공!");

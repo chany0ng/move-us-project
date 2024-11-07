@@ -45,7 +45,8 @@ import {
   
       setIsSubmitting(true);
       try {
-        await postData("/reviews", {
+        await postData("/review", {
+          userNum: 1,
           tmdbId,
           rating,
           content,

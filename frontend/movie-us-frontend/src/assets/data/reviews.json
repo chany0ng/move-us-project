@@ -1,64 +1,58 @@
-{
-  "reviews": [
-    {
+[
+  {
+    "reviewId": 1,
+    "user": {
+      "userNum": 1
+    },
+    "movieId": {
       "id": 1,
-      "tmdbId": 912649,
-      "userId": "user1",
-      "username": "영화광",
-      "rating": 4.5,
-      "content": "정말 재미있게 본 영화입니다. 스토리도 탄탄하고 연기도 훌륭했어요!",
-      "createdAt": "2024-03-15T09:30:00Z",
-      "likes": 12
+      "title": "듄: 파트2",
+      "posterPath": "/8b8R8l88Qje9dn9OE8PY05Nxl1X.jpg"
     },
-    {
+    "rating": 8.5,
+    "comment": "시각적인 효과가 매우 뛰어나고 스토리도 탄탄합니다. 특히 사운드와 영상미의 조화가 인상적이었습니다.",
+    "reviewDate": "2024-03-20T14:30:00"
+  },
+  {
+    "reviewId": 2,
+    "user": {
+      "userNum": 2
+    },
+    "movieId": {
       "id": 2,
-      "tmdbId": 912649,
-      "userId": "user2",
-      "username": "무비러버",
-      "rating": 5.0,
-      "content": "최고의 영화! 여러번 봐도 질리지 않는 명작입니다.",
-      "createdAt": "2024-03-14T15:20:00Z",
-      "likes": 8
+      "title": "웡카",
+      "posterPath": "/yOm993lsJyPmBodlYjgpPwBjXP9.jpg"
     },
-    {
-      "id": 3,
-      "tmdbId": 1184918,
-      "userId": "user3",
-      "username": "시네필",
-      "rating": 4.0,
-      "content": "연출이 특히 인상적이었던 작품이에요. 음악도 너무 좋았습니다.",
-      "createdAt": "2024-03-13T18:45:00Z",
-      "likes": 5
+    "rating": 9.0,
+    "comment": "티모시 샬라메의 연기가 정말 인상적이었습니다. 원작의 매력을 잘 살린 리메이크였네요.",
+    "reviewDate": "2024-03-21T10:15:00"
+  },
+  {
+    "reviewId": 3,
+    "user": {
+      "userNum": 3
     },
-    {
+    "movieId": {
+      "id": 3,  
+      "title": "poor things",
+      "posterPath": "/kCGlIMHnOm8JPXq3rXM6c5wMxcT.jpg"
+    },
+    "rating": 9.5,
+    "comment": "엠마 스톤의 연기가 압도적이었고, 독특한 세계관과 미장센이 매력적이었습니다. 올해 최고의 영화 중 하나입니다.",
+    "reviewDate": "2024-03-22T16:45:00"
+  },
+  {
+    "reviewId": 4,
+    "user": {
+      "userNum": 4
+    },
+    "movieId": {
       "id": 4,
-      "tmdbId": 1184918,
-      "userId": "user4",
-      "username": "영화덕후",
-      "rating": 4.5,
-      "content": "배우들의 연기가 일품이었고, 스토리 전개도 매끄러웠습니다.",
-      "createdAt": "2024-03-12T14:20:00Z",
-      "likes": 15
+      "title": "소풍",
+    "posterPath": "/kCGlIMHnOm8JPXq3rXM6c5wMxcT.jpg"
     },
-    {
-      "id": 5,
-      "tmdbId": 698687,
-      "userId": "user5",
-      "username": "무비매니아",
-      "rating": 5.0,
-      "content": "올해 본 영화 중 최고입니다. 강력 추천합니다!",
-      "createdAt": "2024-03-11T10:15:00Z",
-      "likes": 20
-    },
-    {
-      "id": 6,
-      "tmdbId": 698687,
-      "userId": "user6",
-      "username": "필름마스터",
-      "rating": 4.0,
-      "content": "영상미가 아름답고 스토리도 감동적이었습니다.",
-      "createdAt": "2024-03-10T16:30:00Z",
-      "likes": 10
-    }
-  ]
-} 
+    "rating": 8.5,
+    "comment": "아름다운 영상미와 배두나 배우의 섬세한 연기가 인상적이었습니다. 가족의 의미를 다시 한번 생각하게 만드는 따뜻한 영화였어요.",
+    "reviewDate": "2024-03-23T09:20:00"
+  }
+]
