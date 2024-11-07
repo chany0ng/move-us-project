@@ -2,6 +2,7 @@ import axios from "axios";
 
 // Axios instance 생성
 export const customAxios = axios.create({
+  // baseURL: "https://api.comission-platform.store", // AWS EC2 API서버의 BASE URL
   baseURL: "http://localhost:8080", // 개발용 로컬서버의 BASE URL
   timeout: 5000,
   withCredentials: true,
@@ -29,7 +30,6 @@ export const customAxios = axios.create({
 //   (response) => response,
 //   async (error) => {
 //     const errorStatus = error.response?.status;
-//     const prevRequest = error?.config;
 //     const requestUrl = error.config.url;
 
 //     if (requestUrl === "/api/reissue") {
@@ -45,26 +45,50 @@ export const customAxios = axios.create({
 //           error.config.headers.Authorization = `Bearer ${newAccessToken}`;
 //           return customAxios.request(error.config); // 이전 요청 재시도
 //         }
+// else {
+//   // 새 토큰을 가져오지 못한 경우 (로그인 페이지로 리디렉션)
+//   window.location.href = "/";
+//   return Promise.reject(new Error("이전 요청 재시도 실패"));
+// }
 //       } catch (error) {
 //         if (error.response?.status === 403) {
 //           // 예: refreshToken이 만료된 경우
 //           // 로그인 페이지로 리디렉션
 //           window.location.href = "/"; // 또는 사용자가 원하는 다른 페이지로
 //         }
-//         return Promise.reject(new Error("이전 요청 재시도 failed"));
+//         return Promise.reject(new Error("Access Token 재발급 실패"));
 //       }
 //     }
 //     return Promise.reject(error);
 //   }
 // );
 
-// // Access Token 재발급 함수
-// export const refreshAccessToken = async () => {
-//   const response = await postData("/api/reissue", "");
-//   const newAccessToken = response.headers?.authorization; // 새로운 액세스 토큰 가져오기
-//   localStorage.setItem("accessToken", newAccessToken); // 로컬 스토리지에 저장
-//   return newAccessToken; // 필요한 경우 반환
+// Access Token 재발급 함수
+// const refreshAccessToken = async () => {
+//   try {
+//     const response = await postData("/api/reissue", "");
+//     const newAccessToken = response.headers?.authorization; // 새로운 액세스 토큰 가져오기
+
+//     if (newAccessToken) {
+//       localStorage.setItem("accessToken", newAccessToken); // 로컬 스토리지에 저장
+//       return newAccessToken;
+//     } else {
+//       throw new Error("새로운 토큰을 가져올 수 없습니다.");
+//     }
+//   } catch (error) {
+//     throw error; // 인터셉터에서 예외 처리
+//   }
 // };
+
+//todo config에 Query Parameter 전달하는법
+/*
+{
+  params: {
+    search: 'John',  // 검색 키워드
+    sort: 'asc',     // 정렬 순서
+  },
+}
+*/
 
 // GET Method
 export const getData = async (url, config) => {

@@ -16,7 +16,7 @@ const TicketSummary = ({
   const [releaseDate, setReleaseDate] = useState("");
 
   const handleGoToSeatSelection = () => {
-    navigate("/ticketing/seat-selection");
+    navigate(`/ticketing/seat-selection?movie=${selectedMovie}&theater=${selectedTheater}&date=${formatDate(selectedDate)}&time=${selectedTime}`);
   };
 
   const formatDate = (date) => {
