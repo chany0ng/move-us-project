@@ -68,7 +68,7 @@ const MovieDetail = () => {
           setReviews(response.data);
         }
       } catch (error) {
-        console.error("리뷰 데이터 ���져오기 실패:", error);
+        console.error("리뷰 데이터 가져오기 실패:", error);
         setReviews([]);
       }
     };
