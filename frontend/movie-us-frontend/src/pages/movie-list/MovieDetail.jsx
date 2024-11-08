@@ -41,142 +41,105 @@ const MovieDetail = () => {
 
   const userNum = 1; // 임시 유저 번호 설정
 
-  // 영화 상세 정보 가져오기
+  // 모든 영화 관련 데이터 가져오기
   useEffect(() => {
-    const fetchMovieDetail = async () => {
+    const fetchMovieData = async () => {
+      if (!tmdbId) return;
+
       try {
-        console.log("Fetching movie ID:", tmdbId);
-        const response = await getData(`/movies/${tmdbId}`);
-        console.log("API Response:", response);
-        if (response && response.data) {
-          setMovie(response.data);
-        } else {
-          console.error("No data in response");
+        const [
+          movieResponse,
+          creditsResponse,
+          runtimeResponse,
+          reviewsResponse,
+          favoritesResponse
+        ] = await Promise.all([
+          getData(`/movies/${tmdbId}`),
+          getData(`/movies/${tmdbId}/credits`),
+          getData(`/movies/${tmdbId}/runtime`),
+          getData(`/api/review/movieReview/${tmdbId}`),
+          getData(`/api/favorites`)
+        ]);
+
+        // 영화 상세 정보 설정
+        if (movieResponse?.data) {
+          setMovie(movieResponse.data);
         }
-      } catch (error) {
-        console.error("Error fetching movie details:", error.response || error);
-      }
-    };
 
-    if (tmdbId) {
-      fetchMovieDetail();
-    }
-  }, [tmdbId]);
-
-  // 특정 영화의 리뷰 데이터 가져오기
-  useEffect(() => {
-    const fetchMovieReviews = async () => {
-      try {
-        const response = await getData(`/api/review/movieReview/${tmdbId}`);
-        if (response && response.data) {
-          setMovieReviews(response.data);
+        // 출연진 정보 설정
+        if (creditsResponse?.data) {
+          setCredits(creditsResponse.data);
         }
-      } catch (error) {
-        console.error("영화 리뷰 데이터 가져오기 실패:", error);
-        setMovieReviews([]);
-      }
-    };
 
-    if (tmdbId) {
-      fetchMovieReviews();
-    }
-  }, [tmdbId]); // tmdbId가 변경될 때마다 리뷰를 다시 가져옵니다
-
-  // 출연진 정보 가져오기
-  useEffect(() => {
-    const fetchMovieCredits = async () => {
-      try {
-        const response = await getData(`/movies/${tmdbId}/credits`);
-        if (response && response.data) {
-          setCredits(response.data);
+        // 상영 시간 설정
+        if (runtimeResponse?.data) {
+          setRuntime(runtimeResponse.data.runtime);
         }
-      } catch (error) {
-        console.error("출연진 정보 져오기 실패:", error);
+
+        // 리뷰 설정
+        if (reviewsResponse?.data) {
+          setMovieReviews(reviewsResponse.data);
+        }
+
+        // 찜하기 상태 설정
+        if (favoritesResponse?.data) {
+          const favoriteItem = favoritesResponse.data.find(
+            item => item.movie.tmdbId === parseInt(tmdbId)
+          );
+          setIsWishlist(!!favoriteItem);
+          setFavoriteId(favoriteItem?.favoriteId || null);
+        }
+
+      } catch {
+        setMovie(null);
         setCredits({ cast: [], crew: [] });
-      }
-    };
-
-    if (tmdbId) {
-      fetchMovieCredits();
-    }
-  }, [tmdbId]);
-
-  // runtime 정보 가져오기
-  useEffect(() => {
-    const fetchMovieRuntime = async () => {
-      try {
-        const response = await getData(`/movies/${tmdbId}/runtime`);
-        if (response && response.data) {
-          console.log("Runtime Response:", response.data.runtime);  // runtime 값만 콘솔 출력
-          setRuntime(response.data.runtime);
-        }
-      } catch (error) {
-        console.error("상영시간 정보 가져오기 실패:", error);
-      }
-    };
-
-    if (tmdbId) {
-      fetchMovieRuntime();
-    }
-  }, [tmdbId]);
-
-  // 초기 찜 상태 확인
-  useEffect(() => {
-    const checkWishlistStatus = async () => {
-      try {
-        const response = await getData(`/api/favorites`);
-        // 현재 영화가 찜 목록에 있는지 확인
-        const favoriteItem = response.data.find(item => item.movie.tmdbId === parseInt(tmdbId));
-        if (favoriteItem) {
-          setIsWishlist(true);
-          setFavoriteId(favoriteItem.favoriteId);  // favoriteId를 상태로 저장
-        } else {
-          setIsWishlist(false);
-          setFavoriteId(null);
-        }
-      } catch (error) {
-        console.error("찜하기 상태 확인 실패:", error);
+        setRuntime(null);
+        setMovieReviews([]);
         setIsWishlist(false);
+        setFavoriteId(null);
       }
     };
 
-    if (tmdbId && userNum) {
-      checkWishlistStatus();
-    }
-  }, [tmdbId, userNum]);
+    fetchMovieData();
+  }, [tmdbId]);
 
-  // 찜하기 토글 함수 수정
+  // 리뷰 목록 새로고침 함수
+  const refreshReviews = async () => {
+    try {
+      const response = await getData(`/api/review/movieReview/${tmdbId}`);
+      if (response?.data) {
+        setMovieReviews(response.data);
+      }
+    } catch {
+      setMovieReviews([]);
+    }
+  };
+
+  // 찜하기 토글 함수
   const handleWishlist = async () => {
     try {
-      // UI 상태를 먼저 변경
       setIsWishlist(prev => !prev);
 
       if (isWishlist) {
-        // 찜하기 삭제
         await deleteData(`/api/favorites/${favoriteId}`);
         setFavoriteId(null);
       } else {
-        // 찜하기 추가
         const requestData = {
-          user: {
-            userNum: userNum
-          },
-          movie: {
-            tmdbId: parseInt(tmdbId)
-          }
+          user: { userNum },
+          movie: { tmdbId: parseInt(tmdbId) }
         };
         await postData('/api/favorites', requestData);
-        // 추가 후 찜 목록을 다시 조회하여 favoriteId 업데이트
+        
         const favoritesResponse = await getData(`/api/favorites`);
-        const favoriteItem = favoritesResponse.data.find(item => item.movie.tmdbId === parseInt(tmdbId));
+        const favoriteItem = favoritesResponse.data.find(
+          item => item.movie.tmdbId === parseInt(tmdbId)
+        );
         if (favoriteItem) {
           setFavoriteId(favoriteItem.favoriteId);
         }
       }
-    } catch (error) {
-      // 에러 발생 시 UI 상태를 원래대로 되돌림
+    } catch {
       setIsWishlist(prev => !prev);
-      console.error("찜하기 토글 실패:", error);
     }
   };
 
@@ -205,18 +168,6 @@ const MovieDetail = () => {
 
   // 로딩 상태 처리
   if (!movie) return <div>로딩중...</div>;
-
-  // 리뷰 목록 새로고침 함수
-  const refreshReviews = async () => {
-    try {
-      const response = await getData(`/api/review/movieReview/${tmdbId}`);
-      if (response && response.data) {
-        setMovieReviews(response.data);
-      }
-    } catch (error) {
-      console.error("영화 리뷰 데이터 가져오기 실패:", error);
-    }
-  };
 
   // 리뷰 모달 닫기 핸들러 수정
   const handleCloseModal = (isSubmitted = false) => {
@@ -396,7 +347,7 @@ const MovieDetail = () => {
         </Box>
       </Container>
 
-      {/* 리뷰 ���성 모달 */}
+      {/* 리뷰 모달 */}
       <ReviewModal
         isOpen={isReviewModalOpen}
         onClose={handleCloseModal}

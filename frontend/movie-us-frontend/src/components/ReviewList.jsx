@@ -1,4 +1,3 @@
-// import { useState, useEffect } from "react";
 import {
   VStack,
   Box,
@@ -6,10 +5,10 @@ import {
   Flex,
   Avatar,
   Icon,
-//   Divider
 } from "@chakra-ui/react";
 import { StarIcon } from '@chakra-ui/icons';
 
+// 리뷰 목록 컴포넌트
 const ReviewList = ({ reviews }) => {
   if (!reviews) return <Text>리뷰를 불러오는 중...</Text>;
 
