@@ -24,7 +24,8 @@ import {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const toast = useToast();
   
-    const handleSubmit = async () => {
+    const handleSubmit = async (e) => {
+      e.preventDefault();
       if (rating === 0) {
         toast({
           title: "평점을 선택해주세요",
@@ -59,7 +60,7 @@ import {
         });
   
         onReviewSubmitted?.();
-        onClose();
+        onClose(true);
         setRating(0);
         setContent("");
       } catch (error) {
