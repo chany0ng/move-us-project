@@ -18,8 +18,8 @@ import {
 import { AiFillHeart } from "react-icons/ai"; // 하트 아이콘
 
 // API 및 에셋 임포트
-import { getData } from "../../api/axios"; // API 호출 함수
-import netflixLogo from "../../assets/images/ott/Netflix.png"; // OTT 로고 이미지
+import { getData, postData, deleteData } from "../../api/axios";  // API 호출 함수
+import netflixLogo from "../../assets/images/ott/Netflix.png";  // OTT 로고 이미지
 import tvingLogo from "../../assets/images/ott/Tving.png";
 import ReviewModal from "../../components/ReviewModal"; // 리뷰 작성 모달 컴포넌트
 import ReviewList from "../../components/ReviewList.jsx"; // 리뷰 목록 컴포넌트
@@ -30,11 +30,13 @@ const MovieDetail = () => {
   const toast = useToast();
 
   // 상태 관리
-  const [movie, setMovie] = useState(null); // 영화 정보 상태
-  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false); // 리뷰 모달 표시 여부
-  const [reviews, setReviews] = useState([]); // 리뷰 목록 상태
-  const [isWishlist, setIsWishlist] = useState(false); // 찜 상태
+  const [movie, setMovie] = useState(null);  // 영화 정보 상태
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);  // 리뷰 모달 표시 여부
+  const [isWishlist, setIsWishlist] = useState(false);  // 찜 상태
   const [credits, setCredits] = useState({ cast: [], crew: [] });
+  const [runtime, setRuntime] = useState(null);  // runtime 상태 
+  const [movieReviews, setMovieReviews] = useState([]); // 영화 리뷰 상태
+  const [favoriteId, setFavoriteId] = useState(null);  // favorite pk값 저장을 위한 state 추가
 
   // TMDB 이미지 기본 URL (프로필 이미지용)
   const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w185";
@@ -49,79 +51,108 @@ const MovieDetail = () => {
       release_date: movie.releaseDate,
     };
   };
-  // 영화 상세 정보 가져오기
+  const userNum = 1; // 임시 유저 번호 설정
+
+  // 모든 영화 관련 데이터 가져오기
   useEffect(() => {
-    const fetchMovieDetail = async () => {
+    const fetchMovieData = async () => {
+      if (!tmdbId) return;
+
       try {
-        const response = await getData(`/movies/${tmdbId}`);
-        if (response && response.data) {
-          const normalizedResponse = response.data.map(normalizeMovieData);
-          setMovie(normalizedResponse);
-        } else {
-          console.error("No data in response");
-        }
-      } catch (error) {
-        try {
-          const response2 = await getData(`movies/${tmdbId}/getMovieDetail`);
-          setMovie(response2.data);
-        } catch (error) {
-          toast({
-            title: "인기영화 목록 조회 Error",
-            description: `ㅋFailed to fetch movies / ${error}`,
-            status: "error",
-            duration: 2000,
-            isClosable: true,
-          });
-        }
-      }
-    };
+        const [
+          movieResponse,
+          creditsResponse,
+          runtimeResponse,
+          reviewsResponse,
+          favoritesResponse
+        ] = await Promise.all([
+          getData(`/movies/${tmdbId}`),
+          getData(`/movies/${tmdbId}/credits`),
+          getData(`/movies/${tmdbId}/runtime`),
+          getData(`/api/review/movieReview/${tmdbId}`),
+          getData(`/api/favorites`)
+        ]);
 
-    if (tmdbId) {
-      fetchMovieDetail();
-    }
-  }, [tmdbId]);
-
-  // 리뷰 데이터 가져오기
-  useEffect(() => {
-    const fetchReviews = async () => {
-      try {
-        const response = await getData(`/review/movieReview/${tmdbId}`);
-        if (response && response.data) {
-          setReviews(response.data);
+        // 영화 상세 정보 설정
+        if (movieResponse?.data) {
+          setMovie(movieResponse.data);
         }
-      } catch (error) {
-        console.error("리뷰 데이터 가져오기 실패:", error);
-        setReviews([]);
-      }
-    };
 
-    if (tmdbId) {
-      fetchReviews();
-    }
-  }, [tmdbId]);
-
-  // 출연진 정보 가져오기
-  useEffect(() => {
-    const fetchMovieCredits = async () => {
-      try {
-        const response = await getData(`/movies/${tmdbId}/credits`);
-        if (response && response.data) {
-          setCredits(response.data);
+        // 출연진 정보 설정
+        if (creditsResponse?.data) {
+          setCredits(creditsResponse.data);
         }
-      } catch (error) {
-        console.error("출연진 정보 가져오기 실패:", error);
+
+        // 상영 시간 설정
+        if (runtimeResponse?.data) {
+          setRuntime(runtimeResponse.data.runtime);
+        }
+
+        // 리뷰 설정
+        if (reviewsResponse?.data) {
+          setMovieReviews(reviewsResponse.data);
+        }
+
+        // 찜하기 상태 설정
+        if (favoritesResponse?.data) {
+          const favoriteItem = favoritesResponse.data.find(
+            item => item.movie.tmdbId === parseInt(tmdbId)
+          );
+          setIsWishlist(!!favoriteItem);
+          setFavoriteId(favoriteItem?.favoriteId || null);
+        }
+
+      } catch {
+        setMovie(null);
         setCredits({ cast: [], crew: [] });
+        setRuntime(null);
+        setMovieReviews([]);
+        setIsWishlist(false);
+        setFavoriteId(null);
       }
     };
 
-    if (tmdbId) {
-      fetchMovieCredits();
-    }
+    fetchMovieData();
   }, [tmdbId]);
+
+  // 리뷰 목록 새로고침 함수
+  const refreshReviews = async () => {
+    try {
+      const response = await getData(`/api/review/movieReview/${tmdbId}`);
+      if (response?.data) {
+        setMovieReviews(response.data);
+      }
+    } catch {
+      setMovieReviews([]);
+    }
+  };
 
   // 찜하기 토글 함수
   const handleWishlist = async () => {
-    setIsWishlist((prev) => !prev);
+    try {
+      setIsWishlist(prev => !prev);
+
+      if (isWishlist) {
+        await deleteData(`/api/favorites/${favoriteId}`);
+        setFavoriteId(null);
+      } else {
+        const requestData = {
+          user: { userNum },
+          movie: { tmdbId: parseInt(tmdbId) }
+        };
+        await postData('/api/favorites', requestData);
+        
+        const favoritesResponse = await getData(`/api/favorites`);
+        const favoriteItem = favoritesResponse.data.find(
+          item => item.movie.tmdbId === parseInt(tmdbId)
+        );
+        if (favoriteItem) {
+          setFavoriteId(favoriteItem.favoriteId);
+        }
+      }
+    } catch {
+      setIsWishlist(prev => !prev);
+    }
   };
 
   // 출연진과 감독 정보 추출 함수
@@ -151,9 +182,12 @@ const MovieDetail = () => {
   // 로딩 상태 처리
   if (!movie) return <div>로딩중...</div>;
 
-  // 리뷰 모달 닫기 핸들러
-  const handleCloseModal = () => {
+  // 리뷰 모달 닫기 핸들러 수정
+  const handleCloseModal = (isSubmitted = false) => {
     setIsReviewModalOpen(false);
+    if (isSubmitted) {
+      refreshReviews(); // 리뷰가 제출되었을 때만 리뷰 목록 새로고침
+    }
   };
 
   return (
@@ -175,6 +209,9 @@ const MovieDetail = () => {
                     • {Math.floor(movie.runtime / 60)}시간 {movie.runtime % 60}
                     분
                   </Text>
+                <Text>개봉일: {movie.releaseDate}</Text>
+                {runtime && (
+                  <Text ml={10}>런타임 : {Math.floor(runtime / 60)}시간 {runtime % 60}분</Text>
                 )}
               </HStack>
               <Button
@@ -206,20 +243,30 @@ const MovieDetail = () => {
             <Box sx={styles.ottContainer}>
               <Text sx={styles.ottTitle}>시청 가능한 곳</Text>
               <HStack spacing={4}>
-                {movie.ottLinks?.netflix || (
-                  <Button as="a" target="_blank" sx={styles.ottButton}>
-                    <Image
-                      src={netflixLogo}
-                      alt="Netflix"
-                      sx={styles.ottImage}
-                    />
-                  </Button>
-                )}
-                {movie.ottLinks?.tving || (
-                  <Button as="a" target="_blank" sx={styles.ottButton}>
-                    <Image src={tvingLogo} alt="Tving" sx={styles.ottImage} />
-                  </Button>
-                )}
+                <Button
+                  as="a"
+                  href="https://www.netflix.com/kr/title/81787451"
+                  target="_blank"
+                  sx={styles.ottButton}
+                >
+                  <Image 
+                    src={netflixLogo} 
+                    alt="Netflix" 
+                    sx={styles.ottImage} 
+                  />
+                </Button>
+                <Button
+                  as="a"
+                  href="https://www.tving.com/contents/M000377290"
+                  target="_blank"
+                  sx={styles.ottButton}
+                >
+                  <Image 
+                    src={tvingLogo} 
+                    alt="Tving" 
+                    sx={styles.ottImage} 
+                  />
+                </Button>
               </HStack>
             </Box>
 
@@ -309,16 +356,17 @@ const MovieDetail = () => {
           <Flex justify="space-between" align="center" mb={4}>
             <Heading size="lg">리뷰</Heading>
           </Flex>
-          <ReviewList tmdbId={tmdbId} reviews={reviews} />
+          <ReviewList reviews={movieReviews} />
         </Box>
       </Container>
 
-      {/* 리뷰 작성 모달 */}
+      {/* 리뷰 모달 */}
       <ReviewModal
         isOpen={isReviewModalOpen}
         onClose={handleCloseModal}
         tmdbId={tmdbId}
         movie={movie}
+        userNum={userNum}
       />
     </div>
   );

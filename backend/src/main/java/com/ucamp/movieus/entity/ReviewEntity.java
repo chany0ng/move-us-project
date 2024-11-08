@@ -2,12 +2,14 @@ package com.ucamp.movieus.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
 @Entity
+@DynamicUpdate
 @Table(name = "review")
 public class ReviewEntity {
 
@@ -20,7 +22,7 @@ public class ReviewEntity {
     private UserEntity user; // 사용자 (User 테이블 참조)
 
     @ManyToOne
-    @JoinColumn(name = "movie_Id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "movie_Id", referencedColumnName = "tmdbId", nullable = false)
     private Movie movieId; // 영화 ID (외래키, Movie 테이블 참조)
 
     @Column(nullable = false)

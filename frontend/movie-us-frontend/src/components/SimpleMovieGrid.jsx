@@ -2,10 +2,7 @@ import { Box, Image, SimpleGrid, Skeleton} from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 
-const SimpleMovieGrid = ({ movies, isLoading }) => {
-  // 더미 데이터를 위한 랜덤 숫자 생성 함수
-  const getRandomPostCount = () => Math.floor(Math.random() * 200) + 1;
-
+const SimpleMovieGrid = ({ movies, isLoading}) => {
   return (
     <SimpleGrid columns={5} spacing={5} px={4}>
       {isLoading
@@ -13,18 +10,18 @@ const SimpleMovieGrid = ({ movies, isLoading }) => {
             <Skeleton key={index} height="250px" borderRadius="lg" />
           ))
         : movies.map((movie) => (
-            <Link key={movie.id} to={`/movie-detail/${movie.tmdbId}`}>
+            <Link key={movie.movieId} to={`/movie-detail/${movie.movieId}`}>
               <MovieBox>
                 <ImageWrapper>
                   <StyledImage
                     src={`https://image.tmdb.org/t/p/w500${movie.posterPath}`}
-                    alt={movie.title}
+                    alt={`Movie ${movie.movieId}`}
                     borderRadius="lg"
                   />
                   <Overlay>
                     <PostCount>
-                      POST
-                      <span>{getRandomPostCount()}</span>
+                      REVIEWS
+                      <span>{movie.reviewCount}</span>
                     </PostCount>
                   </Overlay>
                 </ImageWrapper>

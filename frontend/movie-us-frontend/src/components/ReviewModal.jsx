@@ -18,13 +18,14 @@ import {
   import { postData } from "../api/axios";
   import { Input } from "@chakra-ui/react";
   
-  const ReviewModal = ({ isOpen, onClose, tmdbId, movie, onReviewSubmitted }) => {
+  const ReviewModal = ({ isOpen, onClose, tmdbId, movie, onReviewSubmitted, userNum }) => {
     const [rating, setRating] = useState(0);
     const [content, setContent] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const toast = useToast();
   
-    const handleSubmit = async () => {
+    const handleSubmit = async (e) => {
+      e.preventDefault();
       if (rating === 0) {
         toast({
           title: "평점을 선택해주세요",
@@ -45,11 +46,11 @@ import {
   
       setIsSubmitting(true);
       try {
-        await postData("/review", {
-          userNum: 1,
-          tmdbId,
-          rating,
-          content,
+        await postData("/api/review", {
+          userNum: userNum,
+          movieId: tmdbId,
+          rating: rating * 2,
+          comment: content,
         });
   
         toast({
@@ -58,17 +59,28 @@ import {
           duration: 3000,
         });
   
-        onReviewSubmitted?.(); // 리뷰 목록 새로고침
-        onClose();
+        onReviewSubmitted?.();
+        onClose(true);
         setRating(0);
         setContent("");
       } catch (error) {
-        toast({
-          title: "리뷰 등록에 실패했습니다",
-          description: error.response?.data?.message || "다시 시도해주세요",
-          status: "error",
-          duration: 3000,
-        });
+        const errorMessage = error.response?.data;
+        
+        if (errorMessage === "해당 영화에 대한 리뷰가 이미 존재합니다.") {
+          toast({
+            title: "리뷰 등록 실패",
+            description: "이미 이 영화에 대한 리뷰를 작성하셨습니다.",
+            status: "error",
+            duration: 3000,
+          });
+        } else {
+          toast({
+            title: "리뷰 등록 실패",
+            description: "리뷰 등록 중 오류가 발생했습니다. 다시 시도해주세요.",
+            status: "error",
+            duration: 3000,
+          });
+        }
       } finally {
         setIsSubmitting(false);
       }

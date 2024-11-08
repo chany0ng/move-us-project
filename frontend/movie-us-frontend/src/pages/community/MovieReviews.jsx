@@ -1,46 +1,58 @@
 import { Box, Heading, Divider } from "@chakra-ui/react";
 import SimpleMovieGrid from "../../components/SimpleMovieGrid";
 import { getData } from "../../api/axios";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useToast } from "@chakra-ui/react";
 import styled from "styled-components";
-import reviews from "../../assets/data/reviews.json";
 
 const MovieReviews = () => {
-  const [movies, setMovies] = useState([]);
+  const [reviews, setReviews] = useState([]);
+  const [topMovies, setTopMovies] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const toast = useToast();
 
-  useEffect(() => {
-    fetchMovies();
+  const processTopMovies = useCallback((reviewsData) => {
+    const movieReviewCounts = reviewsData.reduce((acc, review) => {
+      const { tmdbId, posterPath } = review;
+      if (!acc[tmdbId]) {
+        acc[tmdbId] = {
+          movieId: tmdbId,
+          posterPath,
+          reviewCount: 0
+        };
+      }
+      acc[tmdbId].reviewCount += 1;
+      return acc;
+    }, {});
+
+    const sortedMovies = Object.values(movieReviewCounts)
+      .sort((a, b) => b.reviewCount - a.reviewCount)
+      .slice(0, 5);
+
+    setTopMovies(sortedMovies);
+    setIsLoading(false);
   }, []);
 
-  const fetchMovies = async () => {
+  const fetchReviews = useCallback(async () => {
     try {
-      setIsLoading(true);
-      const response = await getData("/movies/moviesList", {
-        params: { 
-          genre: "All",
-          sort: "latest"
-        },
-      });
-      const filteredMovies = response.data
-        ?.filter(movie => movie.posterPath !== null)
-        .slice(0, 5);
-      setMovies(filteredMovies);
+      const response = await getData("/api/review/reviewList");
+      setReviews(response.data);
+      processTopMovies(response.data);
     } catch (error) {
       toast({
-        title: "영화 조회 실패",
-        description: `Failed to fetch movies / ${error}`,
+        title: "리뷰 조회 실패",
+        description: `Failed to fetch reviews / ${error}`,
         status: "error",
         duration: 2000,
         isClosable: true,
       });
-      console.error("Error fetching data:", error);
-    } finally {
-      setIsLoading(false);
+      console.error("Error fetching reviews:", error);
     }
-  };
+  }, [toast, processTopMovies]);
+
+  useEffect(() => {
+    fetchReviews();
+  }, [fetchReviews]);
 
   return (
     <Box>
@@ -55,8 +67,9 @@ const MovieReviews = () => {
           리뷰 TOP 5
         </Heading>
         <SimpleMovieGrid 
-          movies={movies} 
+          movies={topMovies} 
           isLoading={isLoading}
+          showReviewCount={true}
         />
       </Box> 
       <Divider borderColor="#3F3F3F" />
@@ -69,16 +82,18 @@ const MovieReviews = () => {
           {reviews.map((review) => (
             <ReviewCard key={review.reviewId}>
               <PosterSection>
-                <img 
-                  src={`https://image.tmdb.org/t/p/w500${review.movieId.posterPath}`}
-                  alt={review.movieId.title}
-                />
+                {review.posterPath && (
+                  <img 
+                    src={`https://image.tmdb.org/t/p/w500${review.posterPath}`}
+                    alt="Movie poster"
+                  />
+                )}
               </PosterSection>
               <ReviewContent>
-                <h3>{review.movieId.title}</h3>
+                <h3>영화 : {review.title}</h3>
                 <ReviewInfo>
-                  <div>User {review.user.userNum}</div>
-                  <div>★ {review.rating}</div>
+                  <div>User {review.userNum}</div>
+                  <div>★ {review.rating?.toFixed(1)}</div>
                 </ReviewInfo>
                 <p>{review.comment}</p>
                 <ReviewDate>
@@ -91,7 +106,6 @@ const MovieReviews = () => {
       </Box>
     </Box>
   );
-  
 };
 
 const ReviewGrid = styled.div`

@@ -12,4 +12,7 @@ public interface GenreRepository extends JpaRepository<Genre, Long> {
 
     @Query("SELECT m FROM Movie m JOIN m.genres g WHERE g.name = :genreName")
     List<Movie> findByGenreName(@Param("genreName") String genreName);
+
+    @Query("SELECT g.id FROM Genre g WHERE g.name = :name")
+    Integer findIdByName(@Param("name") String name);
 }
