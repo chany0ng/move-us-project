@@ -11,5 +11,6 @@ import java.util.Optional;
 public interface ReviewRepository extends JpaRepository<ReviewEntity, Long> {
    List<ReviewEntity> findAllByUser(UserEntity user);
    List<ReviewEntity> findAllByMovieId(Movie movie);
+
    Optional<ReviewEntity> findByMovieIdAndUser(Movie movie, UserEntity user);
 }

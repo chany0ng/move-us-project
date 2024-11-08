@@ -30,11 +30,16 @@ public class FavoriteListService {
 
     // 찜 목록에 추가하는 메서드
     public boolean addFavorite(FavoriteList favoriteList) {
+        // User와 Movie 객체를 먼저 조회
         UserEntity user = userRepository.findById(favoriteList.getUser().getUserNum()).orElse(null);
-        Movie movie = movieRepository.findById(favoriteList.getMovie().getId()).orElse(null);
+        Movie movie = movieRepository.findByTmdbId(favoriteList.getMovie().getTmdbId()).orElse(null);
 
         if (user != null && movie != null) {
-            favoriteListRepository.save(favoriteList);
+            // movie 객체가 이미 존재하면 FavoriteList에 할당하고 저장
+            favoriteList.setUser(user);  // User 설정
+            favoriteList.setMovie(movie); // Movie 설정
+
+            favoriteListRepository.save(favoriteList);  // FavoriteList 저장
             return true;
         }
         return false;

@@ -99,7 +99,7 @@ public class MovieService {
         return restTemplate.getForObject(url, Object.class);
     }
 
-    public Object getMovieRuntime(Long movieId) {
+    public Object getMovieDetail(Long movieId) {
         String url = BASE_URL + movieId + "?api_key=" + API_KEY + "&language=ko-KR";
         return restTemplate.getForObject(url, Object.class);
     }
@@ -155,10 +155,53 @@ public class MovieService {
 
                 // exists_in_db 필드 추가
                 movie.put("exists_in_db", existsInDb);
+                if(!existsInDb){
+                    moviesWithDbInfo.add(movie);
+                }
+            }
+        }
+
+        return moviesWithDbInfo;
+    }
+
+    public List<Map<String, Object>> getPopularMoviesByGenre(String genreName) {
+        List<Map<String, Object>> moviesWithDbInfo = new ArrayList<>();
+
+        // DB에서 TMDB ID 목록 가져오기
+        List<Integer> dbMovieIds = movieRepository.findAllTmdbIds();
+        Set<Integer> dbMovieIdSet = new HashSet<>(dbMovieIds);
+
+        // DB에서 장르명으로 TMDB 장르 ID 조회
+        Integer genreId = genreRepository.findIdByName(genreName);
+        if (genreId == null) {
+            throw new IllegalArgumentException("해당 장르를 찾을 수 없습니다: " + genreName);
+        }
+
+        // TMDB API 요청 (1~5페이지)
+        for (int page = 1; page <= 5; page++) {
+            String url = "https://api.themoviedb.org/3/discover/movie"
+                    + "?api_key=" + API_KEY
+                    + "&language=ko-KR"
+                    + "&region=KR"
+                    + "&with_genres=" + genreId
+                    + "&page=" + page;
+
+            // TMDB API 요청
+            Map<String, Object> response = restTemplate.getForObject(url, Map.class);
+            List<Map<String, Object>> movies = (List<Map<String, Object>>) response.get("results");
+
+            // API에서 가져온 영화 목록에 DB 존재 여부 표시
+            for (Map<String, Object> movie : movies) {
+                Integer tmdbId = (Integer) movie.get("id");
+                boolean existsInDb = dbMovieIdSet.contains(tmdbId);
+
+                // exists_in_db 필드 추가
+                movie.put("exists_in_db", existsInDb);
                 moviesWithDbInfo.add(movie);
             }
         }
 
         return moviesWithDbInfo;
     }
+
 }

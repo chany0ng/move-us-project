@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 public class ReviewRequestDTO {
     private Long reviewId; // 리뷰 ID (Primary Key)
 
-    private int userNum;       // 사용자 ID
+    private Integer userNum;       // 사용자 ID
 
     private Long movieId;       // 영화 ID
 

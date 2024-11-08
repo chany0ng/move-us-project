@@ -5,10 +5,7 @@ import com.ucamp.movieus.repository.MovieRepository;
 import com.ucamp.movieus.service.MovieService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -56,7 +53,7 @@ public class MovieController {
     // 영화 Runtime 조회 (TMDB API - TMDB id)
     @GetMapping("/{id}/runtime")
     public ResponseEntity<Object> getMovieRuntime(@PathVariable Long id) {
-        Object credits = movieService.getMovieRuntime(id);
+        Object credits = movieService.getMovieDetail(id);
         return ResponseEntity.ok(credits);
     }
 
@@ -73,6 +70,22 @@ public class MovieController {
         List<Map<String, Object>> moviesWithDbInfo = movieService.getAllPopularMovies();
         return ResponseEntity.ok(moviesWithDbInfo);
     }
+
+    // TMDB API의 영화 상세 페이지 (TMDB API - TMDB id)
+    @GetMapping("/{id}/getMovieDetail")
+    public ResponseEntity<Object> getMovieDetail(@PathVariable Long id) {
+        Object detail = movieService.getMovieDetail(id);
+        return ResponseEntity.ok(detail);
+    }
+
+    // TMDB API의 인기 영화 목록 장르별 조회
+    @GetMapping("/popular/genre/{genreName}")
+    public ResponseEntity<List<Map<String, Object>>> getPopularMoviesByGenre(
+            @PathVariable("genreName") String genreName) {
+        List<Map<String, Object>> moviesWithGenre = movieService.getPopularMoviesByGenre(genreName);
+        return ResponseEntity.ok(moviesWithGenre);
+    }
+
 
     // 특정 영화 상세정보 정보 조회
     @GetMapping("/{tmdbId}")
