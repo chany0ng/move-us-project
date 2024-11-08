@@ -155,7 +155,9 @@ public class MovieService {
 
                 // exists_in_db 필드 추가
                 movie.put("exists_in_db", existsInDb);
-                moviesWithDbInfo.add(movie);
+                if(!existsInDb){
+                    moviesWithDbInfo.add(movie);
+                }
             }
         }
 
