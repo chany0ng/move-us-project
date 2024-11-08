@@ -72,7 +72,7 @@ const MainPage = () => {
         <Carousel movies={wideMovies} />
       </Box>
       <MovieGrid
-        title="현재 상영영화 순위"
+        title="전세계 상영영화 순위"
         movies={movies}
         isLoading={isLoading}
       />

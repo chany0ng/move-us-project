@@ -17,7 +17,6 @@ import styled from "styled-components";
 
 const MovieTabPanel = ({ movies, isLoading }) => {
   const navigate = useNavigate();
-  console.log(movies);
   return movies ? (
     <TabPanel minHeight="inherit">
       {isLoading ? (
@@ -41,11 +40,11 @@ const MovieTabPanel = ({ movies, isLoading }) => {
               borderRadius="lg"
               overflow="hidden"
               cursor="pointer"
-              onClick={() => navigate(`/movie-detail/${movie.tmdbId}`)}
+              onClick={() => navigate(`/movie-detail/${movie.id}`)}
             >
               <Tooltip label={movie.title} hasArrow placement="top">
                 <StyledImage
-                  src={"https://image.tmdb.org/t/p/w500" + movie.posterPath}
+                  src={"https://image.tmdb.org/t/p/w500" + movie.poster_path}
                   alt="No Poster"
                 />
               </Tooltip>
