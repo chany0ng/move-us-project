@@ -101,4 +101,18 @@ public class JwtTokenProvider {
             return false;
         }
     }
+
+    public String generateTokenByEmailAndName(String email, String userName) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
+
+        return Jwts.builder()
+                .setSubject(email) // 사용자 이메일을 Subject로 설정
+                .claim("email", email) // 사용자 이메일 추가
+                .claim("name", userName) // 사용자 이름 추가
+                .setIssuedAt(now)
+                .setExpiration(expiryDate)
+                .signWith(jwtSecretKey) // 생성된 키로 서명
+                .compact();
+    }
 }
