@@ -26,6 +26,7 @@ public class NoticeRestController {
     }
 
 
+
     // 특정 ID의 공지사항 조회
     @GetMapping("/{noticeId}")
     public ResponseEntity<NoticeResponseDTO> getNoticeById(@PathVariable Integer noticeId) {
