@@ -6,10 +6,13 @@ import { useEffect, useState } from "react";
 import { getData } from "../api/axios";
 import { wideMovies } from "../assets/contents/movieData";
 import { getNowPlayingMovies, getPopularMovies } from "../api/movieAPI";
+import { userStore } from "../../store";
 const MainPage = () => {
+  const { user } = userStore();
   const [movies, setMovies] = useState([]);
   const [popularMovies, setPopularMovies] = useState([]);
   const [boxOfficeMovies, setBoxOfficeMovies] = useState([]); // 박스오피스 순위 상태 추가
+  const [likedMovies, setLikedMovies] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const toast = useToast();
   const fetchNowPlayingMovies = async () => {
@@ -76,6 +79,23 @@ const MainPage = () => {
     }
   };
 
+  // 좋아요 누른 영화 가져오기
+  const fetchLikedMovies = async () => {
+    try {
+      const response = await getData("/movies/moviesList");
+      setLikedMovies(response.data);
+    } catch (error) {
+      toast({
+        title: "좋아요 누른 영화 조회 Error",
+        description: `Failed to fetch liked movies / ${error}`,
+        status: "error",
+        duration: 2000,
+        isClosable: true,
+      });
+      console.error("Error fetching liked data:", error);
+    }
+  };
+
   const normalizeMovieData = (movie) => {
     return {
       id: movie.tmdbId,
@@ -89,6 +109,9 @@ const MainPage = () => {
     fetchNowPlayingMovies();
     fetchPopularMovies();
     fetchBoxOfficeData();
+    if (user.user_name) {
+      fetchLikedMovies();
+    }
   }, []);
 
   return (
@@ -97,6 +120,13 @@ const MainPage = () => {
       <Box pb={20}>
         <Carousel movies={wideMovies} />
       </Box>
+      {likedMovies.length > 0 && (
+        <MovieGrid
+          title={`${user.user_name}님이 좋아요 누른 영화`}
+          movies={likedMovies}
+          isLoading={isLoading}
+        />
+      )}
       <MovieGrid
         title="전세계 상영영화 순위"
         movies={movies}

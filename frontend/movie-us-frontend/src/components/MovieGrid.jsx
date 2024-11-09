@@ -86,7 +86,7 @@ const MovieGrid = ({ movies, title, isLoading }) => {
           ) : // 로딩 완료 후 실제 콘텐츠 표시
           movies.length !== 0 ? (
             movies.map((movie, index) => (
-              <SwiperSlide key={movie.id}>
+              <SwiperSlide key={index}>
                 <MovieBox position="relative">
                   <StyledImage
                     src={"https://image.tmdb.org/t/p/w500" + movie.poster_path}
