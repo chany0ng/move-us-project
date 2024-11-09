@@ -15,7 +15,8 @@ import UserInfo from "./pages/my-page/UserInfo";
 import UserReservationHistory from "./pages/my-page/UserReservationHistory";
 import UserReviewHistory from "./pages/my-page/UserReviewHistory";
 import MovieTicketing from "./pages/ticketing/MovieTicketing";
-
+import SeatSelection from "./pages/ticketing/SeatSelection";
+import ProtectedRoute from "./ProtectedRoute";
 function App() {
   return (
     <>
@@ -31,23 +32,46 @@ function App() {
           <Route element={<Layout />}>
             <Route path="/main" element={<MainPage />} />
             <Route path="/movies" element={<Movies />} />
-            <Route path="/movie-detail/:movieId" element={<MovieDetail />} />
+            <Route path="/movie-detail/:tmdbId" element={<MovieDetail />} />
             <Route path="/community/movie-reviews" element={<MovieReviews />} />
             <Route path="/community/notice" element={<Notice />} />
-            <Route path="/my-page/user-info" element={<UserInfo />} />
+            <Route path="/ticketing/:tmdbId?" element={<MovieTicketing />} />
+            <Route
+              path="/ticketing/seat-selection"
+              element={<SeatSelection />}
+            />
+            <Route
+              path="/my-page/user-info"
+              element={
+                <ProtectedRoute>
+                  <UserInfo />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/my-page/activity/user-liked-movies"
-              element={<UserLikedMovies />}
+              element={
+                <ProtectedRoute>
+                  <UserLikedMovies />
+                </ProtectedRoute>
+              }
             />
             <Route
               path="/my-page/activity/user-reservation-history"
-              element={<UserReservationHistory />}
+              element={
+                <ProtectedRoute>
+                  <UserReservationHistory />
+                </ProtectedRoute>
+              }
             />
             <Route
               path="/my-page/activity/user-review-history"
-              element={<UserReviewHistory />}
+              element={
+                <ProtectedRoute>
+                  <UserReviewHistory />
+                </ProtectedRoute>
+              }
             />
-            <Route path="/ticketing" element={<MovieTicketing />} />
           </Route>
         </Routes>
       </Router>

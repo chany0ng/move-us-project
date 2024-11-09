@@ -1,0 +1,54 @@
+{
+  "2024-11-08 (금)": {
+    "CGV 상봉": {
+      "912649": [
+        {
+          "time": "10:30",
+          "availableSeats": 45
+        },
+        {
+          "time": "13:00",
+          "availableSeats": 30
+        },
+        {
+          "time": "15:30",
+          "availableSeats": 25
+        },
+        {
+          "time": "18:00",
+          "availableSeats": 10
+        },
+        {
+          "time": "20:30",
+          "availableSeats": 98
+        }
+      ]
+    }
+  },
+  "2024-11-09 (토)": {
+    "CGV 청량리": {
+      "1184918": [
+        {
+          "time": "11:11",
+          "availableSeats": 45
+        },
+        {
+          "time": "13:00",
+          "availableSeats": 30
+        },
+        {
+          "time": "15:30",
+          "availableSeats": 25
+        },
+        {
+          "time": "18:00",
+          "availableSeats": 10
+        },
+        {
+          "time": "20:30",
+          "availableSeats": 32
+        }
+      ]
+    }
+  }
+}

@@ -1,4 +1,3 @@
-// import { useState, useEffect } from "react";
 import {
   VStack,
   Box,
@@ -6,11 +5,10 @@ import {
   Flex,
   Avatar,
   Icon,
-//   Divider
 } from "@chakra-ui/react";
 import { StarIcon } from '@chakra-ui/icons';
-// import { getData } from "../api/axios";
 
+// 리뷰 목록 컴포넌트
 const ReviewList = ({ reviews }) => {
   if (!reviews) return <Text>리뷰를 불러오는 중...</Text>;
 
@@ -21,7 +19,7 @@ const ReviewList = ({ reviews }) => {
       ) : (
         reviews.map((review) => (
           <Box 
-            key={review.id} 
+            key={review.userNum}
             p={4} 
             borderColor="#3F3F3F"
             borderWidth="1px" 
@@ -30,8 +28,8 @@ const ReviewList = ({ reviews }) => {
           >
             <Flex justify="space-between" align="center" mb={2}>
               <Flex align="center" gap={2}>
-                <Avatar size="sm" name={review.username} />
-                <Text fontWeight="bold">{review.username}</Text>
+                <Avatar size="sm" name={`User ${review.userNum}`} />
+                <Text fontWeight="bold">{`User ${review.userNum}`}</Text>
               </Flex>
               <Flex align="center" gap={2}>
                 <Flex>
@@ -39,16 +37,13 @@ const ReviewList = ({ reviews }) => {
                     <Icon
                       key={i}
                       as={StarIcon}
-                      color={i < review.rating ? "yellow.400" : "gray.300"}
+                      color={i < (review.rating / 2) ? "yellow.400" : "gray.300"}
                     />
                   ))}
                 </Flex>
-                <Text fontSize="sm" color="gray.600">
-                  {new Date(review.createdAt).toLocaleDateString()}
-                </Text>
               </Flex>
             </Flex>
-            <Text>{review.content}</Text>
+            <Text>{review.comment}</Text>
           </Box>
         ))
       )}

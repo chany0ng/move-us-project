@@ -13,6 +13,7 @@ import {
   FormErrorMessage,
   Input,
   Link as ChakraLink,
+  useToast,
 } from "@chakra-ui/react";
 import { ChevronRightIcon, CheckIcon, EmailIcon } from "@chakra-ui/icons";
 import { Link as RouterLink } from "react-router-dom";
@@ -21,8 +22,11 @@ import { useState } from "react";
 import { getData, postData } from "../../api/axios";
 import { userStore } from "../../../store";
 
+//todo 로그인창으로 오기전 path를 기억해내서 로그인 후 redirect 시켜야 한다
+//todo location.state.from.pathname || "/main" -> navigate(from, {replace: true})
 const Index = () => {
   const navigate = useNavigate();
+  const toast = useToast();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isExist, setIsExist] = useState(true);
@@ -38,19 +42,44 @@ const Index = () => {
   };
   const changePasswordHandler = async (e) => {
     //todo email을 db에 user찾기를 한다
-    if(email.trim().length === 0){
-      alert("이메일을 입력해주세요!");
+    if (email.trim().length === 0) {
+      toast({
+        title: "이메일을 먼저 입력해주세요",
+        status: "warning",
+        duration: 2000,
+        isClosable: true,
+        position: "top",
+      });
     }
     try {
       const response = await getData(`/api/movies/check-email/${email}`);
-      if(response.data.isDuplicated){
-        alert("해당 이메일에 비밀번호 변경 링크를 발송했습니다!");
+      if (response.data.isDuplicated) {
+        toast({
+          title: "해당 이메일에 비밀번호 변경 링크를 발송했습니다!",
+          status: "success",
+          duration: 2000,
+          isClosable: true,
+          position: "top",
+        });
         setIsExist(true);
-      }else {
-        alert("존재하지 않는 이메일입니다.");
+      } else {
+        toast({
+          title: "존재하지 않는 이메일입니다.",
+          status: "error",
+          duration: 2000,
+          isClosable: true,
+          position: "top",
+        });
         setIsExist(false);
       }
     } catch (error) {
+      toast({
+        title: "존재하지 않는 이메일입니다.",
+        status: "error",
+        duration: 2000,
+        isClosable: true,
+        position: "top",
+      });
       console.error("Error checking email duplication:", error);
     }
   };
@@ -61,7 +90,13 @@ const Index = () => {
   const handleSubmitHandler = async (e) => {
     e.preventDefault();
     if (!email || !password) {
-      alert("이메일과 비밀번호를 모두 입력해주세요!");
+      toast({
+        title: "이메일과 비밀번호를 모두 입력해주세요",
+        status: "warning",
+        duration: 2000,
+        isClosable: true,
+        position: "top",
+      });
       return;
     }
     // 로그인 API 호출
@@ -70,8 +105,6 @@ const Index = () => {
         userEmail: email,
         userPw: password,
       });
-      console.log(response);
-      // API 호출 성공 후 사용자 정보 zustand store에 저장 및 /main 이동
       if (response.data) {
         userStore.getState().setUser(response.data.user); // 사용자 정보 저장
         navigate("/main");
@@ -79,8 +112,18 @@ const Index = () => {
         alert("로그인에 실패했습니다. 다시 시도해주세요.");
       }
     } catch (error) {
-      console.error("로그인 오류:", error);
-      alert("로그인 중 문제가 발생했습니다. 다시 시도해주세요.");
+      if (error.status === 404) {
+        toast({
+          title: "존재하지 않는 계정입니다",
+          status: "error",
+          duration: 2000,
+          isClosable: true,
+          position: "top",
+        });
+      } else {
+        alert("로그인 중 문제가 발생했습니다. 다시 시도해주세요.");
+      }
+      console.error("로그인 오류:", error.status);
     }
   };
   return (

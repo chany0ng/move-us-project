@@ -35,10 +35,21 @@ const Movies = () => {
   const [movies, setMovies] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const normalizeMovieData = (movie) => {
+    return {
+      id: movie.tmdbId,
+      title: movie.title,
+      poster_path: movie.posterPath,
+      exists_in_db: movie.exists_in_db || true,
+    };
+  };
+
   useEffect(() => {
     const fetchAndSetMovies = async () => {
-      const data = await fetchMovies(genre, sort);
-      setMovies(data?.filter((movie) => movie.posterPath !== null));
+      const nowPlayingMovies = await fetchMovies(genre, sort);
+      const popularMovies = await fetchPopularMovies(genre, sort);
+      const totalMovies = [...nowPlayingMovies, ...popularMovies];
+      setMovies(totalMovies);
     };
 
     fetchAndSetMovies();
@@ -50,10 +61,31 @@ const Movies = () => {
       const response = await getData("/movies/moviesList", {
         params: { genre, sort },
       });
+      return response.data.map(normalizeMovieData);
+    } catch (error) {
+      toast({
+        title: "현재 상영 영화 조회 Error",
+        description: `Failed to fetch movies / ${error}`,
+        status: "error",
+        duration: 2000,
+        isClosable: true,
+      });
+      console.error("Error fetching data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchPopularMovies = async (genre, sort) => {
+    try {
+      setIsLoading(true);
+      const response = await getData("/movies/allPopularMovies", {
+        params: { genre, sort },
+      });
       return response.data;
     } catch (error) {
       toast({
-        title: "영화 조회 Error",
+        title: "인기 영화 조회 Error",
         description: `Failed to fetch movies / ${error}`,
         status: "error",
         duration: 2000,
@@ -96,12 +128,12 @@ const Movies = () => {
           bg="brand.primary"
           width="150px"
           position="absolute"
-          border="1px solid white"
+          border="1px solid black"
           fontWeight={"bold"}
           fontFamily={"NanumSquareRound"}
           top={0}
           right={5}
-          _focus={{ border: "1px solid white", boxShadow: "none" }}
+          _focus={{ border: "1px solid black", boxShadow: "none" }}
           onChange={(e) => handleSortChange(e)}
           value={sort}
         >
@@ -114,7 +146,7 @@ const Movies = () => {
       <Box flex="1" color="white" p={5}>
         <Tabs
           variant="soft-rounded"
-          colorScheme="green"
+          colorScheme="teal"
           size={"md"}
           onChange={(index) => handleTabChange(index)}
           minHeight="50vh"
@@ -127,6 +159,11 @@ const Movies = () => {
                 width="10%"
                 border="1px solid grey"
                 color="white"
+                transition="transform 0.2s ease, box-shadow 0.2s ease"
+                _hover={{
+                  transform: "translateY(-5px)",
+                  boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.3)",
+                }}
               >
                 {genre}
               </Tab>
