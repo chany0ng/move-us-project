@@ -115,7 +115,7 @@ const MovieDetail = () => {
     }
   };
 
-  // 찜하기 토글 함수
+  // 찜하기 토글 함수ㅁ
   const handleWishlist = async () => {
     try {
       setIsWishlist(prev => !prev);
