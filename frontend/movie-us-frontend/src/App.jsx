@@ -41,29 +41,6 @@ function App() {
               element={<SeatSelection />}
             />
             <Route
-              path="/my-page"
-              element={
-                <ProtectedRoute>
-                  {/* 모든 중첩된 경로에 대해 ProtectedRoute 적용 */}
-                  <Routes>
-                    <Route path="user-info" element={<UserInfo />} />
-                    <Route
-                      path="activity/user-liked-movies"
-                      element={<UserLikedMovies />}
-                    />
-                    <Route
-                      path="activity/user-reservation-history"
-                      element={<UserReservationHistory />}
-                    />
-                    <Route
-                      path="activity/user-review-history"
-                      element={<UserReviewHistory />}
-                    />
-                  </Routes>
-                </ProtectedRoute>
-              }
-            />
-            <Route
               path="/my-page/user-info"
               element={
                 <ProtectedRoute>

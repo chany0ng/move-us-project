@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate} from "react-router-dom";
 import {
   AlertDialog,
   AlertDialogBody,
@@ -18,7 +18,7 @@ const ProtectedRoute = ({ children }) => {
   const cancelRef = useRef();
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (isAuthenticated) {
       setOpenAlert(true); // 로그인 상태가 아니면 AlertDialog를 엽니다.
     }
   }, [isAuthenticated]);
@@ -34,7 +34,7 @@ const ProtectedRoute = ({ children }) => {
   };
 
   // 로그인된 경우에만 children을 렌더링하고, 로그인되지 않은 경우에는 AlertDialog만 띄웁니다.
-  if (!isAuthenticated) {
+  if (isAuthenticated) {
     return (
       <AlertDialog
         isOpen={openAlert}

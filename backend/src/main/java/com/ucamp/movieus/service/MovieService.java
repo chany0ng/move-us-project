@@ -1,18 +1,26 @@
 package com.ucamp.movieus.service;
 
+import com.ucamp.movieus.dto.DailyBoxOfficeDTO;
+import com.ucamp.movieus.dto.DailyBoxOfficeResponse;
 import com.ucamp.movieus.dto.MovieDTO;
 import com.ucamp.movieus.dto.TMDBResponse;
+import com.ucamp.movieus.entity.DailyBoxOffice;
 import com.ucamp.movieus.entity.Genre;
 import com.ucamp.movieus.entity.Movie;
+import com.ucamp.movieus.repository.DailyBoxOfficeRepository;
 import com.ucamp.movieus.repository.GenreRepository;
 import com.ucamp.movieus.repository.MovieRepository;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -27,10 +35,15 @@ public class MovieService {
     private final RestTemplate restTemplate;
     private final String API_KEY = "40405429a36ddf7b1d4337a022992fbc";
     private final String BASE_URL = "https://api.themoviedb.org/3/movie/";
+    private final DailyBoxOfficeRepository dailyBoxOfficeRepository;
 
+    @Value("${kofic.api.key}")
+    private String apiKey;
     @PostConstruct
     public void init() {
         fetchAndSaveNowPlayingMovies(); // 애플리케이션 시작 시 데이터 로딩
+        String targetDate = LocalDate.now().minusDays(1).format(DateTimeFormatter.ofPattern("yyyyMMdd")); // 어제 날짜
+        fetchAndSaveDailyBoxOffice(apiKey, targetDate);
     }
 
     public void fetchAndSaveNowPlayingMovies() {
@@ -204,4 +217,69 @@ public class MovieService {
         return moviesWithDbInfo;
     }
 
+    public void fetchAndSaveDailyBoxOffice(String apiKey, String targetDate) {
+        String url = "https://kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json?key=" + apiKey + "&targetDt=" + targetDate;
+        DailyBoxOfficeResponse response = restTemplate.getForObject(url, DailyBoxOfficeResponse.class);
+
+        if (response != null && response.getBoxOfficeResult() != null) {
+            List<DailyBoxOffice> boxOfficeList = response.getBoxOfficeResult().getDailyBoxOfficeList().stream()
+                    .map(this::convertToEntity)
+                    .collect(Collectors.toList());
+
+            // 포스터 경로 설정
+            setPosterPathsForBoxOffice(boxOfficeList);
+
+            dailyBoxOfficeRepository.saveAll(boxOfficeList);
+        }
+    }
+
+    private void setPosterPathsForBoxOffice(List<DailyBoxOffice> boxOfficeList) {
+        String baseImageUrl = "https://image.tmdb.org/t/p/w500"; // TMDB 기본 이미지 URL
+
+        for (DailyBoxOffice boxOffice : boxOfficeList) {
+            Movie movie = movieRepository.findByTitleIgnoreCase(boxOffice.getMovieNm());
+
+            if (movie != null && movie.getPosterPath() != null) {
+                // 기본 URL과 포스터 경로 결합
+                String fullPosterPath = baseImageUrl + movie.getPosterPath();
+                boxOffice.setPosterPath(fullPosterPath);
+            }
+        }
+        dailyBoxOfficeRepository.saveAll(boxOfficeList);
+    }
+
+
+    public List<DailyBoxOffice> getAllOrderedByRank() {
+        return dailyBoxOfficeRepository.findAll(Sort.by(Sort.Order.asc("rank"))); // rank로 오름차순 정렬
+    }
+
+    private DailyBoxOffice convertToEntity(DailyBoxOfficeDTO dto) {
+        DailyBoxOffice entity = new DailyBoxOffice();
+        entity.setRank(dto.getRank()); // DTO에서 rank를 int로 변환하여 설정
+        entity.setMovieCd(dto.getMovieCd());
+        entity.setMovieNm(dto.getMovieNm());
+        entity.setOpenDt(dto.getOpenDt());
+        entity.setScrnCnt(dto.getScrnCnt());
+        entity.setAudiAcc(dto.getAudiAcc());
+        return entity;
+    }
+
+    public List<DailyBoxOfficeDTO> getAllOrderedByRankAsDTO() {
+        return dailyBoxOfficeRepository.findAll(Sort.by(Sort.Order.asc("rank")))
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    private DailyBoxOfficeDTO convertToDTO(DailyBoxOffice boxOffice) {
+        DailyBoxOfficeDTO dto = new DailyBoxOfficeDTO();
+        dto.setMovieCd(boxOffice.getMovieCd());
+        dto.setRank(boxOffice.getRank());
+        dto.setMovieNm(boxOffice.getMovieNm());
+        dto.setOpenDt(boxOffice.getOpenDt());
+        dto.setScrnCnt(boxOffice.getScrnCnt());
+        dto.setAudiAcc(boxOffice.getAudiAcc());
+        dto.setPosterPath(boxOffice.getPosterPath()); // 포스터 경로 설정
+        return dto;
+    }
 }

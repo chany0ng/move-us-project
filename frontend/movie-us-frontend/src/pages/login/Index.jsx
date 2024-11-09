@@ -54,7 +54,13 @@ const Index = () => {
     try {
       const response = await getData(`/api/movies/check-email/${email}`);
       if (response.data.isDuplicated) {
-        alert("해당 이메일에 비밀번호 변경 링크를 발송했습니다!");
+        toast({
+          title: "해당 이메일에 비밀번호 변경 링크를 발송했습니다!",
+          status: "success",
+          duration: 2000,
+          isClosable: true,
+          position: "top",
+        });
         setIsExist(true);
       } else {
         toast({
@@ -67,6 +73,13 @@ const Index = () => {
         setIsExist(false);
       }
     } catch (error) {
+      toast({
+        title: "존재하지 않는 이메일입니다.",
+        status: "error",
+        duration: 2000,
+        isClosable: true,
+        position: "top",
+      });
       console.error("Error checking email duplication:", error);
     }
   };
@@ -92,8 +105,6 @@ const Index = () => {
         userEmail: email,
         userPw: password,
       });
-      console.log(response);
-      // API 호출 성공 후 사용자 정보 zustand store에 저장 및 /main 이동
       if (response.data) {
         userStore.getState().setUser(response.data.user); // 사용자 정보 저장
         navigate("/main");

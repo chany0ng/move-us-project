@@ -9,6 +9,7 @@ import { getNowPlayingMovies, getPopularMovies } from "../api/movieAPI";
 const MainPage = () => {
   const [movies, setMovies] = useState([]);
   const [popularMovies, setPopularMovies] = useState([]);
+  const [boxOfficeMovies, setBoxOfficeMovies] = useState([]); // 박스오피스 순위 상태 추가
   const [isLoading, setIsLoading] = useState(true);
   const toast = useToast();
   const fetchNowPlayingMovies = async () => {
@@ -51,6 +52,24 @@ const MainPage = () => {
     }
   };
 
+  // 박스오피스 데이터 가져오는 함수
+  const fetchBoxOfficeData = async () => {
+    try {
+      const response = await getData("/movies/boxoffice");
+      setBoxOfficeMovies(response.data.map(movie=>{return {poster_path: movie.posterPath, title: movie.movieNm}}));
+
+    } catch (error) {
+      toast({
+        title: "박스오피스 데이터 조회 Error",
+        description: `Failed to fetch box office movies / ${error}`,
+        status: "error",
+        duration: 2000,
+        isClosable: true,
+      });
+      console.error("Error fetching box office data:", error);
+    }
+  };
+
   const normalizeMovieData = (movie) => {
     return {
       id: movie.tmdbId,
@@ -63,6 +82,7 @@ const MainPage = () => {
   useEffect(() => {
     fetchNowPlayingMovies();
     fetchPopularMovies();
+    fetchBoxOfficeData(); 
   }, []);
 
   return (
@@ -79,6 +99,11 @@ const MainPage = () => {
       <MovieGrid
         title="영화 인기순위"
         movies={popularMovies}
+        isLoading={isLoading}
+      />
+      <MovieGrid
+        title="일일 박스오피스 순위" // 박스오피스 순위 그리드 추가
+        movies={boxOfficeMovies}
         isLoading={isLoading}
       />
     </Flex>

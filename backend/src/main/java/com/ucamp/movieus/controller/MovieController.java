@@ -1,5 +1,6 @@
 package com.ucamp.movieus.controller;
 
+import com.ucamp.movieus.dto.DailyBoxOfficeDTO;
 import com.ucamp.movieus.entity.Movie;
 import com.ucamp.movieus.repository.MovieRepository;
 import com.ucamp.movieus.service.MovieService;
@@ -93,5 +94,14 @@ public class MovieController {
         return movieRepository.findByTmdbId(tmdbId)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new RuntimeException("Movie not found with TMDB ID: " + tmdbId));
+    }
+
+
+
+    //boxoffice
+    @GetMapping("/boxoffice")
+    public ResponseEntity<List<DailyBoxOfficeDTO>> getDailyBoxOffice() {
+        List<DailyBoxOfficeDTO> boxOfficeData = movieService.getAllOrderedByRankAsDTO();
+        return ResponseEntity.ok(boxOfficeData);
     }
 }
