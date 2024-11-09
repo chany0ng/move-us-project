@@ -17,6 +17,7 @@ import styled from "styled-components";
 
 const MovieTabPanel = ({ movies, isLoading }) => {
   const navigate = useNavigate();
+  console.log("판넬: ", movies);
   return movies ? (
     <TabPanel minHeight="inherit">
       {isLoading ? (

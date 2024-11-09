@@ -84,7 +84,6 @@ const Index = () => {
     }
   };
   const kakaoLoginHandler = () => {
-    console.log("hi");
     window.location.href = "http://localhost:8080/kakao/login";
   };
   const handleSubmitHandler = async (e) => {
@@ -106,7 +105,10 @@ const Index = () => {
         userPw: password,
       });
       if (response.data) {
-        userStore.getState().setUser(response.data.user); // 사용자 정보 저장
+        const userInfo = response.data;
+        userStore
+          .getState()
+          .setUser({ user_name: userInfo.name, user_email: userInfo.email }); // 사용자 정보 저장
         navigate("/main");
       } else {
         alert("로그인에 실패했습니다. 다시 시도해주세요.");

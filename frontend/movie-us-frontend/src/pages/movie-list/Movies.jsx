@@ -50,6 +50,7 @@ const Movies = () => {
       const popularMovies = await fetchPopularMovies(genre, sort);
       const totalMovies = [...nowPlayingMovies, ...popularMovies];
       setMovies(totalMovies);
+      console.log("Fetched movies:", totalMovies);
     };
 
     fetchAndSetMovies();
@@ -70,7 +71,7 @@ const Movies = () => {
         duration: 2000,
         isClosable: true,
       });
-      console.error("Error fetching data:", error);
+      console.error("Error fetching NowPlaying data:", error);
     } finally {
       setIsLoading(false);
     }

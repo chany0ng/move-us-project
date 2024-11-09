@@ -17,7 +17,6 @@ const MainPage = () => {
       setIsLoading(true);
       const response = await getNowPlayingMovies();
       const normalizedMovies = response.data.map(normalizeMovieData);
-      console.log(response.data, normalizedMovies); // normalizeMovieData로 데이터를 출력합니다
       setMovies(normalizedMovies);
     } catch (error) {
       toast({
@@ -36,7 +35,6 @@ const MainPage = () => {
     try {
       setIsLoading(true);
       const response = await getPopularMovies();
-      console.log(response.data); // response.data로 데이터를 출력합니다
       setPopularMovies(response.data);
     } catch (error) {
       toast({
@@ -56,8 +54,16 @@ const MainPage = () => {
   const fetchBoxOfficeData = async () => {
     try {
       const response = await getData("/movies/boxoffice");
-      setBoxOfficeMovies(response.data.map(movie=>{return {poster_path: movie.posterPath, title: movie.movieNm}}));
-
+      setBoxOfficeMovies(
+        response.data.map((movie) => {
+          return {
+            poster_path: movie.posterPath,
+            title: movie.movieNm,
+            release_date: movie.openDt,
+            scrn_cnt: movie.scrnCnt,
+          };
+        })
+      );
     } catch (error) {
       toast({
         title: "박스오피스 데이터 조회 Error",
@@ -82,7 +88,7 @@ const MainPage = () => {
   useEffect(() => {
     fetchNowPlayingMovies();
     fetchPopularMovies();
-    fetchBoxOfficeData(); 
+    fetchBoxOfficeData();
   }, []);
 
   return (
@@ -97,12 +103,12 @@ const MainPage = () => {
         isLoading={isLoading}
       />
       <MovieGrid
-        title="영화 인기순위"
+        title="전체 영화 인기순위"
         movies={popularMovies}
         isLoading={isLoading}
       />
       <MovieGrid
-        title="일일 박스오피스 순위" // 박스오피스 순위 그리드 추가
+        title="국내 일일 박스오피스 순위"
         movies={boxOfficeMovies}
         isLoading={isLoading}
       />

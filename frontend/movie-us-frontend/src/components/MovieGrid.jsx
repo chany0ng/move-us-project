@@ -20,7 +20,7 @@ import "swiper/css/navigation";
 
 const MovieGrid = ({ movies, title, isLoading }) => {
   const swiperRef = useRef(null);
-
+  console.log(movies);
   return (
     <Box mb={5}>
       <Heading
@@ -72,6 +72,7 @@ const MovieGrid = ({ movies, title, isLoading }) => {
             Array.from({ length: 5 }).map((_, index) => (
               <SwiperSlide key={index}>
                 <Box
+                  key={index}
                   position="relative"
                   width="200px"
                   height="300px"
@@ -108,23 +109,30 @@ const MovieGrid = ({ movies, title, isLoading }) => {
                     <Heading as="h4" size="md" mb={10}>
                       {movie.title}
                     </Heading>
-                    <Flex>
-                      <Link to={`/movie-detail/${movie.id}`}>
-                        <Button
-                          colorScheme="brand.primary"
-                          variant={"outline"}
-                          mr={5}
-                          mx={movie.exists_in_db ? "none" : "auto"}
-                        >
-                          상세정보
-                        </Button>
-                      </Link>
-                      {movie.exists_in_db && (
-                        <Link to={`/ticketing/${movie.id}`}>
-                          <Button colorScheme="teal">예매하기</Button>
+                    {movie.scrn_cnt ? (
+                      <Flex direction="column">
+                        <Box fontSize="lg">개봉일: {movie.release_date}</Box>
+                        <Box fontSize="lg">상영관 수: {movie.scrn_cnt}</Box>
+                      </Flex>
+                    ) : (
+                      <Flex>
+                        <Link to={`/movie-detail/${movie.id}`}>
+                          <Button
+                            colorScheme="brand.primary"
+                            variant={"outline"}
+                            mr={5}
+                            mx={movie.exists_in_db ? "none" : "auto"}
+                          >
+                            상세정보
+                          </Button>
                         </Link>
-                      )}
-                    </Flex>
+                        {movie.exists_in_db && (
+                          <Link to={`/ticketing/${movie.id}`}>
+                            <Button colorScheme="teal">예매하기</Button>
+                          </Link>
+                        )}
+                      </Flex>
+                    )}
                   </DescriptionBox>
                 </MovieBox>
               </SwiperSlide>
