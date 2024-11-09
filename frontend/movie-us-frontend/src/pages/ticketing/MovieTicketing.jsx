@@ -300,7 +300,7 @@ const MovieTicketing = () => {
             color="#333333"
             p="10px"
           >
-            <Box flex="1">
+            <Box flex="1" height="100%">
               <DateSelector
                 selectedDate={selectedDate}
                 onDateSelect={handleDateSelect}
