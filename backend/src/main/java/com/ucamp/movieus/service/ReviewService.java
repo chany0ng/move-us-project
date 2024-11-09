@@ -105,19 +105,15 @@ public class ReviewService {
         ReviewResponseDTO responseDTO = modelMapper.map(review, ReviewResponseDTO.class);
 
         if (movie!=null) {
-            responseDTO.setTmdbId(movie.getTmdbId()); // TMDb ID 추가
             responseDTO.setTitle(movie.getTitle()); // 타이틀 추가
             responseDTO.setPosterPath(movie.getPosterPath()); // 포스터 경로 추가
         } else {
             System.out.println("movie=null");
             try {
                 Map<String, Object> movieDetails = getMovieDetailsFromApi(review.getTmdbId());
-                responseDTO.setTmdbId(review.getTmdbId());
                 responseDTO.setTitle((String) movieDetails.get("title"));
                 Map<String, Object> collection = (Map<String, Object>) movieDetails.get("belongs_to_collection");
                 if (collection != null) {
-                    System.out.println("if collection");
-                    responseDTO.setTmdbId(((Number) collection.get("id")).longValue());
                     responseDTO.setTitle((String) collection.get("name"));
                     responseDTO.setPosterPath((String) collection.get("poster_path")); // 포스터 경로 추가
                 }

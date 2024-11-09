@@ -23,7 +23,7 @@ public class FavoriteListController {
     // 찜 항목 조회
     @GetMapping
     public List<FavoriteList> getUserFavoriteList() {
-        UserEntity user = userRepository.findById(6).orElseThrow(() -> new RuntimeException("User not found"));
+        UserEntity user = userRepository.findById(3).orElseThrow(() -> new RuntimeException("User not found"));
         return favoriteListService.getUserFavoriteList(user);
     }
 
