@@ -16,7 +16,6 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { getData } from "../../api/axios";
-import theaterData from "../../assets/data/theater.json";
 import DateSelector from "../../components/DateSelector";
 import { RepeatClockIcon } from "@chakra-ui/icons";
 import timeTable from "../../assets/data/timeTable.json";
@@ -27,10 +26,10 @@ const MovieTicketing = () => {
   const { tmdbId } = useParams();
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedMovie, setSelectedMovie] = useState(parseInt(tmdbId));
+  const [cinemaData, setCinemaData] = useState(null);
+  const [allGuArray, setAllGuArray] = useState(null);
   const [selectedTheater, setSelectedTheater] = useState(null);
-  const [selectedGu, setSelectedGu] = useState(
-    Object.keys(theaterData["서울시"])[0]
-  );
+  const [selectedGu, setSelectedGu] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
 
   const formatDate = (date) => {
@@ -71,12 +70,35 @@ const MovieTicketing = () => {
       setIsLoading(false);
     }
   };
+  const fetchCinemaData = async () => {
+    try {
+      setIsLoading(true);
+      const response = await getData("/api/v1/cinemas/locations");
+      console.log(response.data);
+      setCinemaData(response.data);
+      setAllGuArray(Object.keys(response.data));
+      setSelectedGu(Object.keys(response.data)[0]);
+      // setSelectedTheater(Object.keys(response.data)[0].CINEMA_LIST[0][0]);
+    } catch (error) {
+      toast({
+        title: "영화관 조회 Error",
+        description: `Failed to fetch cinema locations / ${error}`,
+        status: "error",
+        duration: 2000,
+        isClosable: true,
+      });
+      console.error("Error fetching data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   useEffect(() => {
     fetchData();
+    fetchCinemaData();
   }, []);
 
   const resetHandler = () => {
-    setSelectedGu(Object.keys(theaterData["서울시"])[0]);
+    setSelectedGu(allGuArray[0]);
     setSelectedDate(null);
     setSelectedMovie(null);
     setSelectedTheater(null);
@@ -184,12 +206,10 @@ const MovieTicketing = () => {
             <Box flex="1">
               <Tabs
                 variant="unstyled"
-                onChange={(index) =>
-                  setSelectedGu(Object.keys(theaterData["서울시"])[index])
-                }
+                onChange={(index) => setSelectedGu(allGuArray[index])}
               >
                 <TabList>
-                  {Object.keys(theaterData["서울시"]).map((gu) => (
+                  {allGuArray?.map((gu) => (
                     <Tab
                       key={gu}
                       borderBottom="2px solid #ddd"
@@ -201,56 +221,58 @@ const MovieTicketing = () => {
                     </Tab>
                   ))}
                 </TabList>
-
                 <TabPanels>
-                  {Object.keys(theaterData["서울시"]).map((gu) => (
+                  {allGuArray?.map((gu) => (
                     <TabPanel key={gu}>
                       <Box>
-                        {Object.entries(theaterData["서울시"][gu])?.map(
-                          ([brand, theaters]) => (
-                            <Box key={brand} mt={2}>
-                              <Text
-                                fontWeight="bold"
-                                fontSize="lg"
-                                mb={2}
-                                fontFamily="Noto Sans KR"
-                              >
-                                {brand}
-                              </Text>
-                              <Box pl={3}>
-                                {theaters.map((theater) => (
-                                  <Text
-                                    key={theater}
-                                    p={2}
-                                    mb={1}
-                                    borderRadius={6}
-                                    cursor="pointer"
-                                    width="90%"
-                                    bg={
-                                      selectedTheater === theater
-                                        ? "#333333"
-                                        : "transparent"
-                                    }
-                                    color={
-                                      selectedTheater === theater
-                                        ? "#d4d3c9"
-                                        : "black"
-                                    }
-                                    onClick={() => setSelectedTheater(theater)}
-                                    _hover={{
-                                      bg:
+                        {cinemaData[gu] &&
+                          Object.entries(cinemaData[gu]).map(
+                            ([brand, theaters]) => (
+                              <Box key={brand} mt={2}>
+                                <Text
+                                  fontWeight="bold"
+                                  fontSize="lg"
+                                  mb={2}
+                                  fontFamily="Noto Sans KR"
+                                >
+                                  {brand}
+                                </Text>
+                                <Box pl={3}>
+                                  {theaters.map((theater) => (
+                                    <Text
+                                      key={theater}
+                                      p={2}
+                                      mb={1}
+                                      borderRadius={6}
+                                      cursor="pointer"
+                                      width="90%"
+                                      bg={
                                         selectedTheater === theater
-                                          ? "#444444"
-                                          : "#d5d3c7",
-                                    }}
-                                  >
-                                    {theater}
-                                  </Text>
-                                ))}
+                                          ? "#333333"
+                                          : "transparent"
+                                      }
+                                      color={
+                                        selectedTheater === theater
+                                          ? "#d4d3c9"
+                                          : "black"
+                                      }
+                                      onClick={() =>
+                                        setSelectedTheater(theater)
+                                      }
+                                      _hover={{
+                                        bg:
+                                          selectedTheater === theater
+                                            ? "#444444"
+                                            : "#d5d3c7",
+                                      }}
+                                    >
+                                      {theater}
+                                    </Text>
+                                  ))}
+                                </Box>
                               </Box>
-                            </Box>
-                          )
-                        )}
+                            )
+                          )}
                       </Box>
                     </TabPanel>
                   ))}
