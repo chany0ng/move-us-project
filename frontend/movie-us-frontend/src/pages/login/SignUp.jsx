@@ -9,6 +9,7 @@ import {
   FormLabel,
   Button,
   Link,
+  useToast,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { CheckIcon, CloseIcon } from "@chakra-ui/icons";
@@ -18,41 +19,73 @@ import { postData } from "../../api/axios";
 import { useNavigate } from "react-router-dom";
 const SignUp = () => {
   const navigate = useNavigate();
+  const toast = useToast();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
-  const [passwordConfirm, setPasswordConfirm] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState({
     email: "",
     phone: "",
   });
 
   const handleSubmit = async () => {
-    if (!name || !email || !phone || !password || !passwordConfirm) {
-      alert("모든 필드를 입력해주세요.");
+    if (!name || !email || !phone || !password || !confirmPassword) {
+      toast({
+        title: "모든 필드를 입력해주세요",
+        status: "warning",
+        duration: 2000,
+        isClosable: true,
+        position: "top",
+      });
       return;
     }
 
     const emailError = validateEmail(email);
     if (emailError) {
-      alert(emailError);
+      toast({
+        title: emailError,
+        status: "warning",
+        duration: 2000,
+        isClosable: true,
+        position: "top",
+      });
       return;
     }
 
     const phoneError = validatePhone(phone);
     if (phoneError) {
-      alert(phoneError);
+      toast({
+        title: phoneError,
+        status: "warning",
+        duration: 2000,
+        isClosable: true,
+        position: "top",
+      });
       return;
     }
 
-    if (!checks.length(password)) {
-      alert("비밀번호는 8글자 이상이어야 합니다.");
+    if (!checks.length(password) || !checks.pattern(password)) {
+      toast({
+        title:
+          "비밀번호는 영문, 숫자, 특수문자를 포함하여 최소 8자 이상이어야 합니다.",
+        status: "warning",
+        duration: 2000,
+        isClosable: true,
+        position: "top",
+      });
       return;
     }
 
-    if (!checks.match(password, passwordConfirm)) {
-      alert("비밀번호가 일치하지 않습니다.");
+    if (!checks.match(password, confirmPassword)) {
+      toast({
+        title: "비밀번호가 일치하지 않습니다",
+        status: "warning",
+        duration: 2000,
+        isClosable: true,
+        position: "top",
+      });
       return;
     }
     try {
@@ -61,13 +94,26 @@ const SignUp = () => {
         userEmail: email,
         userPhone: phone,
         userPw: password,
+        confirmPassword: confirmPassword,
       });
       console.log(response);
-      alert("회원가입 성공!");
+      toast({
+        title: "회원가입 성공",
+        status: "success",
+        duration: 2000,
+        isClosable: true,
+        position: "top",
+      });
       navigate("/");
     } catch (error) {
-      console.error("회원가입 오류:", error);
-      alert("회원가입 중 문제가 발생했습니다. 다시 시도해주세요.");
+      toast({
+        title: "회원가입 중 문제가 발생했습니다. 다시 시도해주세요.",
+        description: error,
+        status: "error",
+        duration: 2000,
+        isClosable: true,
+        position: "top",
+      });
     }
   };
 
@@ -75,6 +121,11 @@ const SignUp = () => {
   const checks = {
     length: (pwd) => pwd.length >= 8,
     match: (pwd, confirmPwd) => pwd === confirmPwd,
+    pattern: (pwd) => {
+      const regex =
+        /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
+      return regex.test(pwd);
+    },
   };
 
   // 이메일 유효성 검사
@@ -209,22 +260,33 @@ const SignUp = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
-                <Flex mt={2} flexWrap="wrap">
-                  <Box flex="1" minW="250px">
-                    <Text
-                      fontSize="sm"
-                      color="gray.600"
-                      display="flex"
-                      alignItems="center"
-                    >
-                      {checks.length(password) ? (
-                        <CheckIcon color="green.500" mr={2} />
-                      ) : (
-                        <CloseIcon color="red.500" mr={2} />
-                      )}
-                      8글자 이상
-                    </Text>
-                  </Box>
+                <Flex mt={2} flexWrap="wrap" gap={4}>
+                  <Text
+                    fontSize="sm"
+                    color="gray.600"
+                    display="flex"
+                    alignItems="center"
+                  >
+                    {checks.length(password) ? (
+                      <CheckIcon color="green.500" mr={2} />
+                    ) : (
+                      <CloseIcon color="red.500" mr={2} />
+                    )}
+                    8글자 이상
+                  </Text>
+                  <Text
+                    fontSize="sm"
+                    color="gray.600"
+                    display="flex"
+                    alignItems="center"
+                  >
+                    {checks.pattern(password) ? (
+                      <CheckIcon color="green.500" mr={2} />
+                    ) : (
+                      <CloseIcon color="red.500" mr={2} />
+                    )}
+                    영문, 숫자, 특수문자 포함
+                  </Text>
                 </Flex>
               </FormControl>
 
@@ -234,8 +296,8 @@ const SignUp = () => {
                   type="password"
                   size={"lg"}
                   fontSize={"md"}
-                  value={passwordConfirm}
-                  onChange={(e) => setPasswordConfirm(e.target.value)}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
                 />
                 <Flex mt={2} flexWrap="wrap">
                   <Box flex="1" minW="250px">
@@ -246,7 +308,7 @@ const SignUp = () => {
                       alignItems="center"
                     >
                       {checks.length(password) &&
-                      checks.match(password, passwordConfirm) ? (
+                      checks.match(password, confirmPassword) ? (
                         <CheckIcon color="green.500" mr={2} />
                       ) : (
                         <CloseIcon color="red.500" mr={2} />

@@ -1,17 +1,27 @@
 package com.ucamp.movieus.service;
 
+import com.ucamp.movieus.dto.DailyBoxOfficeDTO;
+import com.ucamp.movieus.dto.DailyBoxOfficeResponse;
+import com.ucamp.movieus.dto.MovieDTO;
 import com.ucamp.movieus.dto.TMDBResponse;
+import com.ucamp.movieus.entity.DailyBoxOffice;
+import com.ucamp.movieus.entity.Genre;
 import com.ucamp.movieus.entity.Movie;
+import com.ucamp.movieus.repository.DailyBoxOfficeRepository;
+import com.ucamp.movieus.repository.GenreRepository;
 import com.ucamp.movieus.repository.MovieRepository;
 import jakarta.annotation.PostConstruct;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -21,73 +31,255 @@ import java.util.stream.Collectors;
 public class MovieService {
 
     private final MovieRepository movieRepository;
+    private final GenreRepository genreRepository;
     private final RestTemplate restTemplate;
     private final String API_KEY = "40405429a36ddf7b1d4337a022992fbc";
+    private final String BASE_URL = "https://api.themoviedb.org/3/movie/";
+    private final DailyBoxOfficeRepository dailyBoxOfficeRepository;
 
+    @Value("${kofic.api.key}")
+    private String apiKey;
     @PostConstruct
     public void init() {
         fetchAndSaveNowPlayingMovies(); // 애플리케이션 시작 시 데이터 로딩
+        String targetDate = LocalDate.now().minusDays(1).format(DateTimeFormatter.ofPattern("yyyyMMdd")); // 어제 날짜
+        fetchAndSaveDailyBoxOffice(apiKey, targetDate);
     }
 
     public void fetchAndSaveNowPlayingMovies() {
-        // 1. API로부터 영화 목록 가져오기
         List<Movie> movies = fetchMoviesFromApi();
-
-        // 2. DB에서 모든 영화 목록 가져오기
         List<Movie> existingMovies = movieRepository.findAll();
 
-        // 3. 영화 목록을 맵에 저장하여 쉽게 찾을 수 있게 하기
+        // 기존 영화들을 TMDB ID 기준으로 Map으로 변환
         Map<Long, Movie> existingMovieMap = existingMovies.stream()
                 .collect(Collectors.toMap(Movie::getTmdbId, Function.identity()));
 
-        // 4. 새 영화 추가 또는 업데이트
         for (Movie movie : movies) {
             if (existingMovieMap.containsKey(movie.getTmdbId())) {
-                // 기존 영화 업데이트
-                Movie existingMovie = existingMovieMap.get(movie.getTmdbId());
-                existingMovie.setTitle(movie.getTitle());
-                existingMovie.setOriginalTitle(movie.getOriginalTitle());
-                existingMovie.setOverview(movie.getOverview());
-                existingMovie.setPosterPath(movie.getPosterPath());
-                existingMovie.setBackdropPath(movie.getBackdropPath());
-                existingMovie.setPopularity(movie.getPopularity());
-                existingMovie.setVoteAverage(movie.getVoteAverage());
-                existingMovie.setVoteCount(movie.getVoteCount());
-                existingMovie.setReleaseDate(movie.getReleaseDate());
-                existingMovie.setGenreIds(movie.getGenreIds()); // 장르 ID 업데이트
+                updateMovie(existingMovieMap.get(movie.getTmdbId()), movie); // 기존 영화 업데이트
             } else {
-                // 새 영화 추가
-                movieRepository.save(movie);
+                movieRepository.save(movie); // 새 영화 저장
             }
         }
     }
 
     private List<Movie> fetchMoviesFromApi() {
-        List<Movie> allMovies = new ArrayList<>();
+        TMDBResponse response;
         int page = 1;
+        List<Movie> allMovies = new ArrayList<>();
 
-        while (true) {
-            String url = String.format("https://api.themoviedb.org/3/movie/now_playing?api_key=%s&region=KR&language=ko&sort_by=popularity.desc&page=%d", API_KEY, page);
-            TMDBResponse response = restTemplate.getForObject(url, TMDBResponse.class);
+        do {
+            String url = String.format(
+                    "%snow_playing?api_key=%s&region=KR&language=ko&sort_by=popularity.desc&page=%d",
+                    BASE_URL, API_KEY, page);
+            response = restTemplate.getForObject(url, TMDBResponse.class);
 
-            // 총 결과와 페이지 수 출력
-            System.out.println("Total Results: " + response.getTotalResults());
-            System.out.println("Total Pages: " + response.getTotalPages());
+            if (response != null && response.getResults() != null) {
+                List<Movie> movies = response.toMovies(genreRepository); // GenreRepository를 사용하여 Movie로 변환
+                allMovies.addAll(movies);
+                page++;
+            }
+        } while (response != null && page <= response.getTotalPages());
 
-            if (response != null) {
-                allMovies.addAll(response.toMovies()); // 현재 페이지의 영화 추가
+        return allMovies;
+    }
 
-                // 다음 페이지가 없으면 반복 종료
-                if (page >= response.getTotalPages()) {
-                    break;
+    // 기존 Movie 객체 업데이트
+    private void updateMovie(Movie existingMovie, Movie newMovie) {
+        existingMovie.setTitle(newMovie.getTitle());
+        existingMovie.setOriginalTitle(newMovie.getOriginalTitle());
+        existingMovie.setOverview(newMovie.getOverview());
+        existingMovie.setPosterPath(newMovie.getPosterPath());
+        existingMovie.setBackdropPath(newMovie.getBackdropPath());
+        existingMovie.setPopularity(newMovie.getPopularity());
+        existingMovie.setVoteAverage(newMovie.getVoteAverage());
+        existingMovie.setVoteCount(newMovie.getVoteCount());
+        existingMovie.setReleaseDate(newMovie.getReleaseDate());
+        existingMovie.setGenres(newMovie.getGenres());
+    }
+
+    public Movie getMovie(Long id) {
+        return movieRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Movie not found with ID: " + id));
+    }
+
+    public List<Movie> getMoviesByGenreName(String genreName) {
+        return genreRepository.findByGenreName(genreName);
+    }
+
+    public Object getMovieCredits(Long movieId) {
+        String url = BASE_URL + movieId + "/credits?api_key=" + API_KEY + "&language=ko-KR";
+        return restTemplate.getForObject(url, Object.class);
+    }
+
+    public Object getMovieDetail(Long movieId) {
+        String url = BASE_URL + movieId + "?api_key=" + API_KEY + "&language=ko-KR";
+        return restTemplate.getForObject(url, Object.class);
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<Map<String, Object>> getPopularMovies() {
+        List<Map<String, Object>> moviesWithDbInfo = new ArrayList<>();
+
+        // DB에 저장된 영화의 TMDB ID 목록 가져오기
+        List<Integer> dbMovieIds = movieRepository.findAllTmdbIds();
+        Set<Integer> dbMovieIdSet = new HashSet<>(dbMovieIds);
+
+        // TMDB API에서 인기 영화 목록 가져오기
+        String url = BASE_URL + "popular?api_key=" + API_KEY + "&language=ko-KR&region=KR";
+
+        // TMDB API 요청
+        Map<String, Object> response = restTemplate.getForObject(url, Map.class);
+        List<Map<String, Object>> movies = (List<Map<String, Object>>) response.get("results");
+
+        // API에서 가져온 영화 목록에 DB 존재 여부 표시
+        for (Map<String, Object> movie : movies) {
+            Integer tmdbId = (Integer) movie.get("id");
+            boolean existsInDb = dbMovieIdSet.contains(tmdbId);
+
+            // exists_in_db 필드 추가
+            movie.put("exists_in_db", existsInDb);
+            moviesWithDbInfo.add(movie);
+        }
+
+        return moviesWithDbInfo;
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<Map<String, Object>> getAllPopularMovies() {
+        List<Map<String, Object>> moviesWithDbInfo = new ArrayList<>();
+
+        // DB에 저장된 영화의 TMDB ID 목록 가져오기
+        List<Integer> dbMovieIds = movieRepository.findAllTmdbIds();
+        Set<Integer> dbMovieIdSet = new HashSet<>(dbMovieIds);
+
+        // 1페이지부터 5페이지까지 TMDB API에서 인기 영화 목록 가져오기
+        for (int page = 1; page <= 5; page++) {
+            String url = BASE_URL + "popular?api_key=" + API_KEY + "&language=ko-KR&region=KR&page=" + page;
+
+            // TMDB API 요청
+            Map<String, Object> response = restTemplate.getForObject(url, Map.class);
+            List<Map<String, Object>> movies = (List<Map<String, Object>>) response.get("results");
+
+            // API에서 가져온 영화 목록에 DB 존재 여부 표시
+            for (Map<String, Object> movie : movies) {
+                Integer tmdbId = (Integer) movie.get("id");
+                boolean existsInDb = dbMovieIdSet.contains(tmdbId);
+
+                // exists_in_db 필드 추가
+                movie.put("exists_in_db", existsInDb);
+                if(!existsInDb){
+                    moviesWithDbInfo.add(movie);
                 }
-
-                page++; // 다음 페이지로 이동
-            } else {
-                break; // 응답이 null인 경우 종료
             }
         }
 
-        return allMovies; // 모든 영화 리스트 반환
+        return moviesWithDbInfo;
+    }
+
+    public List<Map<String, Object>> getPopularMoviesByGenre(String genreName) {
+        List<Map<String, Object>> moviesWithDbInfo = new ArrayList<>();
+
+        // DB에서 TMDB ID 목록 가져오기
+        List<Integer> dbMovieIds = movieRepository.findAllTmdbIds();
+        Set<Integer> dbMovieIdSet = new HashSet<>(dbMovieIds);
+
+        // DB에서 장르명으로 TMDB 장르 ID 조회
+        Integer genreId = genreRepository.findIdByName(genreName);
+        if (genreId == null) {
+            throw new IllegalArgumentException("해당 장르를 찾을 수 없습니다: " + genreName);
+        }
+
+        // TMDB API 요청 (1~5페이지)
+        for (int page = 1; page <= 5; page++) {
+            String url = "https://api.themoviedb.org/3/discover/movie"
+                    + "?api_key=" + API_KEY
+                    + "&language=ko-KR"
+                    + "&region=KR"
+                    + "&with_genres=" + genreId
+                    + "&page=" + page;
+
+            // TMDB API 요청
+            Map<String, Object> response = restTemplate.getForObject(url, Map.class);
+            List<Map<String, Object>> movies = (List<Map<String, Object>>) response.get("results");
+
+            // API에서 가져온 영화 목록에 DB 존재 여부 표시
+            for (Map<String, Object> movie : movies) {
+                Integer tmdbId = (Integer) movie.get("id");
+                boolean existsInDb = dbMovieIdSet.contains(tmdbId);
+
+                // exists_in_db 필드 추가
+                movie.put("exists_in_db", existsInDb);
+                moviesWithDbInfo.add(movie);
+            }
+        }
+
+        return moviesWithDbInfo;
+    }
+
+    public void fetchAndSaveDailyBoxOffice(String apiKey, String targetDate) {
+        String url = "https://kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json?key=" + apiKey + "&targetDt=" + targetDate;
+        DailyBoxOfficeResponse response = restTemplate.getForObject(url, DailyBoxOfficeResponse.class);
+
+        if (response != null && response.getBoxOfficeResult() != null) {
+            List<DailyBoxOffice> boxOfficeList = response.getBoxOfficeResult().getDailyBoxOfficeList().stream()
+                    .map(this::convertToEntity)
+                    .collect(Collectors.toList());
+
+            // 포스터 경로 설정
+            setPosterPathsForBoxOffice(boxOfficeList);
+
+            dailyBoxOfficeRepository.saveAll(boxOfficeList);
+        }
+    }
+
+    private void setPosterPathsForBoxOffice(List<DailyBoxOffice> boxOfficeList) {
+        String baseImageUrl = "https://image.tmdb.org/t/p/w500"; // TMDB 기본 이미지 URL
+
+        for (DailyBoxOffice boxOffice : boxOfficeList) {
+            Movie movie = movieRepository.findByTitleIgnoreCase(boxOffice.getMovieNm());
+
+            if (movie != null && movie.getPosterPath() != null) {
+                // 기본 URL과 포스터 경로 결합
+                String fullPosterPath = baseImageUrl + movie.getPosterPath();
+                boxOffice.setPosterPath(fullPosterPath);
+            }
+        }
+        dailyBoxOfficeRepository.saveAll(boxOfficeList);
+    }
+
+
+    public List<DailyBoxOffice> getAllOrderedByRank() {
+        return dailyBoxOfficeRepository.findAll(Sort.by(Sort.Order.asc("rank"))); // rank로 오름차순 정렬
+    }
+
+    private DailyBoxOffice convertToEntity(DailyBoxOfficeDTO dto) {
+        DailyBoxOffice entity = new DailyBoxOffice();
+        entity.setRank(dto.getRank()); // DTO에서 rank를 int로 변환하여 설정
+        entity.setMovieCd(dto.getMovieCd());
+        entity.setMovieNm(dto.getMovieNm());
+        entity.setOpenDt(dto.getOpenDt());
+        entity.setScrnCnt(dto.getScrnCnt());
+        entity.setAudiAcc(dto.getAudiAcc());
+        return entity;
+    }
+
+    public List<DailyBoxOfficeDTO> getAllOrderedByRankAsDTO() {
+        return dailyBoxOfficeRepository.findAll(Sort.by(Sort.Order.asc("rank")))
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    private DailyBoxOfficeDTO convertToDTO(DailyBoxOffice boxOffice) {
+        DailyBoxOfficeDTO dto = new DailyBoxOfficeDTO();
+        dto.setMovieCd(boxOffice.getMovieCd());
+        dto.setRank(boxOffice.getRank());
+        dto.setMovieNm(boxOffice.getMovieNm());
+        dto.setOpenDt(boxOffice.getOpenDt());
+        dto.setScrnCnt(boxOffice.getScrnCnt());
+        dto.setAudiAcc(boxOffice.getAudiAcc());
+        dto.setPosterPath(boxOffice.getPosterPath()); // 포스터 경로 설정
+        return dto;
     }
 }

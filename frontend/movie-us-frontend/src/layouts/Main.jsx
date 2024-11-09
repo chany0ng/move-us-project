@@ -1,19 +1,26 @@
 import styled from "styled-components";
-import ScrollToTop from "../components/ScrollToTop";
+import ScrollToTop from "../components/ScrollToTopButton";
+import { Outlet, useLocation } from "react-router-dom";
 
-const Main = ({ children }) => {
+const Main = () => {
+  const location = useLocation();
+  const isTicketingPage = location.pathname.includes("/ticketing")
+    ? "true"
+    : "false";
   return (
-    <CustomMain>
-      {children} <ScrollToTop />
+    <CustomMain isticketing={isTicketingPage}>
+      <Outlet /> <ScrollToTop />
     </CustomMain>
   );
 };
 
 const CustomMain = styled.main`
   min-height: 100vh;
-  padding: 10%;
+  padding: ${(props) => (props.isticketing === "true" ? "0px" : "10%")};
   padding-top: 0%;
   padding-bottom: 500px;
+  width: ${(props) => (props.isticketing === "true" ? "1500px" : "auto")};
+  margin: ${(props) => (props.isticketing === "true" ? "0 auto" : "initial")};
 `;
 
 export default Main;

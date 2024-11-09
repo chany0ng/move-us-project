@@ -4,13 +4,18 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ucamp.movieus.entity.Genre;
 import com.ucamp.movieus.entity.Movie;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Data
 public class MovieDTO {
+
     @JsonProperty("id")
     private Long tmdbId;
 
@@ -44,7 +49,7 @@ public class MovieDTO {
     @JsonProperty("genre_ids")
     private List<Long> genreIds;
 
-    public Movie toMovie() {
+    public Movie toMovie(Set<Genre> genres) {
         Movie movie = new Movie();
         movie.setTmdbId(tmdbId);
         movie.setTitle(title);
@@ -56,7 +61,11 @@ public class MovieDTO {
         movie.setVoteAverage(voteAverage);
         movie.setVoteCount(voteCount);
         movie.setReleaseDate(releaseDate);
-        movie.setGenreIds(genreIds);
+        movie.setGenres(genres); // Set<Genre>로 장르 설정
         return movie;
+    }
+
+    // 기본 생성자 추가
+    public MovieDTO() {
     }
 }

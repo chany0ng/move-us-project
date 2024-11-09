@@ -19,7 +19,11 @@ const SearchBar = ({ onSearch }) => {
   return (
     <Box width={"500px"} py={5} alignSelf={"flex-end"}>
       <InputGroup>
-        <InputRightElement pointerEvents="none" height="100%">
+        <InputRightElement
+          height="100%"
+          cursor={"pointer"}
+          onClick={handleSearch}
+        >
           <SearchIcon color="gray.200" boxSize={5} mr={3} />
         </InputRightElement>
         <Input
