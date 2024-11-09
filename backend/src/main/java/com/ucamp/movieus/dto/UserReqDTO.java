@@ -35,5 +35,8 @@ public class UserReqDTO {
         this.userPhone=userPhone;
     }
 
+    // 기본 생성자
+    public UserReqDTO() {}
+
 
 }

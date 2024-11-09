@@ -11,6 +11,7 @@ public interface UserRepository extends JpaRepository<UserEntity, Integer> {
     Optional<UserEntity> findByKakaoEmail(String kakaoEmail);
     Optional<UserEntity> findByUserNum(Integer userNum);
 
-    Optional<UserEntity> getByUserEmail(String email);
+    boolean existsByUserEmail(String userEmail); // 중복된 이메일 확인
+    boolean existsByKakaoEmail(String kakaoEmail); // 카카오 로그인 이메일 중복 확인
 
 }
