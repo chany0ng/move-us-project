@@ -1,60 +1,84 @@
-import { Box, Text, VStack, Link, Button } from "@chakra-ui/react";
-import { useState } from "react";
+import { Box, Text, VStack, Link, Button, Flex, Heading } from "@chakra-ui/react";
+import { useState, useEffect } from "react";
 import { Link as RouterLink } from "react-router-dom";
+import { AiFillFolder } from "react-icons/ai";
+import { useToast } from "@chakra-ui/react";
+import { getData } from "../../api/axios"; // API 호출을 위한 axios 모듈
 
 const Notice = () => {
-  // 전체 공지사항 목록
-  const allNotices = [
-    { id: 1, title: "공지사항 1 - 업데이트 내용" },
-    { id: 2, title: "공지사항 2 - 서비스 점검 안내" },
-    { id: 3, title: "공지사항 3 - 이벤트 안내" },
-    { id: 4, title: "공지사항 4 - 새로운 기능 출시" },
-    { id: 5, title: "공지사항 5 - 보안 업데이트" },
-    { id: 6, title: "공지사항 6 - 유지 보수 공지" },
-    { id: 7, title: "공지사항 7 - 긴급 공지" },
-    { id: 8, title: "공지사항 8 - 시스템 업그레이드" },
-    { id: 9, title: "공지사항 9 - 기능 개선" },
-    { id: 10, title: "공지사항 10 - 업데이트 내용" },
-    // 추가 공지사항 데이터...
-  ];
-
-  // 현재 표시할 공지사항 수 상태 (초기값: 5)
+  const toast = useToast();
+  const [notices, setNotices] = useState([]);
   const [visibleCount, setVisibleCount] = useState(5);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // 현재 표시 중인 공지사항 리스트
-  const visibleNotices = allNotices.slice(0, visibleCount);
+  useEffect(() => {
+    const fetchNotices = async () => {
+      try {
+        setIsLoading(true);
+        const response = await getData("/api/notice");
+        setNotices(response.data || []);
+      } catch (error) {
+        toast({
+          title: "공지사항 조회 Error",
+          description: `Failed to fetch notices / ${error.toString()}`,
+          status: "error",
+          duration: 2000,
+          isClosable: true,
+        });
+        console.error("Error fetching data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  // 'More Notices' 버튼 클릭 시 공지사항 더 보기
+    fetchNotices();
+  }, [toast]);
+
+  const visibleNotices = notices.slice(0, visibleCount);
+
   const handleLoadMore = () => {
-    setVisibleCount(allNotices.length); // 전체 공지사항 표시
-    // 스크롤을 아래로 부드럽게 이동
+    setVisibleCount(notices.length);
     window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
   };
 
-  // '접기' 버튼 클릭 시 초기 상태로 되돌리고, 스크롤을 상단으로 이동
   const handleCollapse = () => {
-    setVisibleCount(5); // 다시 처음 다섯 개만 표시
-    window.scrollTo({ top: 0, behavior: "smooth" }); // 스크롤을 상단으로 부드럽게 이동
+    setVisibleCount(5);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
+  if (isLoading) {
+    return <Text color="white">로딩 중...</Text>;
+  }
 
   return (
     <VStack spacing={4} align="stretch" maxW="700px" m="auto" pt={50} pb={8}>
-      {visibleNotices.map((notice) => (
+      <Box color="white" p={5}>
+        <Flex align={"center"} gap={3} p={2} mb={3}>
+          <AiFillFolder size={40} />
+          <Heading fontSize={"4xl"}>공지사항</Heading>
+        </Flex>
+        <Flex align={"center"} gap={3} pl={3} color="#cfcfcf">
+          <Text fontSize={"lg"} fontWeight={"bold"}>
+            총 {notices.length}건의 공지사항이 검색되었습니다
+          </Text>
+        </Flex>
+      </Box>
+
+      {visibleNotices.map((notice, index) => (
         <Box
-          key={notice.id}
+          key={notice.noticeId}
           p={4}
           bg="gray.700"
           borderRadius="md"
           _hover={{ bg: "gray.600" }}
         >
-          <Link as={RouterLink} to={`/community/notice/${notice.id}`} color="yellow.400">
-            <Text fontSize="20px">{notice.title}</Text>
+          <Link as={RouterLink} to={`/community/notice/${notice.noticeId}`} color="yellow.400">
+            <Text fontSize="20px">공지사항 {index + 1} - {notice.title}</Text>
           </Link>
         </Box>
       ))}
 
-      {/* More Notices / 접기 버튼 */}
-      {visibleCount < allNotices.length ? (
+      {visibleCount < notices.length ? (
         <Button
           mt={4}
           variant="outline"
@@ -63,7 +87,7 @@ const Notice = () => {
         >
           More Notices
         </Button>
-      ) : (
+      ) : notices.length > 5 && (
         <Button
           mt={4}
           variant="outline"
