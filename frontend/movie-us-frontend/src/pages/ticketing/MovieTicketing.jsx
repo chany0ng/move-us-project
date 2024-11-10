@@ -23,14 +23,19 @@ import TicketSummary from "../../components/TicketSummary";
 import { useParams } from "react-router-dom";
 
 const MovieTicketing = () => {
-  const { tmdbId } = useParams();
+  const { indexId } = useParams();
   const [selectedDate, setSelectedDate] = useState(null);
-  const [selectedMovie, setSelectedMovie] = useState(parseInt(tmdbId));
+  const [selectedMovie, setSelectedMovie] = useState(parseInt(indexId));
   const [cinemaData, setCinemaData] = useState(null);
   const [allGuArray, setAllGuArray] = useState(null);
   const [selectedTheater, setSelectedTheater] = useState(null);
   const [selectedGu, setSelectedGu] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
+
+  useEffect(() => {
+    fetchData();
+    fetchCinemaData();
+  }, []);
 
   const formatDate = (date) => {
     const year = date.getFullYear();
@@ -74,11 +79,9 @@ const MovieTicketing = () => {
     try {
       setIsLoading(true);
       const response = await getData("/api/v1/cinemas/locations");
-      console.log(response.data);
       setCinemaData(response.data);
       setAllGuArray(Object.keys(response.data));
       setSelectedGu(Object.keys(response.data)[0]);
-      // setSelectedTheater(Object.keys(response.data)[0].CINEMA_LIST[0][0]);
     } catch (error) {
       toast({
         title: "영화관 조회 Error",
@@ -92,11 +95,30 @@ const MovieTicketing = () => {
       setIsLoading(false);
     }
   };
-  useEffect(() => {
-    fetchData();
-    fetchCinemaData();
-  }, []);
+  const fetchScreeningTimeData = async () => {
+    try {
+      console.log(selectedMovie);
+      console.log(selectedTheater);
+      console.log(selectedDate.toISOString().split("T")[0]);
+      // const response = await getData("/api/v1/screenings/times", {
+      //   params: { selectedMovie, selectedTheater },
+      // });
+      // console.log("상영 시간: ", response.data);
+    } catch (error) {
+      toast({
+        title: "상영시간 조회 Error",
+        description: `Failed to fetch screening time / ${error}`,
+        status: "error",
+        duration: 2000,
+        isClosable: true,
+      });
+      console.error("Error fetching Screening time:", error);
+    }
+  };
 
+  useEffect(() => {
+    fetchScreeningTimeData();
+  }, [selectedMovie, selectedTheater, selectedDate]);
   const resetHandler = () => {
     setSelectedGu(allGuArray[0]);
     setSelectedDate(null);
@@ -154,25 +176,20 @@ const MovieTicketing = () => {
                 <VStack align="flex-start" width="100%">
                   {movies.map((movie) => (
                     <Box
-                      key={movie.tmdbId}
+                      key={movie.id}
                       fontWeight="bold"
                       cursor="pointer"
                       p={2}
                       width="280px"
                       bg={
-                        selectedMovie === movie.tmdbId
-                          ? "#333333"
-                          : "transparent"
+                        selectedMovie === movie.id ? "#333333" : "transparent"
                       }
-                      color={
-                        selectedMovie === movie.tmdbId ? "#d4d3c9" : "black"
-                      }
-                      onClick={() => setSelectedMovie(movie.tmdbId)}
+                      color={selectedMovie === movie.id ? "#d4d3c9" : "black"}
+                      onClick={() => {
+                        setSelectedMovie(movie.id);
+                      }}
                       _hover={{
-                        bg:
-                          selectedMovie === movie.tmdbId
-                            ? "#444444"
-                            : "#d5d3c7",
+                        bg: selectedMovie === movie.id ? "#444444" : "#d5d3c7",
                       }}
                       borderRadius={6}
                     >
@@ -324,7 +341,7 @@ const MovieTicketing = () => {
             </Box>
           </Flex>
         </Box>
-
+        {/* 상영시간 박스 */}
         <Box flex={3} bg="#f2f0e5" position="relative" border="1px solid gray">
           <Box
             height="50px"
