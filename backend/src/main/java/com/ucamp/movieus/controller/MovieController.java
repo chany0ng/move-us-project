@@ -112,4 +112,31 @@ public class MovieController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    // 영화 제목으로 검색 (5개만 반환)
+    @GetMapping("/search/top5")
+    public ResponseEntity<List<Map<String, Object>>> searchMoviesTop5(@RequestParam String query) {
+        try {
+            // 클라이언트로부터 받은 검색어로 영화 목록 검색
+            List<Map<String, Object>> searchResults = movieService.searchMoviesByTitle(query);
+
+            // 검색 결과가 없다면, 빈 리스트를 반환
+            if (searchResults.isEmpty()) {
+                return new ResponseEntity<>(searchResults, HttpStatus.NOT_FOUND);
+            }
+
+            // 검색 결과 중에서 최대 5개만 반환
+            List<Map<String, Object>> top5Results = searchResults.size() > 5
+                    ? searchResults.subList(0, 5)  // 5개까지만 반환
+                    : searchResults;
+
+            // 검색 결과 반환
+            return new ResponseEntity<>(top5Results, HttpStatus.OK);
+
+        } catch (Exception e) {
+            // 예외 처리
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }
