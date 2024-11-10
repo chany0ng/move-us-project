@@ -44,20 +44,24 @@ public class UserRestController {
 
     // JWT를 사용한 로그인 요청 처리
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestBody UserLoginDto userLoginDto) {
+    public ResponseEntity<Map<String, Object>> login(@RequestBody UserLoginDto userLoginDto) {
         System.out.println(userLoginDto.getUserPw());
 
         // 사용자 인증 후 JWT 토큰 생성
         String jwtToken = userService.authenticateUser(userLoginDto);
 
         // JWT에서 사용자 정보 추출
+
         String email = jwtTokenProvider.getEmailFromJWT(jwtToken); // JWT에서 이메일 추출
         String name = jwtTokenProvider.getNameFromJWT(jwtToken); // JWT에서 이름 추출
+        Integer userNum = jwtTokenProvider.getUserNumFromJWT(jwtToken); // JWT에서 넘버 추출
 
-        Map<String, String> response = new HashMap<>();
+        Map<String, Object> response = new HashMap<>();
+
         response.put("token", jwtToken);
         response.put("email", email); // 이메일 추가
         response.put("name", name); // 이름 추가
+        response.put("userNum", userNum);
         response.put("message", "로그인 성공");
         return ResponseEntity.ok(response); // JWT 토큰과 메시지 반환
     }
@@ -65,7 +69,7 @@ public class UserRestController {
 
     // 카카오 소셜 로그인 처리
     @PostMapping("/social-login")
-    public ResponseEntity<Map<String, String>> handleSocialLogin(@RequestBody Map<String, String> loginRequest) {
+    public ResponseEntity<Map<String, Object>> handleSocialLogin(@RequestBody Map<String, String> loginRequest) {
         String kakaoEmail = loginRequest.get("kakaoEmail");
         String userName = loginRequest.get("userName");
 
@@ -73,17 +77,19 @@ public class UserRestController {
         UserEntity user = userService.handleSocialLogin(kakaoEmail, userName);
 
         // JWT 토큰 생성
-        String jwtToken = jwtTokenProvider.createToken(user.getUserEmail(), user.getUserName());
+        String jwtToken = jwtTokenProvider.createToken(user.getUserEmail(), user.getUserName(), user.getUserNum());
 
         // 응답 JSON 구성
-        Map<String, String> response = new HashMap<>();
+        Map<String, Object> response = new HashMap<>();
         response.put("token", jwtToken);
         response.put("email", user.getUserEmail());
         response.put("name", user.getUserName());
+        response.put("userNum", user.getUserNum());
         response.put("message", "소셜 로그인 성공");
 
         return ResponseEntity.ok(response); // JWT 토큰과 사용자 정보 반환
     }
+
 
     // 회원가입 요청 처리
     @PostMapping("/signup")
