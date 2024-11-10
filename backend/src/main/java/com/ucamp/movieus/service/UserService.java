@@ -185,24 +185,24 @@ public class UserService {
         return userRepository.save(user);
     }
 
-     //재하 추가 코드 (회원정보 조회)
+    //재하 추가 코드 (회원정보 조회)
     public UserMyPageDTO getUserMyPage(String userEmail) {
-    UserEntity user = userRepository.findByUserEmail(userEmail)
-        .orElseThrow(() -> new RuntimeException("User not found"));
-    
-    UserMyPageDTO dto = new UserMyPageDTO();
-    modelMapper.map(user, dto);
-    return dto;
-}
+        UserEntity user = userRepository.findByUserEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        UserMyPageDTO dto = new UserMyPageDTO();
+        modelMapper.map(user, dto);
+        return dto;
+    }
 
     //재하 추가 코드 (회원정보 수정)
     public UserMyPageDTO updateUserInfo(String userEmail, UserMyPageDTO updateDto) {
         UserEntity user = userRepository.findByUserEmail(userEmail)
-            .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
-        
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+
         modelMapper.map(updateDto, user);
         UserEntity savedUser = userRepository.save(user);
-        
+
         return modelMapper.map(savedUser, UserMyPageDTO.class);
     }
 }
