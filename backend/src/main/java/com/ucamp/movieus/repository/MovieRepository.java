@@ -3,7 +3,7 @@ package com.ucamp.movieus.repository;
 import com.ucamp.movieus.entity.Movie;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +18,8 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
     @Query("SELECT m.tmdbId FROM Movie m")
     List<Integer> findAllTmdbIds();
 
-    @Query("SELECT m FROM Movie m WHERE LOWER(m.title) = LOWER(:title)")
-    Movie findByTitleIgnoreCase(@Param("title") String title);
+    Optional<Movie> findByTmdbId(Long tmdbId);
+
+    List<Movie> findAllByOrderByRankingAsc(); // 랭킹 오름차순 조회
+
 }

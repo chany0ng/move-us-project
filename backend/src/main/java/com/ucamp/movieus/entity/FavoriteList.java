@@ -17,7 +17,5 @@ public class FavoriteList {
     @JoinColumn(name = "user_num", nullable = false)
     private UserEntity user;
 
-    @ManyToOne
-    @JoinColumn(name = "movie_id", referencedColumnName = "tmdbId", nullable = false)
-    private Movie movie;
+    private Long tmdbId; // 영화 TMDB ID
 }

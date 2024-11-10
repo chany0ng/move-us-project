@@ -5,6 +5,7 @@ import com.ucamp.movieus.entity.Movie;
 import com.ucamp.movieus.repository.MovieRepository;
 import com.ucamp.movieus.service.MovieService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,8 +29,8 @@ public class MovieController {
 
     // 영화 리스트 조회
     @GetMapping("/moviesList")
-    public List<Movie> getMovies() {
-        return movieRepository.findAll();
+    public List<Movie> getRankedMovies() {
+        return movieRepository.findAllByOrderByRankingAsc();
     }
 
 
@@ -87,21 +88,24 @@ public class MovieController {
         return ResponseEntity.ok(moviesWithGenre);
     }
 
+    // 영화 제목으로 검색
+    @GetMapping("/search")
+    public ResponseEntity<List<Map<String, Object>>> searchMovies(@RequestParam String query) {
+        try {
+            // 클라이언트로부터 받은 검색어로 영화 목록 검색
+            List<Map<String, Object>> searchResults = movieService.searchMoviesByTitle(query);
 
-    // 특정 영화 상세정보 정보 조회
-    @GetMapping("/{tmdbId}")
-    public ResponseEntity<Movie> getMovieByTmdbId(@PathVariable Long tmdbId) {
-        return movieRepository.findByTmdbId(tmdbId)
-                .map(ResponseEntity::ok)
-                .orElseThrow(() -> new RuntimeException("Movie not found with TMDB ID: " + tmdbId));
-    }
+            // 검색 결과가 없다면, 빈 리스트를 반환
+            if (searchResults.isEmpty()) {
+                return new ResponseEntity<>(searchResults, HttpStatus.NOT_FOUND);
+            }
 
+            // 검색 결과 반환
+            return new ResponseEntity<>(searchResults, HttpStatus.OK);
 
-
-    //boxoffice
-    @GetMapping("/boxoffice")
-    public ResponseEntity<List<DailyBoxOfficeDTO>> getDailyBoxOffice() {
-        List<DailyBoxOfficeDTO> boxOfficeData = movieService.getAllOrderedByRankAsDTO();
-        return ResponseEntity.ok(boxOfficeData);
+        } catch (Exception e) {
+            // 예외 처리
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

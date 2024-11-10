@@ -23,7 +23,7 @@ public class FavoriteListController {
     // 찜 항목 조회
     @GetMapping
     public List<FavoriteList> getUserFavoriteList() {
-        UserEntity user = userRepository.findById(1).orElseThrow(() -> new RuntimeException("User not found"));
+        UserEntity user = userRepository.findById(3).orElseThrow(() -> new RuntimeException("User not found"));
         return favoriteListService.getUserFavoriteList(user);
     }
 
@@ -50,4 +50,5 @@ public class FavoriteListController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("삭제할 찜 항목이 없습니다.");
         }
     }
+
 }
