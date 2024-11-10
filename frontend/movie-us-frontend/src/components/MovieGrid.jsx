@@ -20,6 +20,7 @@ import "swiper/css/navigation";
 
 const MovieGrid = ({ movies, title, isLoading }) => {
   const swiperRef = useRef(null);
+
   return (
     <Box mb={5}>
       <Heading
@@ -82,8 +83,8 @@ const MovieGrid = ({ movies, title, isLoading }) => {
                 </Box>
               </SwiperSlide>
             ))
-          ) : // 로딩 완료 후 실제 콘텐츠 표시
-          movies.length !== 0 ? (
+          ) : movies && movies.length !== 0 ? (
+            // 데이터가 있을 때 실제 콘텐츠 표시
             movies.map((movie, index) => (
               <SwiperSlide key={index}>
                 <MovieBox position="relative">
@@ -126,7 +127,7 @@ const MovieGrid = ({ movies, title, isLoading }) => {
                           </Button>
                         </Link>
                         {movie.exists_in_db && (
-                          <Link to={`/ticketing/${movie.id}`}>
+                          <Link to={`/ticketing/${movie.indexId}`}>
                             <Button colorScheme="teal">예매하기</Button>
                           </Link>
                         )}
@@ -137,6 +138,7 @@ const MovieGrid = ({ movies, title, isLoading }) => {
               </SwiperSlide>
             ))
           ) : (
+            // 로딩 완료 후 데이터가 없을 때 메시지 표시
             <Flex
               justify={"center"}
               align={"center"}

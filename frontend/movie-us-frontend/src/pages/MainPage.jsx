@@ -13,11 +13,19 @@ const MainPage = () => {
   const [popularMovies, setPopularMovies] = useState([]);
   const [boxOfficeMovies, setBoxOfficeMovies] = useState([]); // 박스오피스 순위 상태 추가
   const [likedMovies, setLikedMovies] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+
+  // 각 API 요청에 대한 로딩 상태
+  const [isMoviesLoading, setIsMoviesLoading] = useState(true);
+  const [isPopularMoviesLoading, setIsPopularMoviesLoading] = useState(true);
+  const [isBoxOfficeMoviesLoading, setIsBoxOfficeMoviesLoading] =
+    useState(true);
+  const [isLikedMoviesLoading, setIsLikedMoviesLoading] = useState(true);
+
   const toast = useToast();
+
   const fetchNowPlayingMovies = async () => {
     try {
-      setIsLoading(true);
+      setIsMoviesLoading(true);
       const response = await getNowPlayingMovies();
       const normalizedMovies = response.data.map(normalizeMovieData);
       setMovies(normalizedMovies);
@@ -31,12 +39,13 @@ const MainPage = () => {
       });
       console.error("Error fetching data:", error);
     } finally {
-      setIsLoading(false);
+      setIsMoviesLoading(false);
     }
   };
+
   const fetchPopularMovies = async () => {
     try {
-      setIsLoading(true);
+      setIsPopularMoviesLoading(true);
       const response = await getPopularMovies();
       setPopularMovies(response.data);
     } catch (error) {
@@ -49,13 +58,13 @@ const MainPage = () => {
       });
       console.error("Error fetching data:", error);
     } finally {
-      setIsLoading(false);
+      setIsPopularMoviesLoading(false);
     }
   };
 
-  // 박스오피스 데이터 가져오는 함수
   const fetchBoxOfficeData = async () => {
     try {
+      setIsBoxOfficeMoviesLoading(true);
       const response = await getData("/movies/boxoffice");
       setBoxOfficeMovies(
         response.data.map((movie) => {
@@ -76,12 +85,14 @@ const MainPage = () => {
         isClosable: true,
       });
       console.error("Error fetching box office data:", error);
+    } finally {
+      setIsBoxOfficeMoviesLoading(false);
     }
   };
 
-  // 좋아요 누른 영화 가져오기
   const fetchLikedMovies = async () => {
     try {
+      setIsLikedMoviesLoading(true);
       const response = await getData("/movies/moviesList");
       setLikedMovies(response.data);
     } catch (error) {
@@ -93,12 +104,15 @@ const MainPage = () => {
         isClosable: true,
       });
       console.error("Error fetching liked data:", error);
+    } finally {
+      setIsLikedMoviesLoading(false);
     }
   };
 
   const normalizeMovieData = (movie) => {
     return {
       id: movie.tmdbId,
+      indexId: movie.id,
       title: movie.title,
       poster_path: movie.posterPath,
       exists_in_db: movie.exists_in_db || true,
@@ -120,28 +134,51 @@ const MainPage = () => {
       <Box pb={20}>
         <Carousel movies={wideMovies} />
       </Box>
-      {likedMovies.length > 0 && (
+
+      {user.user_name && isLikedMoviesLoading ? (
         <MovieGrid
           title={`${user.user_name}님이 좋아요 누른 영화`}
-          movies={likedMovies}
-          isLoading={isLoading}
+          isLoading={true}
+        />
+      ) : (
+        likedMovies.length > 0 && (
+          <MovieGrid
+            title={`${user.user_name}님이 좋아요 누른 영화`}
+            movies={likedMovies}
+            isLoading={false}
+          />
+        )
+      )}
+
+      {isMoviesLoading ? (
+        <MovieGrid title="전세계 상영영화 순위" isLoading={true} />
+      ) : (
+        <MovieGrid
+          title="전세계 상영영화 순위"
+          movies={movies}
+          isLoading={false}
         />
       )}
-      <MovieGrid
-        title="전세계 상영영화 순위"
-        movies={movies}
-        isLoading={isLoading}
-      />
-      <MovieGrid
-        title="전체 영화 인기순위"
-        movies={popularMovies}
-        isLoading={isLoading}
-      />
-      <MovieGrid
-        title="국내 일일 박스오피스 순위"
-        movies={boxOfficeMovies}
-        isLoading={isLoading}
-      />
+
+      {isPopularMoviesLoading ? (
+        <MovieGrid title="전체 영화 인기순위" isLoading={true} />
+      ) : (
+        <MovieGrid
+          title="전체 영화 인기순위"
+          movies={popularMovies}
+          isLoading={false}
+        />
+      )}
+
+      {isBoxOfficeMoviesLoading ? (
+        <MovieGrid title="국내 일일 박스오피스 순위" isLoading={true} />
+      ) : (
+        <MovieGrid
+          title="국내 일일 박스오피스 순위"
+          movies={boxOfficeMovies}
+          isLoading={false}
+        />
+      )}
     </Flex>
   );
 };

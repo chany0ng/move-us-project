@@ -34,8 +34,8 @@ const Index = () => {
   const [isExist, setIsExist] = useState(true);
   const [isError, setIsError] = useState(false);
 
+  // 카카오 로그인 시, redirect 전에 유저 정보 저장
   useEffect(() => {
-    // 현재 URL에서 토큰 추출
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get("token");
     if (token) {
@@ -120,9 +120,11 @@ const Index = () => {
       if (response.data) {
         const userInfo = response.data;
         localStorage.setItem("accessToken", userInfo.token);
-        userStore
-          .getState()
-          .setUser({ user_name: userInfo.name, user_email: userInfo.email }); // 사용자 정보 저장
+        userStore.getState().setUser({
+          user_name: userInfo.name,
+          user_email: userInfo.email,
+          user_num: userInfo.userNum,
+        }); // 사용자 정보 저장
         navigate("/main");
         e;
       } else {
@@ -183,135 +185,140 @@ const Index = () => {
               </Button>
             </Box>
           </Box>
-
-          <Box flex="3.5" bg="rgba(24, 24, 27, 0.8)" h="100vh">
-            <Flex
-              direction="column"
-              align="flex-start"
-              justify={"center"}
-              gap={5}
-              width="70%"
-              height="100%"
-              margin={"0 auto"}
-            >
-              <Heading
-                mb={15}
-                textAlign="left"
-                fontWeight="bold"
-                fontSize={["xl", "2xl", "3xl", "4xl"]}
+          {user.user.user_name ? (
+            <div></div>
+          ) : (
+            <Box flex="3.5" bg="rgba(24, 24, 27, 0.8)" h="100vh">
+              (
+              <Flex
+                direction="column"
+                align="flex-start"
+                justify={"center"}
+                gap={5}
+                width="70%"
+                height="100%"
+                margin={"0 auto"}
               >
-                로그인
-              </Heading>
-              <img
-                src={kakaoLargeLogin}
-                onClick={kakaoLoginHandler}
-                alt="카카오 로그인"
-                style={{ cursor: "pointer" }}
-              />
-              <Box
-                position="relative"
-                textAlign="center"
-                width={"100%"}
-                my={10}
-              >
-                <Divider
-                  orientation="horizontal"
-                  position={"absolute"}
-                  width="40%"
-                  borderColor={"gray"}
-                />
-                <Text
-                  position="absolute"
-                  top="-10px"
-                  left="50%"
-                  transform="translateX(-50%)"
-                  color="gainsboro"
+                <Heading
+                  mb={15}
+                  textAlign="left"
+                  fontWeight="bold"
+                  fontSize={["xl", "2xl", "3xl", "4xl"]}
                 >
-                  OR
+                  로그인
+                </Heading>
+                <img
+                  src={kakaoLargeLogin}
+                  onClick={kakaoLoginHandler}
+                  alt="카카오 로그인"
+                  style={{ cursor: "pointer" }}
+                />
+                <Box
+                  position="relative"
+                  textAlign="center"
+                  width={"100%"}
+                  my={10}
+                >
+                  <Divider
+                    orientation="horizontal"
+                    position={"absolute"}
+                    width="40%"
+                    borderColor={"gray"}
+                  />
+                  <Text
+                    position="absolute"
+                    top="-10px"
+                    left="50%"
+                    transform="translateX(-50%)"
+                    color="gainsboro"
+                  >
+                    OR
+                  </Text>
+                  <Divider
+                    position={"absolute"}
+                    left="60%"
+                    orientation="horizontal"
+                    width="40%"
+                    borderColor={"gray"}
+                  />
+                </Box>
+                <form onSubmit={handleSubmitHandler} style={{ width: "100%" }}>
+                  <FormControl sx={{ mb: "15px" }} isInvalid={!isExist}>
+                    <FormLabel fontSize="15px" color="gainsboro">
+                      이메일
+                    </FormLabel>
+                    <CustomInput
+                      type="email"
+                      size={"lg"}
+                      fontSize={"md"}
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
+                    {!isExist && (
+                      <FormErrorMessage>
+                        비밀번호 찾기를 원하는 계정 이메일을 입력해주세요
+                      </FormErrorMessage>
+                    )}
+                  </FormControl>
+
+                  <FormControl isInvalid={isError}>
+                    <FormLabel fontSize="15px" color="gainsboro">
+                      비밀번호
+                    </FormLabel>
+                    <CustomInput
+                      type="password"
+                      size={"lg"}
+                      fontSize={"md"}
+                      value={password}
+                      onChange={passwordChangeHandler}
+                    />
+                    {isError && (
+                      <FormErrorMessage>
+                        비밀번호는 8자리 이상입니다.
+                      </FormErrorMessage>
+                    )}
+                    <Flex justify="flex-end" mt={2} align={"center"}>
+                      <EmailIcon boxSize={4} mr={1} />
+                      <ChakraLink
+                        textDecoration="underline"
+                        fontWeight="thin"
+                        fontSize="13px"
+                        color="gainsboro"
+                        onClick={changePasswordHandler}
+                      >
+                        비밀번호 찾기
+                      </ChakraLink>
+                    </Flex>
+                  </FormControl>
+                  <Button
+                    mt="24px"
+                    p={6}
+                    fontSize="24px"
+                    fontWeight={"thin"}
+                    borderRadius={"8px"}
+                    width="100%"
+                    type="submit"
+                    // isLoading
+                  >
+                    Sign in &nbsp;
+                    <CheckIcon boxSize={5} />
+                  </Button>
+                </form>
+                <Text color={"gray"} textAlign={"left"} fontSize={"15px"}>
+                  Movie us 회원이 아닌가요? &nbsp;
+                  <ChakraLink
+                    as={RouterLink}
+                    to="/signup"
+                    textDecoration="underline"
+                    color="white"
+                  >
+                    지금 가입하세요.
+                  </ChakraLink>
                 </Text>
-                <Divider
-                  position={"absolute"}
-                  left="60%"
-                  orientation="horizontal"
-                  width="40%"
-                  borderColor={"gray"}
-                />
-              </Box>
-              <form onSubmit={handleSubmitHandler} style={{ width: "100%" }}>
-                <FormControl sx={{ mb: "15px" }} isInvalid={!isExist}>
-                  <FormLabel fontSize="15px" color="gainsboro">
-                    이메일
-                  </FormLabel>
-                  <CustomInput
-                    type="email"
-                    size={"lg"}
-                    fontSize={"md"}
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                  {!isExist && (
-                    <FormErrorMessage>
-                      비밀번호 찾기를 원하는 계정 이메일을 입력해주세요
-                    </FormErrorMessage>
-                  )}
-                </FormControl>
-
-                <FormControl isInvalid={isError}>
-                  <FormLabel fontSize="15px" color="gainsboro">
-                    비밀번호
-                  </FormLabel>
-                  <CustomInput
-                    type="password"
-                    size={"lg"}
-                    fontSize={"md"}
-                    value={password}
-                    onChange={passwordChangeHandler}
-                  />
-                  {isError && (
-                    <FormErrorMessage>
-                      비밀번호는 8자리 이상입니다.
-                    </FormErrorMessage>
-                  )}
-                  <Flex justify="flex-end" mt={2} align={"center"}>
-                    <EmailIcon boxSize={4} mr={1} />
-                    <ChakraLink
-                      textDecoration="underline"
-                      fontWeight="thin"
-                      fontSize="13px"
-                      color="gainsboro"
-                      onClick={changePasswordHandler}
-                    >
-                      비밀번호 찾기
-                    </ChakraLink>
-                  </Flex>
-                </FormControl>
-                <Button
-                  mt="24px"
-                  p={6}
-                  fontSize="24px"
-                  fontWeight={"thin"}
-                  borderRadius={"8px"}
-                  width="100%"
-                  type="submit"
-                  // isLoading
-                >
-                  Sign in &nbsp;
-                  <CheckIcon boxSize={5} />
-                </Button>
-              </form>
-              <Text color={"gray"} textAlign={"left"} fontSize={"15px"}>
-                Movie us 회원이 아닌가요? &nbsp;
-                <ChakraLink
-                  as={RouterLink}
-                  to="/signup"
-                  textDecoration="underline"
-                  color="white"
-                >
-                  지금 가입하세요.
-                </ChakraLink>
-              </Text>
-            </Flex>
-          </Box>
+              </Flex>
+              )
+            </Box>
+          )}
         </Flex>
       </BackGroundDiv>
     </>
