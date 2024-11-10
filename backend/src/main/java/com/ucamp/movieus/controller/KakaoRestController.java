@@ -82,7 +82,7 @@ public class KakaoRestController {
         }
 
         // 이메일과 이름을 이용한 JWT 생성
-        String jwtToken = jwtTokenProvider.generateTokenByEmailAndName(userDTO.getUserEmail(), userDTO.getUserName());
+        String jwtToken = jwtTokenProvider.generateTokenByEmailAndName(userDTO.getUserEmail(), userDTO.getUserName(), userDTO.getUserNum());
 
         // JWT 토큰을 포함한 리다이렉트 URL 생성
         String redirectUrl = UriComponentsBuilder.fromUriString("http://localhost:3000/")

@@ -15,9 +15,11 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -73,37 +75,33 @@ public class UserService {
     }
 
 
-    public UserEntity handleSocialLogin(String kakaoEmail, String userName) {
+    public UserEntity handleSocialLogin(String userEmail, String userName) {
         // 이메일 중복 체크 (이메일로 기존 사용자 확인)
-        Optional<UserEntity> existingUser = userRepository.findByUserEmail(kakaoEmail);
+        Optional<UserEntity> existingUser = userRepository.findByUserEmail(userEmail);
 
         if (existingUser.isPresent()) {
             // 기존 사용자가 있을 경우 해당 사용자 반환
             return existingUser.get();
         } else {
             // 기존 사용자가 없을 경우 새 사용자 생성
-            UserEntity newUser = createUser(kakaoEmail, userName);
+            UserEntity newUser = createUser(userEmail, userName);
             return newUser;
         }
     }
 
+    // UserService 클래스에 추가
+    public String authenticateUser(UserLoginDto userLoginDto) {
+        UserEntity user = userRepository.findByUserEmail(userLoginDto.getUserEmail())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-
-    // 로그인 처리 및 JWT 발급 메서드
-    public String authenticateUser(UserLoginDto loginDto) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginDto.getUserEmail(),
-                        loginDto.getUserPw()
-                )
-        );
-
-        // 인증 정보 보관
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        // JWT 토큰 생성 및 반환
-        return jwtTokenProvider.generateToken(authentication);
+        if (passwordEncoder.matches(userLoginDto.getUserPw(), user.getUserPw())) {
+            // userNum을 포함하여 토큰 생성
+            return jwtTokenProvider.createToken(user.getUserEmail(), user.getUserName(), user.getUserNum());
+        } else {
+            throw new BadCredentialsException("Invalid password");
+        }
     }
+
 
 
     // 사용자 목록 조회 메서드
