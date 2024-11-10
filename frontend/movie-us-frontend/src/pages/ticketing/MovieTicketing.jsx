@@ -18,7 +18,6 @@ import { useEffect, useState } from "react";
 import { getData } from "../../api/axios";
 import DateSelector from "../../components/DateSelector";
 import { RepeatClockIcon } from "@chakra-ui/icons";
-import timeTable from "../../assets/data/timeTable.json";
 import TicketSummary from "../../components/TicketSummary";
 import { useParams } from "react-router-dom";
 
@@ -26,11 +25,14 @@ const MovieTicketing = () => {
   const { indexId } = useParams();
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedMovie, setSelectedMovie] = useState(parseInt(indexId));
+  const [selectedMovieTmdbId, setSelectedMovieTmdbId] = useState(null);
   const [cinemaData, setCinemaData] = useState(null);
   const [allGuArray, setAllGuArray] = useState(null);
   const [selectedTheater, setSelectedTheater] = useState(null);
   const [selectedGu, setSelectedGu] = useState(null);
+  const [allTimeArray, setAllTimeArray] = useState([]);
   const [selectedTime, setSelectedTime] = useState(null);
+  const [selectedSession, setSelectedSession] = useState(null);
 
   useEffect(() => {
     fetchData();
@@ -96,14 +98,19 @@ const MovieTicketing = () => {
     }
   };
   const fetchScreeningTimeData = async () => {
+    const formattedDate = selectedDate.toISOString().split("T")[0];
     try {
-      console.log(selectedMovie);
-      console.log(selectedTheater);
-      console.log(selectedDate.toISOString().split("T")[0]);
-      // const response = await getData("/api/v1/screenings/times", {
-      //   params: { selectedMovie, selectedTheater },
-      // });
-      // console.log("상영 시간: ", response.data);
+      if (selectedMovie && selectedTheater && formattedDate) {
+        const response = await getData("/api/v1/screenings/times", {
+          params: {
+            movieId: selectedMovie,
+            theaterName: selectedTheater,
+            screeningDate: formattedDate,
+          },
+        });
+        console.log("상영 시간: ", response.data);
+        setAllTimeArray(response.data.reverse());
+      }
     } catch (error) {
       toast({
         title: "상영시간 조회 Error",
@@ -119,6 +126,7 @@ const MovieTicketing = () => {
   useEffect(() => {
     fetchScreeningTimeData();
   }, [selectedMovie, selectedTheater, selectedDate]);
+
   const resetHandler = () => {
     setSelectedGu(allGuArray[0]);
     setSelectedDate(null);
@@ -187,6 +195,7 @@ const MovieTicketing = () => {
                       color={selectedMovie === movie.id ? "#d4d3c9" : "black"}
                       onClick={() => {
                         setSelectedMovie(movie.id);
+                        setSelectedMovieTmdbId(movie.tmdbId);
                       }}
                       _hover={{
                         bg: selectedMovie === movie.id ? "#444444" : "#d5d3c7",
@@ -341,6 +350,7 @@ const MovieTicketing = () => {
             </Box>
           </Flex>
         </Box>
+
         {/* 상영시간 박스 */}
         <Box flex={3} bg="#f2f0e5" position="relative" border="1px solid gray">
           <Box
@@ -364,9 +374,7 @@ const MovieTicketing = () => {
               {!selectedDate || !selectedMovie || !selectedTheater ? (
                 // 1. 옵션을 아직 선택하지 않은 경우
                 <Text>영화, 극장, 날짜를 모두 선택해주세요</Text>
-              ) : !timeTable[formatDate(selectedDate)]?.[selectedTheater]?.[
-                  selectedMovie
-                ] ? (
+              ) : allTimeArray.length < 1 ? (
                 // 2. 옵션은 선택했지만 Data가 없는 경우
                 <Text>해당 일자에 상영 일정이 없습니다</Text>
               ) : (
@@ -377,10 +385,8 @@ const MovieTicketing = () => {
                     gap={1}
                     width="100%"
                   >
-                    {timeTable[formatDate(selectedDate)][selectedTheater][
-                      selectedMovie
-                    ].map((session, index) => (
-                      <GridItem key={index}>
+                    {allTimeArray.map((session) => (
+                      <GridItem key={session.timeId}>
                         <Flex
                           p={1}
                           align="center"
@@ -392,20 +398,23 @@ const MovieTicketing = () => {
                           <Button
                             size="sm"
                             backgroundColor={
-                              selectedTime === session.time
+                              selectedTime === session.timeId
                                 ? "#333333"
                                 : "brand.primary"
                             }
                             color={
-                              selectedTime === session.time
+                              selectedTime === session.timeId
                                 ? "#d4d3c9"
                                 : "black"
                             }
-                            onClick={() => setSelectedTime(session.time)}
+                            onClick={() => {
+                              setSelectedTime(session.timeId);
+                              setSelectedSession(session.screeningTime);
+                            }}
                           >
-                            {session.time}
+                            {session.screeningTime}
                           </Button>
-                          <Text>{session.availableSeats}석</Text>
+                          <Text>{100 - session.reservedSeats}석</Text>
                         </Flex>
                       </GridItem>
                     ))}
@@ -419,9 +428,11 @@ const MovieTicketing = () => {
       {selectedMovie && selectedTheater && selectedDate && selectedTime && (
         <TicketSummary
           selectedMovie={selectedMovie}
+          selectedMovieTmdbId={selectedMovieTmdbId}
           selectedTheater={selectedTheater}
           selectedDate={formatDate(selectedDate)}
           selectedTime={selectedTime}
+          selectedSession={selectedSession}
         />
       )}
     </Flex>
