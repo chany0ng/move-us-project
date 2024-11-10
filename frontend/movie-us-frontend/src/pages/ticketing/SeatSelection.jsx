@@ -12,6 +12,7 @@ import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Seat from "../../components/Seat";
 import TicketSummary from "../../components/TicketSummary";
+import { postData } from '../../api/axios';
 
 const SEAT_PRICE = 10000;
 // 좌석 배열 생성
@@ -62,14 +63,9 @@ const SeatSelection = () => {
     const totalAmount = selectedSeats.length * SEAT_PRICE;
     try {
       // 결제 API 요청 (가상의 API URL)
-      const response = await fetch("/api/payment", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          seats: selectedSeats,
-          people: selectedPeople,
-          totalAmount,
-        }),
+      const response = await postData("/api/v1/payments/toss", {
+        movie: "",
+        amout: totalAmount
       });
 
       if (response.ok) {
@@ -225,12 +221,13 @@ const SeatSelection = () => {
         </Flex>
       </Box>
       <TicketSummary
-        selectedMovie={selectedMovie}
+        selectedMovieTmdbId={selectedMovie}
         selectedTheater={selectedTheater}
         selectedDate={selectedDate}
         selectedTime={selectedTime}
         selectedSeats={selectedSeats}
         selectedPeople={selectedPeople}
+        handlePayment={handlePayment}
       />
     </Flex>
   );

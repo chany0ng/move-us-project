@@ -8,7 +8,6 @@ import { userStore } from "../../store";
 const SEAT_PRICE = 10000;
 
 const TicketSummary = ({
-  selectedMovie,
   selectedMovieTmdbId,
   selectedSession,
   selectedTheater,
@@ -16,6 +15,7 @@ const TicketSummary = ({
   selectedTime,
   selectedSeats,
   selectedPeople,
+  handlePayment,
 }) => {
   const navigate = useNavigate();
   const toast = useToast();
@@ -23,7 +23,7 @@ const TicketSummary = ({
   const [title, setTitle] = useState("");
   const [posterPath, setPosterPath] = useState("");
   const [releaseDate, setReleaseDate] = useState("");
-  console.log(selectedMovieTmdbId, selectedSession);
+
   const handleGoToSeatSelection = () => {
     navigate(
       `/ticketing/seat-selection?movie=${selectedMovieTmdbId}&poster=${posterPath}&title=${title}&theater=${selectedTheater}&date=${selectedDate}&time=${selectedSession}`
@@ -75,6 +75,7 @@ const TicketSummary = ({
 
   const payHandler = () => {
     alert("결제요청!");
+    handlePayment();
   };
   return (
     <Box
