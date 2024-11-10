@@ -83,6 +83,7 @@ public class JwtTokenProvider {
         return claims.get("userNum", Integer.class); // userNum 추출
     }
 
+
     public String getEmailFromJWT(String token) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(jwtSecretKey)
