@@ -21,5 +21,4 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
     @Query("SELECT m FROM Movie m WHERE LOWER(m.title) = LOWER(:title)")
     Movie findByTitleIgnoreCase(@Param("title") String title);
 
-    Movie findByTitleIgnoreCase(String title);
 }

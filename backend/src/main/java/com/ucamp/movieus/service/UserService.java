@@ -166,4 +166,25 @@ public class UserService {
         
         return modelMapper.map(savedUser, UserMyPageDTO.class);
     }
+
+    //재하 추가 코드 (회원정보 조회) - userNum 버전
+    public UserMyPageDTO getUserMyPageByNum(Integer userNum) {
+        UserEntity user = userRepository.findById(userNum)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        UserMyPageDTO dto = new UserMyPageDTO();
+        modelMapper.map(user, dto);
+        return dto;
+    }
+
+    //재하 추가 코드 (회원정보 수정) - userNum 버전
+    public UserMyPageDTO updateUserInfoByNum(Integer userNum, UserMyPageDTO updateDto) {
+        UserEntity user = userRepository.findById(userNum)
+            .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+        
+        modelMapper.map(updateDto, user);
+        UserEntity savedUser = userRepository.save(user);
+        
+        return modelMapper.map(savedUser, UserMyPageDTO.class);
+    }
 }

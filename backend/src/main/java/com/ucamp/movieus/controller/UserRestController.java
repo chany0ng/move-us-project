@@ -145,20 +145,20 @@ public class UserRestController {
         // 성공 시 UserEntity JSON 반환
     }
 
-        //재하 추가 코드 (회원정보 조회)
-        @GetMapping("/mypage/{userEmail}")
-        public ResponseEntity<UserMyPageDTO> myPage(@PathVariable String userEmail) {
-            UserMyPageDTO userInfo = userService.getUserMyPage(userEmail);
-        return ResponseEntity.ok(userInfo);
-    }
+        //재하 추가 코드 (회원정보 조회) - userNum 버전
+        @GetMapping("/mypage/user/{userNum}")
+        public ResponseEntity<UserMyPageDTO> myPageByNum(@PathVariable Integer userNum) {
+            UserMyPageDTO userInfo = userService.getUserMyPageByNum(userNum);
+            return ResponseEntity.ok(userInfo);
+        }
 
-        //재하 추가 코드 (회원정보 수정)
-        @PutMapping("/mypage/{userEmail}")
-        public ResponseEntity<UserMyPageDTO> updateUserInfo(
-            @PathVariable String userEmail,
+        //재하 추가 코드 (회원정보 수정) - userNum 버전
+        @PutMapping("/mypage/user/{userNum}")
+        public ResponseEntity<UserMyPageDTO> updateUserInfoByNum(
+            @PathVariable Integer userNum,
             @RequestBody UserMyPageDTO updateDto
         ) {
-            UserMyPageDTO updatedUser = userService.updateUserInfo(userEmail, updateDto);
+            UserMyPageDTO updatedUser = userService.updateUserInfoByNum(userNum, updateDto);
             return ResponseEntity.ok(updatedUser);
         }
 
