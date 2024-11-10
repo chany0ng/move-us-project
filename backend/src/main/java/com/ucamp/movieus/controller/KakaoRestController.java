@@ -4,6 +4,7 @@ import com.ucamp.movieus.dto.UserReqDTO;
 import com.ucamp.movieus.service.UserService;
 import com.ucamp.movieus.dto.UserReqDTO;
 import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -16,12 +17,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.view.RedirectView;
+import org.springframework.web.util.UriComponentsBuilder;
+import com.ucamp.movieus.security.JwtTokenProvider;
 
 import java.net.URI;
 
 @RestController
+@RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:3000")
 public class KakaoRestController {
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Value("${kakao.client.id}")
     private String clientId;
@@ -48,60 +53,48 @@ public class KakaoRestController {
         return ResponseEntity.status(302).location(URI.create(kakaoAuthUrl)).build(); // 카카오 인증 URL로 리디렉션
     }
 
-//    @GetMapping("/kakao/callback") // 인증 후 호출되는 콜백 엔드포인트
-//    public ResponseEntity<?> kakaoCallback(@RequestParam String code) {
-//        System.out.println("Authorization code: " + code);
-//
-//        RestTemplate restTemplate = new RestTemplate();
-//        String tokenUrl = "https://kauth.kakao.com/oauth/token?grant_type=authorization_code&client_id=" + clientId + "&redirect_uri=" + redirectUri + "&code=" + code;
-//
-//        // 액세스 토큰 요청
-//        String tokenResponse = restTemplate.postForObject(tokenUrl, null, String.class);
-//
-//        // 사용자 정보 요청
-//        String userInfoUrl = "https://kapi.kakao.com/v2/user/me";
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.set("Authorization", "Bearer " + userService.extractAccessToken(tokenResponse));
-//        HttpEntity<String> entity = new HttpEntity<>(headers);
-//
-//        ResponseEntity<String> userInfoResponse = restTemplate.exchange(userInfoUrl, HttpMethod.GET, entity, String.class);
-//        String userInfo = userInfoResponse.getBody();
-//
-//        // 사용자 정보 추출 및 저장
-//        UserReqDTO userDTO = userService.extractKakaoUserInfo(tokenResponse, userInfo);
-//        userService.saveOrUpdateUser(userDTO);
-//
-//        return ResponseEntity.ok(userDTO); // 사용자 정보를 JSON 응답으로 반환
-//    }
-    //기존 카카오
-@GetMapping("/kakao/callback")
-public RedirectView kakaoCallback(@RequestParam String code) {
-    System.out.println("Authorization code: " + code);
+    @GetMapping("/kakao/callback")
+    public RedirectView kakaoCallback(@RequestParam String code) {
+        System.out.println("Authorization code: " + code);
 
-    RestTemplate restTemplate = new RestTemplate();
-    String tokenUrl = "https://kauth.kakao.com/oauth/token?grant_type=authorization_code&client_id=" + clientId + "&redirect_uri=" + redirectUri + "&code=" + code;
+        RestTemplate restTemplate = new RestTemplate();
+        String tokenUrl = "https://kauth.kakao.com/oauth/token?grant_type=authorization_code&client_id=" + clientId + "&redirect_uri=" + redirectUri + "&code=" + code;
 
-    // 액세스 토큰 요청
-    String tokenResponse = restTemplate.postForObject(tokenUrl, null, String.class);
+        // 액세스 토큰 요청
+        String tokenResponse = restTemplate.postForObject(tokenUrl, null, String.class);
 
-    // 사용자 정보 요청
-    String userInfoUrl = "https://kapi.kakao.com/v2/user/me";
-    HttpHeaders headers = new HttpHeaders();
-    headers.set("Authorization", "Bearer " + userService.extractAccessToken(tokenResponse));
-    HttpEntity<String> entity = new HttpEntity<>(headers);
+        // 사용자 정보 요청
+        String userInfoUrl = "https://kapi.kakao.com/v2/user/me";
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + userService.extractAccessToken(tokenResponse));
+        HttpEntity<String> entity = new HttpEntity<>(headers);
 
-    ResponseEntity<String> userInfoResponse = restTemplate.exchange(userInfoUrl, HttpMethod.GET, entity, String.class);
-    String userInfo = userInfoResponse.getBody();
+        ResponseEntity<String> userInfoResponse = restTemplate.exchange(userInfoUrl, HttpMethod.GET, entity, String.class);
+        String userInfo = userInfoResponse.getBody();
 
-    // 사용자 정보 추출 및 저장
-    UserReqDTO userDTO = userService.extractKakaoUserInfo(tokenResponse, userInfo);
-    userService.saveOrUpdateUser(userDTO);
+        // 사용자 정보 추출 및 저장
+        UserReqDTO userDTO = userService.extractKakaoUserInfo(tokenResponse, userInfo);
+        userService.saveOrUpdateUser(userDTO);
 
-    // 로그인 후 React 앱의 특정 URL로 리다이렉션
-    RedirectView redirectView = new RedirectView();
-    redirectView.setUrl("http://localhost:3000/main"); // 리액트 URL로 리다이렉션
-    return redirectView;
-}
+        // Role이 없는 경우 기본 역할 설정
+        if (userDTO.getRole() == null) {
+            userDTO.setRole("USER");
+        }
+
+        // 이메일과 이름을 이용한 JWT 생성
+        String jwtToken = jwtTokenProvider.generateTokenByEmailAndName(userDTO.getUserEmail(), userDTO.getUserName(), userDTO.getUserNum());
+
+        // JWT 토큰을 포함한 리다이렉트 URL 생성
+        String redirectUrl = UriComponentsBuilder.fromUriString("http://localhost:3000/main")
+                .queryParam("token", jwtToken)
+                .build()
+                .toUriString();
+
+        // React 앱으로 리다이렉트
+        RedirectView redirectView = new RedirectView();
+        redirectView.setUrl(redirectUrl);
+        return redirectView;
+    }
 
 
 
