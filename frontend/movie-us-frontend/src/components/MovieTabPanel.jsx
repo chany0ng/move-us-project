@@ -17,8 +17,8 @@ import styled from "styled-components";
 
 const MovieTabPanel = ({ movies, isLoading }) => {
   const navigate = useNavigate();
-  return movies ? (
-    <TabPanel minHeight="inherit">
+  return movies && movies.length > 0 ? (
+    <div style={{ minHeight: "inherit" }}>
       {isLoading ? (
         <SimpleGrid columns={[2, 3, 4, 5]} spacing={8} mt={5}>
           {Array.from({ length: 20 }).map((_, index) => (
@@ -33,10 +33,10 @@ const MovieTabPanel = ({ movies, isLoading }) => {
           ))}
         </SimpleGrid>
       ) : (
-        <Grid templateColumns="repeat(auto-fill, minmax(200px, 1fr))" gap={8}>
-          {movies.map((movie) => (
+        <Grid templateColumns="repeat(auto-fill, minmax(220px, 1fr))" gap={8}>
+          {movies.map((movie, index) => (
             <Box
-              key={movie.id}
+              key={index}
               borderRadius="lg"
               overflow="hidden"
               cursor="pointer"
@@ -63,7 +63,7 @@ const MovieTabPanel = ({ movies, isLoading }) => {
           ))}
         </Grid>
       )}
-    </TabPanel>
+    </div>
   ) : (
     <Flex
       justify={"center"}

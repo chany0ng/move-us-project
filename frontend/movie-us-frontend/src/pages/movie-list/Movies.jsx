@@ -43,13 +43,23 @@ const Movies = () => {
       exists_in_db: movie.exists_in_db || true,
     };
   };
-
   useEffect(() => {
+    // 네비게이션 바에서 영화 조회 탭을 클릭했을 때 URL을 기본 쿼리로 리셋
+    if (location.pathname === "/movies" && !location.search) {
+      setGenre("All");
+      setSort("latest");
+      navigate("?genre=All&sort=latest", { replace: true });
+    }
+  }, [location, navigate]);
+  useEffect(() => {
+    const queryParams = new URLSearchParams({ genre, sort });
+    navigate(`?${queryParams.toString()}`, { replace: true });
+
     const fetchAndSetMovies = async () => {
       const nowPlayingMovies = await fetchMovies(genre, sort);
       const popularMovies = await fetchPopularMovies(genre, sort);
       const totalMovies = [...nowPlayingMovies, ...popularMovies];
-      setMovies(totalMovies);
+      setMovies(totalMovies || []);
     };
 
     fetchAndSetMovies();
@@ -70,7 +80,7 @@ const Movies = () => {
         duration: 2000,
         isClosable: true,
       });
-      console.error("Error fetching data:", error);
+      console.error("Error fetching NowPlaying data:", error);
     } finally {
       setIsLoading(false);
     }
@@ -100,13 +110,11 @@ const Movies = () => {
   const handleSortChange = (e) => {
     const newSort = e.target.value;
     setSort(newSort);
-    navigate(`?genre=${genre}&sort=${newSort}`);
   };
 
   const handleTabChange = (index) => {
     const newGenre = GENRES[index];
     setGenre(newGenre);
-    navigate(`?genre=${newGenre}&sort=${sort}`);
   };
 
   return (
@@ -138,8 +146,8 @@ const Movies = () => {
           value={sort}
         >
           <option value="latest">최신순</option>
-          <option value="review">리뷰 많은 순</option>
-          <option value="like">좋아요 많은 순</option>
+          <option value="like">오래된 순</option>
+          <option value="review">가나다 순</option>
         </Select>
       </Box>
 
@@ -170,7 +178,11 @@ const Movies = () => {
             ))}
           </TabList>
           <TabPanels minHeight="inherit" p={10}>
-            <MovieTabPanel key={genre} movies={movies} isLoading={isLoading} />
+            <MovieTabPanel
+              key={`${genre}-${sort}`}
+              movies={movies}
+              isLoading={isLoading}
+            />
           </TabPanels>
         </Tabs>
       </Box>
