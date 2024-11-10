@@ -106,10 +106,10 @@ public class JwtTokenProvider {
             Jwts.parserBuilder()
                     .setSigningKey(jwtSecretKey)
                     .build()
-                    .parseClaimsJws(authToken);
+                    .parseClaimsJws(authToken); // 만료된 토큰을 파싱할 때 예외 발생
             return true;
         } catch (JwtException | IllegalArgumentException e) {
-            return false;
+            return false; // 만료된 토큰 처리
         }
     }
 
