@@ -8,6 +8,7 @@ import Layout from "./layouts/Layout";
 import ScrollToTopWhenPageChange from "./components/ScrollToTopWhenPageChange";
 import MovieReviews from "./pages/community/MovieReviews";
 import Notice from "./pages/community/Notice";
+import NoticeDetail from "./pages/community/NoticeDetail";
 import Movies from "./pages/movie-list/Movies";
 import MovieDetail from "./pages/movie-list/MovieDetail";
 import UserLikedMovies from "./pages/my-page/UserLikedMovies";
@@ -36,6 +37,7 @@ function App() {
             <Route path="/community/movie-reviews" element={<MovieReviews />} />
             <Route path="/community/notice" element={<Notice />} />
             <Route path="/ticketing/:tmdbId?" element={<MovieTicketing />} />
+            <Route path="/community/notice/:noticeId" element={<NoticeDetail />} />
             <Route
               path="/ticketing/seat-selection"
               element={<SeatSelection />}
