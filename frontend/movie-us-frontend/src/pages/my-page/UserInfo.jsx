@@ -3,7 +3,6 @@ import {
   Flex, 
   VStack, 
   Heading, 
-  Text, 
   Input, 
   Button, 
   FormControl, 
@@ -13,10 +12,8 @@ import {
   InputGroup,
   InputLeftAddon,
   useToast,
-  Icon
 } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
-import { EditIcon } from "@chakra-ui/icons";
 import Sidebar from "./../../components/Sidebar";
 import { getData, putData } from "../../api/axios";
 
@@ -27,7 +24,7 @@ const UserInfo = () => {
   const inputBgColor = "gray.700";
   const borderColor = "gray.600";
 
-  const userNum = 1; // 임시 유저 번호 설정
+  const userNum = 1; // 임시 유저 번호 설정 (나중에 실제 로그인된 사용자의 번호로 대체)
 
   const toast = useToast();
 
@@ -39,28 +36,30 @@ const UserInfo = () => {
     profileImage: ''
   });
 
+  // 사용자 정보 가져오기
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
-        const response = await getData(`/api/movies/mypage/${userNum}`);
-        console.log('사용자 정보:', response.data);
+        console.log('마이페이지 정보 요청 userNum:', userNum);
+        const response = await getData(`/api/movies/mypage/user/${userNum}`);
         
-        const userData = {
-          userName: response.data.userName || '',
-          userEmail: response.data.userEmail || '',
-          kakaoEmail: response.data.kakaoEmail || '',
-          userPhone: response.data.userPhone || '',
-          profileImage: response.data.profileImage || ''
-        };
+        if (!response.data) {
+          throw new Error('사용자 정보가 없습니다');
+        }
         
-        setUserInfo(userData);
+        console.log('마이페이지 정보 응답:', response.data);
+        setUserInfo(response.data);
       } catch (error) {
         console.error('회원정보 조회 실패:', error);
+        const errorMessage = error.response?.data?.message || 
+                           error.message || 
+                           "서버 오류가 발생했습니다";
+        
         toast({
           title: "회원정보 조회 실패",
-          description: "서버 오류가 발생했습니다",
+          description: errorMessage,
           status: "error",
-          duration: 3000,
+          duration: 5000,
           isClosable: true,
         });
       }
@@ -77,9 +76,10 @@ const UserInfo = () => {
     }));
   };
 
+  // 정보 수정 처리
   const handleSubmit = async () => {
     try {
-      const response = await putData(`/api/movies/mypage/${userNum}`, userInfo);
+      const response = await putData(`/api/movies/mypage/user/${userNum}`, userInfo);
       console.log('수정된 정보:', response.data);
       
       toast({
@@ -92,7 +92,7 @@ const UserInfo = () => {
       console.error('회원정보 수정 실패:', error);
       toast({
         title: "회원정보 수정 실패",
-        description: error.response?.data || "서버 오류가 발생했습니다",
+        description: error.response?.data?.message || "서버 오류가 발생했습니다",
         status: "error",
         duration: 3000,
         isClosable: true,

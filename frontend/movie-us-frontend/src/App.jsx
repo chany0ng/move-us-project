@@ -38,6 +38,7 @@ function App() {
             <Route path="/community/notice" element={<Notice />} />
             <Route path="/community/notice/:noticeId" element={<NoticeDetail />} />
             <Route path="/ticketing/:tmdbId?" element={<MovieTicketing />} />
+            <Route path="/community/notice/:noticeId" element={<NoticeDetail />} />
             <Route
               path="/ticketing/seat-selection"
               element={<SeatSelection />}

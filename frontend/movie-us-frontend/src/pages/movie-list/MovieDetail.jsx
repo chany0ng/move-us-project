@@ -251,7 +251,6 @@ const MovieDetail = () => {
                 )}
               </HStack>
               <Button
-                leftIcon={<AiFillHeart />}
                 onClick={handleWishlistClick}
                 variant="ghost"
                 size="md"

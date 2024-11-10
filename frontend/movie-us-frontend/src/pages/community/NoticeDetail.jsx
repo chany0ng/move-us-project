@@ -9,8 +9,9 @@ import { useToast } from "@chakra-ui/react";
 function formatDate(dateString) {
   if (!dateString) return "날짜 정보 없음";
   
-  const cleanDateString = dateString.split('.')[0];
-  const date = new Date(cleanDateString.replace(' ', 'T'));
+  // 날짜 문자열에서 마이크로초 부분 제거
+  const cleanDateString = dateString.split('.')[0]; // "2024-11-07 15:34:22" 형태로 변환
+  const date = new Date(cleanDateString.replace(' ', 'T')); // 공백을 'T'로 바꿔 ISO 8601 형식으로 변환
   
   if (isNaN(date.getTime())) {
     console.error("Invalid date:", dateString);
@@ -22,7 +23,6 @@ function formatDate(dateString) {
   const day = String(date.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
 }
-
 const NoticeDetail = () => {
   const { noticeId } = useParams();
   const [notice, setNotice] = useState(null);
@@ -51,23 +51,18 @@ const NoticeDetail = () => {
           title: response.data.title,
           content: response.data.content,
           date: formatDate(response.data.createdAt),
-          views: Math.floor(Math.random() * 5000) + 1000 
+          views: Math.floor(Math.random() * 5000) + 1000 // 임의의 조회수 추가 (1000 ~ 6000)
         });
         
         // 이전 공지사항 존재 여부 확인
-        try {
-          await getData(`/api/notice/${parseInt(noticeId) - 1}`);
-          setIsFirstNotice(false);
-        } catch (error) {
-          setIsFirstNotice(true); // 이전 공지 없음
-        }
+        setIsFirstNotice(parseInt(noticeId) <= 1);
 
-        // 다음 공지사항 존재 여부 확인
+        // 다음 공지사항 존재 여부 확인f
         try {
           await getData(`/api/notice/${parseInt(noticeId) + 1}`);
           setIsLastNotice(false);
         } catch (error) {
-          setIsLastNotice(true); // 다음 공지 없음
+          setIsLastNotice(true);
         }
       } catch (error) {
         console.error("공지사항 상세 조회 에러:", error.response || error);
