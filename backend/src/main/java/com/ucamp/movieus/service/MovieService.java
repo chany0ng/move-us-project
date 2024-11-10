@@ -37,17 +37,31 @@ public class MovieService {
         List<Movie> movies = fetchMoviesFromApi();
         List<Movie> existingMovies = movieRepository.findAll();
 
-        // 기존 영화들을 TMDB ID 기준으로 Map으로 변환
         Map<Long, Movie> existingMovieMap = existingMovies.stream()
                 .collect(Collectors.toMap(Movie::getTmdbId, Function.identity()));
 
+        Set<Long> currentTmdbIds = new HashSet<>();
+
+        // 랭킹 설정
+        int rank = 1; // 랭킹은 1부터 시작
+
         for (Movie movie : movies) {
+            currentTmdbIds.add(movie.getTmdbId());
+            movie.setRanking(rank++); // 랭킹 설정
+
             if (existingMovieMap.containsKey(movie.getTmdbId())) {
-                updateMovie(existingMovieMap.get(movie.getTmdbId()), movie); // 기존 영화 업데이트
+                Movie existingMovie = existingMovieMap.get(movie.getTmdbId());
+                updateMovie(existingMovie, movie);
             } else {
-                movieRepository.save(movie); // 새 영화 저장
+                movieRepository.save(movie);
             }
         }
+
+        // 상영 종료된 영화 처리 (예: 상태 변경 또는 삭제)
+        List<Movie> moviesToDelete = existingMovies.stream()
+                .filter(movie -> !currentTmdbIds.contains(movie.getTmdbId()))
+                .collect(Collectors.toList());
+        movieRepository.deleteAll(moviesToDelete);
     }
 
     private List<Movie> fetchMoviesFromApi() {

@@ -27,8 +27,8 @@ public class MovieController {
 
     // 영화 리스트 조회
     @GetMapping("/moviesList")
-    public List<Movie> getMovies() {
-        return movieRepository.findAll();
+    public List<Movie> getRankedMovies() {
+        return movieRepository.findAllByOrderByRankingAsc();
     }
 
     // 영화 조회 (DB movie table)
