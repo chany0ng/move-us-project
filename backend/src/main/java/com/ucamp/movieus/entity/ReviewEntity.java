@@ -35,7 +35,7 @@ public class ReviewEntity {
     @Column(name = "report_user_email")
     private String reportUserEmail;
 
-    @Column(nullable = false)
+    @Column(nullable = false    )
     private Boolean report; // 신고
 
     @Column(name = "report_comment", columnDefinition = "TEXT")
