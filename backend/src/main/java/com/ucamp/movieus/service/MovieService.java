@@ -15,6 +15,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -169,7 +170,7 @@ public class MovieService {
 
                 // exists_in_db 필드 추가
                 movie.put("exists_in_db", existsInDb);
-                if(!existsInDb){
+                if (!existsInDb) {
                     moviesWithDbInfo.add(movie);
                 }
             }
@@ -211,13 +212,39 @@ public class MovieService {
 
                 // exists_in_db 필드 추가
                 movie.put("exists_in_db", existsInDb);
-                if(!existsInDb){
+                if (!existsInDb) {
                     moviesWithDbInfo.add(movie);
                 }
             }
         }
 
         return moviesWithDbInfo;
+    }
+
+    public List<Map<String, Object>> searchMoviesByTitle(String searchQuery) {
+        System.out.println("Search query: " + searchQuery); // 여기서 쿼리값 확인
+        List<Map<String, Object>> allMovies = getAllPopularMovies();
+        List<Map<String, Object>> filteredMovies = new ArrayList<>();
+
+        // 검색어에서 공백 제거
+        String cleanedSearchQuery = searchQuery.replaceAll("\\s+", "").toLowerCase(); // 공백 제거 후 소문자 처리
+
+        // 이름으로 검색 (대소문자 구분 없이)
+        for (Map<String, Object> movie : allMovies) {
+            String title = (String) movie.get("title");
+            String originalTitle = (String) movie.get("original_title");
+
+            // 각 영화 제목과 original_title 확인
+            System.out.println("Checking movie: " + title + " / " + originalTitle);
+
+            // title 또는 original_title에서 공백을 제거한 후 검색어와 비교
+            if ((title != null && title.replaceAll("\\s+", "").toLowerCase().contains(cleanedSearchQuery)) ||
+                    (originalTitle != null && originalTitle.replaceAll("\\s+", "").toLowerCase().contains(cleanedSearchQuery))) {
+                filteredMovies.add(movie);
+            }
+        }
+
+        return filteredMovies;
     }
 
 }

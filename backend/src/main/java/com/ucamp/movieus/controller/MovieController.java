@@ -4,6 +4,7 @@ import com.ucamp.movieus.entity.Movie;
 import com.ucamp.movieus.repository.MovieRepository;
 import com.ucamp.movieus.service.MovieService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -91,4 +92,24 @@ public class MovieController {
         return ResponseEntity.ok(moviesWithGenre);
     }
 
+    // 영화 제목으로 검색
+    @GetMapping("/search")
+    public ResponseEntity<List<Map<String, Object>>> searchMovies(@RequestParam String query) {
+        try {
+            // 클라이언트로부터 받은 검색어로 영화 목록 검색
+            List<Map<String, Object>> searchResults = movieService.searchMoviesByTitle(query);
+
+            // 검색 결과가 없다면, 빈 리스트를 반환
+            if (searchResults.isEmpty()) {
+                return new ResponseEntity<>(searchResults, HttpStatus.NOT_FOUND);
+            }
+
+            // 검색 결과 반환
+            return new ResponseEntity<>(searchResults, HttpStatus.OK);
+
+        } catch (Exception e) {
+            // 예외 처리
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }
