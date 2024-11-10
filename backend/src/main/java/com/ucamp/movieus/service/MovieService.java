@@ -13,6 +13,8 @@ import com.ucamp.movieus.repository.MovieRepository;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -36,6 +38,8 @@ public class MovieService {
     private final String API_KEY = "40405429a36ddf7b1d4337a022992fbc";
     private final String BASE_URL = "https://api.themoviedb.org/3/movie/";
     private final DailyBoxOfficeRepository dailyBoxOfficeRepository;
+    private static final Logger logger = LoggerFactory.getLogger(MovieService.class);
+
 
     @Value("${kofic.api.key}")
     private String apiKey;
@@ -239,12 +243,14 @@ public class MovieService {
         String baseImageUrl = "https://image.tmdb.org/t/p/w500"; // TMDB 기본 이미지 URL
 
         for (DailyBoxOffice boxOffice : boxOfficeList) {
-            Movie movie = movieRepository.findByTitleIgnoreCase(boxOffice.getMovieNm());
+            Optional<String> optionalPosterPath = movieRepository.findPosterPathByTitleIgnoreCase(boxOffice.getMovieNm());
 
-            if (movie != null && movie.getPosterPath() != null) {
-                // 기본 URL과 포스터 경로 결합
-                String fullPosterPath = baseImageUrl + movie.getPosterPath();
+            if (optionalPosterPath.isPresent()) {
+                String fullPosterPath = baseImageUrl + optionalPosterPath.get();
                 boxOffice.setPosterPath(fullPosterPath);
+                logger.info("포스터 URL 설정됨: " + boxOffice.getMovieNm() + " -> " + fullPosterPath);
+            } else {
+                logger.warn("포스터 URL이 설정되지 않음: " + boxOffice.getMovieNm());
             }
         }
         dailyBoxOfficeRepository.saveAll(boxOfficeList);
