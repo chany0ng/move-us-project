@@ -10,7 +10,6 @@ import {
   MenuButton,
   MenuList,
   MenuItem,
-  Tooltip,
   AlertDialog,
   AlertDialogBody,
   AlertDialogFooter,
@@ -22,8 +21,8 @@ import {
 } from "@chakra-ui/react";
 import { StarIcon } from '@chakra-ui/icons';
 import { BsThreeDotsVertical } from 'react-icons/bs';
-import { MdReportProblem } from 'react-icons/md';
 import { useRef, useState } from 'react';
+import ReportButton from './ReportButton';
 
 // 리뷰 목록 컴포넌트
 const ReviewList = ({ reviews, currentUserNum, onEditReview, onDeleteReview }) => {
@@ -34,12 +33,6 @@ const ReviewList = ({ reviews, currentUserNum, onEditReview, onDeleteReview }) =
   const [selectedReviewId, setSelectedReviewId] = useState(null);
   const [dialogType, setDialogType] = useState('');
 
-  const handleReportClick = (reviewId) => {
-    setSelectedReviewId(reviewId);
-    setDialogType('report');
-    onOpen();
-  };
-
   const handleDeleteClick = (reviewId) => {
     setSelectedReviewId(reviewId);
     setDialogType('delete');
@@ -47,9 +40,7 @@ const ReviewList = ({ reviews, currentUserNum, onEditReview, onDeleteReview }) =
   };
 
   const handleConfirm = () => {
-    if (dialogType === 'report') {
-      alert(`리뷰 ${selectedReviewId}번에 대한 신고가 접수되었습니다.`);
-    } else if (dialogType === 'delete') {
+    if (dialogType === 'delete') {
       onDeleteReview(selectedReviewId);
     }
     onClose();
@@ -122,17 +113,13 @@ const ReviewList = ({ reviews, currentUserNum, onEditReview, onDeleteReview }) =
                     </MenuList>
                   </Menu>
                 ) : (
-                  <Tooltip label="리뷰 신고하기" placement="top"> 
-                    <IconButton
-                      icon={<MdReportProblem />}
-                      variant="ghost"
-                      size="sm"
-                      aria-label="리뷰 신고"
-                      color="red.400"
-                      _hover={{ bg: 'gray.100' }}
-                      onClick={() => handleReportClick(review.reviewId)}
-                    />
-                  </Tooltip>
+                  <ReportButton 
+                    reviewId={review.reviewId}
+                    onReportSubmit={(reportData) => {
+                      console.log('신고 데이터:', reportData);
+                      // 여기에 신고 API 호출 로직 추가
+                    }}
+                  />
                 )}
               </Flex>
             </Flex>
@@ -149,13 +136,11 @@ const ReviewList = ({ reviews, currentUserNum, onEditReview, onDeleteReview }) =
         <AlertDialogOverlay>
           <AlertDialogContent bg="#333">
             <AlertDialogHeader fontSize="lg" fontWeight="bold">
-              {dialogType === 'report' ? '리뷰 신고' : '리뷰 삭제'}
+              리뷰 삭제
             </AlertDialogHeader>
 
             <AlertDialogBody>
-              {dialogType === 'report' 
-                ? '이 리뷰를 신고하시겠습니까?' 
-                : '이 리뷰를 삭제하시겠습니까?'}
+              이 리뷰를 삭제하시겠습니까?
             </AlertDialogBody>
 
             <AlertDialogFooter>

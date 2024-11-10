@@ -1,5 +1,5 @@
 // 필요한 라이브러리 및 컴포넌트 임포트
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";  // URL 파라미터를 가져오기 위한 hook
 import {
   Box,
@@ -115,8 +115,8 @@ const MovieDetail = () => {
     fetchMovieData();
   }, [tmdbId]);
 
-  // 리뷰 목록 새로고침 함수
-  const refreshReviews = async () => {
+  // refreshReviews 함수를 useCallback으로 감싸기
+  const refreshReviews = useCallback(async () => {
     try {
       const response = await getData(`/api/review/movieReview/${tmdbId}`);
       console.log('리뷰 데이터:', response.data);
@@ -124,11 +124,11 @@ const MovieDetail = () => {
     } catch (error) {
       console.error('리뷰를 불러오는데 실패했습니다:', error);
     }
-  };
+  }, [tmdbId]);
 
   useEffect(() => {
     refreshReviews();
-  }, [tmdbId]);
+  }, [refreshReviews]);  // refreshReviews를 의존성 배열에 추가
 
   // 찜하기 토글 함수
   const handleWishlistClick = async () => {
