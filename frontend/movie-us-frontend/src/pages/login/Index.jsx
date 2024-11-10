@@ -18,13 +18,15 @@ import {
 import { ChevronRightIcon, CheckIcon, EmailIcon } from "@chakra-ui/icons";
 import { Link as RouterLink } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getData, postData } from "../../api/axios";
 import { userStore } from "../../../store";
+import { jwtDecode } from "jwt-decode";
 
 //todo 로그인창으로 오기전 path를 기억해내서 로그인 후 redirect 시켜야 한다
 //todo location.state.from.pathname || "/main" -> navigate(from, {replace: true})
 const Index = () => {
+  const user = userStore();
   const navigate = useNavigate();
   const toast = useToast();
   const [email, setEmail] = useState("");
@@ -32,6 +34,17 @@ const Index = () => {
   const [isExist, setIsExist] = useState(true);
   const [isError, setIsError] = useState(false);
 
+  useEffect(() => {
+    // 현재 URL에서 토큰 추출
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get("token");
+    if (token) {
+      localStorage.setItem("accessToken", token);
+      const decodedToken = jwtDecode(token);
+      userStore.getState().setUser({ user_name: decodedToken.name }); // 사용자 정보 저장
+      navigate("/main");
+    }
+  }, [navigate]);
   const passwordChangeHandler = (e) => {
     setPassword(e.target.value);
     if (e.target.value?.length < 8) {
@@ -106,10 +119,12 @@ const Index = () => {
       });
       if (response.data) {
         const userInfo = response.data;
+        localStorage.setItem("accessToken", userInfo.token);
         userStore
           .getState()
           .setUser({ user_name: userInfo.name, user_email: userInfo.email }); // 사용자 정보 저장
         navigate("/main");
+        e;
       } else {
         alert("로그인에 실패했습니다. 다시 시도해주세요.");
       }

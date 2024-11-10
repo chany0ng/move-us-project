@@ -20,7 +20,6 @@ import "swiper/css/navigation";
 
 const MovieGrid = ({ movies, title, isLoading }) => {
   const swiperRef = useRef(null);
-  console.log(movies);
   return (
     <Box mb={5}>
       <Heading
