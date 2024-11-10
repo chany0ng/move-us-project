@@ -26,23 +26,25 @@ public class MovieController {
         return "Movies fetched and saved!";
     }
 
-    // 영화 리스트 조회
+    // 영화 리스트 조회 (장르 필터링 포함)
     @GetMapping("/moviesList")
-    public List<Movie> getMovies() {
-        return movieRepository.findAll();
-    }
-
-
-    // 장르 조회
-    @GetMapping("/genre/{genreName}")
-    public ResponseEntity<List<Movie>> getMoviesByGenre(@PathVariable String genreName) {
-        System.out.println("Received request for genre: " + genreName);
-        List<Movie> movies = movieService.getMoviesByGenreName(genreName);
-        if (movies.isEmpty()) {
-            return ResponseEntity.notFound().build(); // 영화가 없을 경우 404 반환
+    public ResponseEntity<List<Movie>> getMovies(@RequestParam(required = false) String genre, @RequestParam(required = false) String sort) {
+        List<Movie> movies;
+        if ("All".equals(genre) || genre == null) {
+            // 필터 없이 전체 목록 조회
+            movies = movieRepository.findAll();
         }
-        return ResponseEntity.ok(movies); // 영화 목록 반환
+        else {
+            // 장르 필터링
+            movies = movieService.getMoviesByGenreName(genre);
+        }
+
+        if (movies.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(movies);
     }
+
 
     // 영화 Credits 조회 (TMDB API - TMDB id)
     @GetMapping("/{id}/credits")
@@ -65,12 +67,6 @@ public class MovieController {
         return ResponseEntity.ok(moviesWithDbInfo);
     }
 
-    // TMDB API의 인기 영화 목록에 DB 존재 여부 표시 page1~page5
-    @GetMapping("/allPopularMovies")
-    public ResponseEntity<List<Map<String, Object>>> getAllPopularMovies() {
-        List<Map<String, Object>> moviesWithDbInfo = movieService.getAllPopularMovies();
-        return ResponseEntity.ok(moviesWithDbInfo);
-    }
 
     // TMDB API의 영화 상세 페이지 (TMDB API - TMDB id)
     @GetMapping("/{id}/getMovieDetail")
@@ -79,12 +75,21 @@ public class MovieController {
         return ResponseEntity.ok(detail);
     }
 
-    // TMDB API의 인기 영화 목록 장르별 조회
-    @GetMapping("/popular/genre/{genreName}")
-    public ResponseEntity<List<Map<String, Object>>> getPopularMoviesByGenre(
-            @PathVariable("genreName") String genreName) {
-        List<Map<String, Object>> moviesWithGenre = movieService.getPopularMoviesByGenre(genreName);
-        return ResponseEntity.ok(moviesWithGenre);
+    // TMDB 인기영화 목록 장르별/정렬별 조회(DB존재여부 표시, page 1~5)
+    @GetMapping("/allPopularMovies")
+    public ResponseEntity<List<Map<String, Object>>> getAllPopularMovies(@RequestParam(required = false) String genre, @RequestParam(required = false) String sort) {
+        List<Map<String, Object>> movies;
+        if("All".equals(genre) || genre == null) {
+            movies = movieService.getAllPopularMovies();
+        }
+        else{
+            // 장르별로 page 1~5 넘겨주기
+            movies = movieService.getPopularMoviesByGenre(genre);
+        }
+        if(movies.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(movies);
     }
 
 

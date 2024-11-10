@@ -154,7 +154,7 @@ public class MovieService {
         Set<Integer> dbMovieIdSet = new HashSet<>(dbMovieIds);
 
         // 1페이지부터 5페이지까지 TMDB API에서 인기 영화 목록 가져오기
-        for (int page = 1; page <= 5; page++) {
+        for (int page = 1; page <= 10; page++) {
             String url = BASE_URL + "popular?api_key=" + API_KEY + "&language=ko-KR&region=KR&page=" + page;
 
             // TMDB API 요청
@@ -210,7 +210,9 @@ public class MovieService {
 
                 // exists_in_db 필드 추가
                 movie.put("exists_in_db", existsInDb);
-                moviesWithDbInfo.add(movie);
+                if(!existsInDb){
+                    moviesWithDbInfo.add(movie);
+                }
             }
         }
 
