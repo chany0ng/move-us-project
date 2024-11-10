@@ -28,6 +28,7 @@ public class Movie {
     private double voteAverage;
     private int voteCount;
     private LocalDate releaseDate;
+    private Integer rank; // 추가: 랭킹 필드
 
     @ManyToMany
     @JoinTable(

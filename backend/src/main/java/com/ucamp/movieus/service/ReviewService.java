@@ -102,9 +102,11 @@ public class ReviewService {
     private ReviewResponseDTO convertToResponseDTO(ReviewEntity review) {
         Movie movie = movieRepository.findByTmdbId(review.getTmdbId())
                 .orElse(null);  // 없으면 null 반환
+
         ReviewResponseDTO responseDTO = modelMapper.map(review, ReviewResponseDTO.class);
 
         if (movie!=null) {
+            responseDTO.setUserName(review.getUser().getUserName());
             responseDTO.setTitle(movie.getTitle()); // 타이틀 추가
             responseDTO.setPosterPath(movie.getPosterPath()); // 포스터 경로 추가
         } else {
