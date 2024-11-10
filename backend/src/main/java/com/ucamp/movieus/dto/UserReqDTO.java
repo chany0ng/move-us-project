@@ -27,16 +27,19 @@ public class UserReqDTO {
     @Pattern(regexp = "^010-\\d{4}-\\d{4}$", message = "전화번호는 '-'를 포함해서 입력해주세요.")
     private String userPhone;     // 사용자 전화번호
 
-    public UserReqDTO(String kakaoEmail,String userPw,String confirmPassword,String userName,String userPhone){
-        this.kakaoEmail=kakaoEmail;
-        this.userPw=userPw;
-        this.confirmPassword=confirmPassword;
-        this.userName=userName;
-        this.userPhone=userPhone;
-    }
+    // 추가된 Role 필드
+    private String role;
 
     // 기본 생성자
     public UserReqDTO() {}
 
-
+    // 필드 초기화를 위한 생성자
+    public UserReqDTO(String kakaoEmail, String userPw, String confirmPassword, String userName, String userPhone) {
+        this.kakaoEmail = kakaoEmail;
+        this.userPw = userPw;
+        this.confirmPassword = confirmPassword;
+        this.userName = userName;
+        this.userPhone = userPhone;
+        this.role = "USER"; // 기본 역할 설정
+    }
 }
