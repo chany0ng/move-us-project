@@ -66,7 +66,7 @@ const MovieDetail = () => {
           setIsWishlist(false);
         }
 
-        // 나머지 데이터 가져오기
+        // 나머지 데이터 가져오기f
         const moviesListResponse = await getData('/movies/moviesList');
         const isInDb = moviesListResponse?.data?.some(
           movie => movie.tmdbId === parseInt(tmdbId)
