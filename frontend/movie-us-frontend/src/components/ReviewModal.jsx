@@ -76,9 +76,14 @@ import {
   
         const reviewData = {
           userNum: userNum,
-          movieId: tmdbId,
+          tmdbId: tmdbId,
           rating: rating * 2,
           comment: content,
+          report: false,
+          reportComment: null,
+          reportUserEmail: null,
+          reviewDate: new Date().toISOString(),
+          reviewReportDate: null
         };
   
         console.log("리뷰 등록 시도:", reviewData);

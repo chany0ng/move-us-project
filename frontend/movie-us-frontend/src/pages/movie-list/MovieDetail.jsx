@@ -46,93 +46,62 @@ const MovieDetail = () => {
   // 모든 영화 관련 데이터 가져오기
   useEffect(() => {
     const fetchMovieData = async () => {
-      if (!tmdbId) return;
-
       try {
-        // 현재 DB에 있는 상영 영화 목록을 가져옵니다
-        const moviesListResponse = await getData('/movies/moviesList');
+        // 각 API 호출을 개별적으로 처리
+        const favoritesResponse = await getData('/api/favorites');
+        const favoritesData = Array.isArray(favoritesResponse?.data) 
+          ? favoritesResponse.data 
+          : [];
         
-        // DB에 있는 영화인지 확인
-        const isInDb = moviesListResponse.data.some(
+        // favoriteId와 isWishlist 설정
+        const favoriteItem = favoritesData.find(
+          item => item.tmdbId === Number(tmdbId)
+        );
+        
+        if (favoriteItem) {
+          setFavoriteId(favoriteItem.favoriteId);
+          setIsWishlist(true);
+        } else {
+          setFavoriteId(null);
+          setIsWishlist(false);
+        }
+
+        // 나머지 데이터 가져오기
+        const moviesListResponse = await getData('/movies/moviesList');
+        const isInDb = moviesListResponse?.data?.some(
           movie => movie.tmdbId === parseInt(tmdbId)
         );
         setExistsInDb(isInDb);
 
-        let movieData;
-        if (isInDb) {
-          // DB에 있는 영화는 DB에서 정보 가져오기
-          const movieResponse = await getData(`/movies/${tmdbId}`);
-          movieData = movieResponse.data;
-        } else {
-          // DB에 없는 영화는 TMDB에서 정보 가져오기
-          const movieResponse = await getData(`/movies/${tmdbId}/getMovieDetail`);
-          movieData = {
-            tmdbId: parseInt(tmdbId),
-            title: movieResponse.data.title,
-            posterPath: movieResponse.data.poster_path,
-            overview: movieResponse.data.overview,
-            releaseDate: movieResponse.data.release_date,
-          };
-        }
+        // 영화 데이터 가져오기
+        const movieResponse = await getData(
+          isInDb ? `/movies/${tmdbId}` : `/movies/${tmdbId}/getMovieDetail`
+        );
+        
+        const movieData = isInDb ? movieResponse.data : {
+          tmdbId: parseInt(tmdbId),
+          title: movieResponse.data.title,
+          posterPath: movieResponse.data.poster_path,
+          overview: movieResponse.data.overview,
+          releaseDate: movieResponse.data.release_date,
+        };
         
         setMovie(movieData);
-        console.log('Movie Response Data:', movieData);
-        console.log('Exists in DB:', isInDb);
 
-        // 나머지 데이터는 개별적으로 try-catch로 감싸서 처리
-        try {
-          const creditsResponse = await getData(`/movies/${tmdbId}/credits`);
-          if (creditsResponse?.data) {
-            setCredits(creditsResponse.data);
-          }
-        } catch (error) {
-          console.error("Error fetching credits:", error);
-          setCredits({ cast: [], crew: [] });
-        }
+        // 나머지 데이터 병렬로 가져오기
+        const [creditsResponse, runtimeResponse, reviewsResponse] = await Promise.all([
+          getData(`/movies/${tmdbId}/credits`).catch(() => ({ data: { cast: [], crew: [] } })),
+          getData(`/movies/${tmdbId}/runtime`).catch(() => ({ data: { runtime: null } })),
+          getData(`/api/review/movieReview/${tmdbId}`).catch(() => ({ data: [] }))
+        ]);
 
-        try {
-          const runtimeResponse = await getData(`/movies/${tmdbId}/runtime`);
-          if (runtimeResponse?.data) {
-            setRuntime(runtimeResponse.data.runtime);
-          }
-        } catch (error) {
-          console.error("Error fetching runtime:", error);
-          setRuntime(null);
-        }
-
-        try {
-          const reviewsResponse = await getData(`/api/review/movieReview/${tmdbId}`);
-          console.log('전체 리뷰 응답 데이터:', reviewsResponse);
-          console.log('리뷰 데이터 상세:', reviewsResponse.data);
-          if (reviewsResponse?.data) {
-            // 각 리뷰 객체의 구조도 확인
-            reviewsResponse.data.forEach((review, index) => {
-              console.log(`리뷰 ${index + 1}의 전체 데이터:`, review);
-            });
-            setMovieReviews(reviewsResponse.data);
-          }
-        } catch (error) {
-          console.error("Error fetching reviews:", error);
-          setMovieReviews([]);
-        }
-
-        try {
-          const favoritesResponse = await getData(`/api/favorites`);
-          if (favoritesResponse?.data) {
-            const favoriteItem = favoritesResponse.data.find(
-              item => item.movie.tmdbId === parseInt(tmdbId)
-            );
-            setIsWishlist(!!favoriteItem);
-            setFavoriteId(favoriteItem?.favoriteId || null);
-          }
-        } catch (error) {
-          console.error("Error fetching favorites:", error);
-          setIsWishlist(false);
-          setFavoriteId(null);
-        }
+        setCredits(creditsResponse.data);
+        setRuntime(runtimeResponse.data.runtime);
+        setMovieReviews(reviewsResponse.data);
 
       } catch (error) {
         console.error("Error fetching movie data:", error);
+        // 에러 시 모든 상태 초기화
         setMovie(null);
         setCredits({ cast: [], crew: [] });
         setRuntime(null);
@@ -150,39 +119,64 @@ const MovieDetail = () => {
   const refreshReviews = async () => {
     try {
       const response = await getData(`/api/review/movieReview/${tmdbId}`);
-      if (response?.data) {
-        setMovieReviews(response.data);
-      }
-    } catch {
-      setMovieReviews([]);
+      console.log('리뷰 데이터:', response.data);
+      setMovieReviews(response.data);
+    } catch (error) {
+      console.error('리뷰를 불러오는데 실패했습니다:', error);
     }
   };
 
-  // 찜하기 토글 함수
-  const handleWishlist = async () => {
-    try {
-      setIsWishlist(prev => !prev);
+  useEffect(() => {
+    refreshReviews();
+  }, [tmdbId]);
 
-      if (isWishlist) {
-        await deleteData(`/api/favorites/${favoriteId}`);
-        setFavoriteId(null);
-      } else {
-        const requestData = {
-          user: { userNum },
-          movie: { tmdbId: parseInt(tmdbId) }
-        };
-        await postData('/api/favorites', requestData);
+  // 찜하기 토글 함수
+  const handleWishlistClick = async () => {
+    try {
+      if (!isWishlist) {
+        // 찜하기 요청
+        const response = await postData('/api/favorites', {
+          tmdbId: Number(tmdbId),
+          title: movie.title,
+          posterPath: movie.posterPath
+        });
         
-        const favoritesResponse = await getData(`/api/favorites`);
-        const favoriteItem = favoritesResponse.data.find(
-          item => item.movie.tmdbId === parseInt(tmdbId)
-        );
-        if (favoriteItem) {
+        if (response?.data) {
+          const newFavoriteId = response.data.favoriteId;
+          setFavoriteId(newFavoriteId);
+          setIsWishlist(true);
+          console.log('찜하기 성공:', { newFavoriteId, response: response.data });
+        }
+      } else {
+        // favoriteId 확인 및 로깅
+        console.log('찜하기 취소 시도:', { favoriteId, isWishlist });
+        if (!favoriteId) {
+          // favoriteId가 없는 경우 다시 찾기 시도
+          const favoritesResponse = await getData('/api/favorites');
+          const favoriteItem = favoritesResponse.data.find(
+            item => item.tmdbId === Number(tmdbId)
+          );
+          
+          if (!favoriteItem?.favoriteId) {
+            console.error('찜하기 ID를 찾을 수 없습니다');
+            return;
+          }
           setFavoriteId(favoriteItem.favoriteId);
         }
+
+        // 찜 취소 요청
+        const response = await deleteData(`/api/favorites/${favoriteId}`);
+        console.log('찜하기 취소 응답:', response);
+        
+        if (response?.status === 200 || response?.status === 204) {
+          setFavoriteId(null);
+          setIsWishlist(false);
+          console.log('찜하기 취소 성공');
+        }
       }
-    } catch {
-      setIsWishlist(prev => !prev);
+    } catch (error) {
+      console.error('찜하기 토글 에러:', error);
+      alert('찜하기 처리 중 오류가 발생했습니다.');
     }
   };
 
@@ -257,7 +251,8 @@ const MovieDetail = () => {
                 )}
               </HStack>
               <Button
-                onClick={handleWishlist}
+                leftIcon={<AiFillHeart />}
+                onClick={handleWishlistClick}
                 variant="ghost"
                 size="md"
                 _hover={{ bg: 'transparent' }}
