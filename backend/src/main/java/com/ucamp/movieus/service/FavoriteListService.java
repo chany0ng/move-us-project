@@ -12,6 +12,7 @@ import com.ucamp.movieus.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -77,16 +78,12 @@ public class FavoriteListService {
     }
 
     // 찜 목록에 추가하는 메서드
-    public boolean addFavorite(FavoriteList favoriteList) {
-        // User와 조회
-        UserEntity user = userRepository.findById(favoriteList.getUser().getUserNum()).orElse(null);
-
-        if (user != null) {
-            favoriteList.setUser(user);  // User 설정
-            favoriteListRepository.save(favoriteList);  // FavoriteList 저장
-            return true;
-        }
-        return false;
+    public FavoriteList addFavorite(FavoriteList favoriteList) {
+        UserEntity user = userRepository.findById(favoriteList.getUser().getUserNum())
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+                
+        favoriteList.setUser(user);
+        return favoriteListRepository.save(favoriteList);
     }
 
     // 찜 목록에서 삭제하는 메서드
@@ -97,4 +94,5 @@ public class FavoriteListService {
         }
         return false;
     }
+
 }

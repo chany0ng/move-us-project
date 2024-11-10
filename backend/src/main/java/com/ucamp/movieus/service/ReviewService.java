@@ -60,7 +60,6 @@ public class ReviewService {
         UserEntity user = userRepository.findByUserNum(reviewRequestDTO.getUserNum())
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
 
-        // 이미 해당 사용자가 해당 영화에 리뷰를 작성했는지 확인
         Optional<ReviewEntity> existingReview = reviewRepository.findByTmdbIdAndUser(reviewRequestDTO.getTmdbId(), user);
 
         if (existingReview.isPresent()) {
@@ -68,10 +67,10 @@ public class ReviewService {
         }
 
         ReviewEntity reviewEntity = modelMapper.map(reviewRequestDTO, ReviewEntity.class);
-        reviewEntity.setUser(user);  // User 설정
-        reviewEntity.setReviewDate(LocalDateTime.now());  // 리뷰 날짜 설정
+        reviewEntity.setUser(user);
+        reviewEntity.setReviewDate(LocalDateTime.now());
+        reviewEntity.setReport(false);
 
-        // ReviewEntity 저장
         reviewRepository.save(reviewEntity);
     }
 

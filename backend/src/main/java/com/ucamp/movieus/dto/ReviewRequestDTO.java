@@ -23,4 +23,9 @@ public class ReviewRequestDTO {
     @Size(max = 500, message = "Comment는 최대 500자까지 입력할 수 있습니다.")
     private String comment;      // 리뷰 내용
 
+    @NotNull(message = "Report는 필수 입력 항목입니다.")
+    private Boolean report = false;  // 기본값 false로 설정
+    
+    private String reportComment;
+    private String reportUserEmail;
 }

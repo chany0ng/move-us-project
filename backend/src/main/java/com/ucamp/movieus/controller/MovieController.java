@@ -77,6 +77,7 @@ public class MovieController {
     @GetMapping("/{id}/getMovieDetail")
     public ResponseEntity<Object> getMovieDetail(@PathVariable Long id) {
         Object detail = movieService.getMovieDetail(id);
+        System.out.println(id + " " + detail);
         return ResponseEntity.ok(detail);
     }
 
@@ -108,4 +109,22 @@ public class MovieController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+        // 특정 영화 상세정보 정보 조회
+        @GetMapping("/{tmdbId}")
+        public ResponseEntity<Movie> getMovieByTmdbId(@PathVariable Long tmdbId) {
+            return movieRepository.findByTmdbId(tmdbId)
+                    .map(ResponseEntity::ok)
+                    .orElseThrow(() -> new RuntimeException("Movie not found with TMDB ID: " + tmdbId));
+        }
+    
+    
+    
+        //boxoffice
+        @GetMapping("/boxoffice")
+        public ResponseEntity<List<DailyBoxOfficeDTO>> getDailyBoxOffice() {
+            List<DailyBoxOfficeDTO> boxOfficeData = movieService.getAllOrderedByRankAsDTO();
+            return ResponseEntity.ok(boxOfficeData);
+    }
+
 }

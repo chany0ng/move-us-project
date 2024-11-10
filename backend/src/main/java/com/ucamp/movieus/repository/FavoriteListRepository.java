@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface FavoriteListRepository extends JpaRepository<FavoriteList, Integer> {
     List<FavoriteList> findAllByUser(UserEntity user);
+    boolean existsByUserAndTmdbId(UserEntity user, Long tmdbId);
 }
