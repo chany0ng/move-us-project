@@ -35,9 +35,11 @@ public class JwtTokenProvider {
     }
 
     // JWT 토큰 생성 메서드
-    public String createToken(String email, String name) {
+    public String createToken(String email, String name, Integer userNum) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("name", name);
+        claims.put("email", email);
+        claims.put("userNum", userNum);
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(email)
@@ -72,6 +74,15 @@ public class JwtTokenProvider {
         return Integer.parseInt(claims.getSubject());
     }
 
+    public Integer getUserNumFromJWT(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(jwtSecretKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.get("userNum", Integer.class); // userNum 추출
+    }
+
     public String getEmailFromJWT(String token) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(jwtSecretKey)
@@ -101,4 +112,20 @@ public class JwtTokenProvider {
             return false;
         }
     }
+
+    public String generateTokenByEmailAndName(String email, String userName, Integer userNum) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
+
+        return Jwts.builder()
+                .setSubject(email) // 사용자 이메일을 Subject로 설정
+                .claim("email", email) // 사용자 이메일 추가
+                .claim("name", userName) // 사용자 이름 추가
+                .claim("userNum", userNum)
+                .setIssuedAt(now)
+                .setExpiration(expiryDate)
+                .signWith(jwtSecretKey) // 생성된 키로 서명
+                .compact();
+    }
+
 }
