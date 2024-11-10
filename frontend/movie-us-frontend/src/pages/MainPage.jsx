@@ -75,7 +75,7 @@ const MainPage = () => {
       id: movie.tmdbId,
       title: movie.title,
       poster_path: movie.posterPath,
-      exists_in_db: movie.exists_in_db || true,
+      exists_in_db: movie.exists_in_db ?? true,
     };
   };
 

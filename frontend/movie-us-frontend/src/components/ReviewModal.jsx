@@ -14,18 +14,29 @@ import {
     useToast,
   } from "@chakra-ui/react";
   import { StarIcon } from "@chakra-ui/icons";
-  import { useState } from "react";
-  import { postData } from "../api/axios";
+  import { useState, useEffect } from "react";
+  import { postData, deleteData } from "../api/axios";
   import { Input } from "@chakra-ui/react";
   
-  const ReviewModal = ({ isOpen, onClose, tmdbId, movie, onReviewSubmitted, userNum }) => {
+  const ReviewModal = ({ isOpen, onClose, tmdbId, movie, onReviewSubmitted, userNum, reviewToEdit = null }) => {
     const [rating, setRating] = useState(0);
     const [content, setContent] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const toast = useToast();
   
+    useEffect(() => {
+      if (reviewToEdit) {
+        setRating(reviewToEdit.rating / 2);
+        setContent(reviewToEdit.comment);
+      } else {
+        setRating(0);
+        setContent("");
+      }
+    }, [reviewToEdit, isOpen]);
+  
     const handleSubmit = async (e) => {
       e.preventDefault();
+      
       if (rating === 0) {
         toast({
           title: "평점을 선택해주세요",
@@ -45,16 +56,38 @@ import {
       }
   
       setIsSubmitting(true);
+      
       try {
-        await postData("/api/review", {
+        if (reviewToEdit) {
+          try {
+            const deleteResponse = await deleteData(`/api/review/${reviewToEdit.reviewId}`);
+            console.log("리뷰 삭제 완료:", deleteResponse);
+          } catch (deleteError) {
+            console.error("리뷰 삭제 실패:", deleteError);
+            toast({
+              title: "리뷰 수정 실패",
+              description: "기존 리뷰 삭제에 실패했습니다.",
+              status: "error",
+              duration: 3000,
+            });
+            return;
+          }
+        }
+  
+        const reviewData = {
           userNum: userNum,
           movieId: tmdbId,
           rating: rating * 2,
           comment: content,
-        });
+        };
+  
+        console.log("리뷰 등록 시도:", reviewData);
+        
+        const postResponse = await postData("/api/review", reviewData);
+        console.log("리뷰 등록 완료:", postResponse);
   
         toast({
-          title: "리뷰가 등록되었습니다",
+          title: reviewToEdit ? "리뷰가 수정되었습니다" : "리뷰가 등록되었습니다",
           status: "success",
           duration: 3000,
         });
@@ -63,24 +96,17 @@ import {
         onClose(true);
         setRating(0);
         setContent("");
-      } catch (error) {
-        const errorMessage = error.response?.data;
         
-        if (errorMessage === "해당 영화에 대한 리뷰가 이미 존재합니다.") {
-          toast({
-            title: "리뷰 등록 실패",
-            description: "이미 이 영화에 대한 리뷰를 작성하셨습니다.",
-            status: "error",
-            duration: 3000,
-          });
-        } else {
-          toast({
-            title: "리뷰 등록 실패",
-            description: "리뷰 등록 중 오류가 발생했습니다. 다시 시도해주세요.",
-            status: "error",
-            duration: 3000,
-          });
-        }
+      } catch (error) {
+        console.error("리뷰 처리 중 오류:", error);
+        const errorMessage = error.response?.data || error.message;
+        
+        toast({
+          title: reviewToEdit ? "리뷰 수정 실패" : "리뷰 등록 실패",
+          description: errorMessage || "오류가 발생했습니다. 다시 시도해주세요.",
+          status: "error",
+          duration: 3000,
+        });
       } finally {
         setIsSubmitting(false);
       }
@@ -96,7 +122,9 @@ import {
       <Modal isOpen={isOpen} onClose={handleClose} size="xl">
         <ModalOverlay />
         <ModalContent bg="brand.black">
-          <ModalHeader>리뷰 작성</ModalHeader>
+          <ModalHeader>
+            {reviewToEdit ? "리뷰 수정" : "리뷰 작성"}
+          </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <FormControl mb={4}>
@@ -140,7 +168,7 @@ import {
               onClick={handleSubmit}
               isLoading={isSubmitting}
             >
-              등록하기
+              {reviewToEdit ? "수정하기" : "등록하기"}
             </Button>
             <Button 
               backgroundColor="gray.900" 
