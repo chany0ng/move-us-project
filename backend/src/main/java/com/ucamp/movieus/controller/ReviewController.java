@@ -1,6 +1,7 @@
 package com.ucamp.movieus.controller;
 
 import com.ucamp.movieus.dto.MovieDTO;
+import com.ucamp.movieus.dto.ReveiwReportRequestDTO;
 import com.ucamp.movieus.dto.ReviewRequestDTO;
 import com.ucamp.movieus.dto.ReviewResponseDTO;
 import com.ucamp.movieus.entity.ReviewEntity;
@@ -83,6 +84,23 @@ public class ReviewController {
             // 삭제 실패 (존재하지 않는 ID)
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("Review with ID " + id + " not found.");
+        }
+    }
+
+    // 리뷰 신고 0
+    @PostMapping("/report")
+    public ResponseEntity<String> reviewReport(@Valid @RequestBody ReveiwReportRequestDTO reviewRequestDTO) {
+        try {
+            reviewRequestDTO.setReportUserEmail("user1@example.com");
+            reviewService.reviewReport(reviewRequestDTO);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body("Review has been reported successfully.");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An error occurred while reporting the review.");
         }
     }
 }

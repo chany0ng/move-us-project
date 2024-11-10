@@ -15,9 +15,10 @@ import {
   useToast,
   Icon
 } from "@chakra-ui/react";
-import { useState, useRef } from "react";
+import { useState, useEffect } from "react";
 import { EditIcon } from "@chakra-ui/icons";
 import Sidebar from "./../../components/Sidebar";
+import { getData, putData } from "../../api/axios";
 
 const UserInfo = () => {
   const bgColor = "gray.900";
@@ -26,32 +27,77 @@ const UserInfo = () => {
   const inputBgColor = "gray.700";
   const borderColor = "gray.600";
 
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState("https://pplx-res.cloudinary.com/image/upload/v1730879031/user_uploads/zsvrqmvze/maenggu.jpg"); // 기본 프로필 이미지 URL
-  const fileInputRef = useRef(null);
+  const userNum = 1; // 임시 유저 번호 설정
+
   const toast = useToast();
 
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      setSelectedFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewUrl(reader.result);
-      };
-      reader.readAsDataURL(file);
+  const [userInfo, setUserInfo] = useState({
+    userName: '',
+    userEmail: '',
+    kakaoEmail: '',
+    userPhone: '',
+    profileImage: ''
+  });
+
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        const response = await getData(`/api/movies/mypage/${userNum}`);
+        console.log('사용자 정보:', response.data);
+        
+        const userData = {
+          userName: response.data.userName || '',
+          userEmail: response.data.userEmail || '',
+          kakaoEmail: response.data.kakaoEmail || '',
+          userPhone: response.data.userPhone || '',
+          profileImage: response.data.profileImage || ''
+        };
+        
+        setUserInfo(userData);
+      } catch (error) {
+        console.error('회원정보 조회 실패:', error);
+        toast({
+          title: "회원정보 조회 실패",
+          description: "서버 오류가 발생했습니다",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+      }
+    };
+
+    fetchUserInfo();
+  }, [toast]);
+
+  const handleInputChange = (e) => {
+    const { id, value } = e.target;
+    setUserInfo(prev => ({
+      ...prev,
+      [id]: value
+    }));
+  };
+
+  const handleSubmit = async () => {
+    try {
+      const response = await putData(`/api/movies/mypage/${userNum}`, userInfo);
+      console.log('수정된 정보:', response.data);
+      
       toast({
-        title: "파일 선택됨",
-        description: `${file.name}이(가) 선택되었습니다.`,
+        title: "회원정보가 수정되었습니다.",
         status: "success",
         duration: 3000,
         isClosable: true,
       });
+    } catch (error) {
+      console.error('회원정보 수정 실패:', error);
+      toast({
+        title: "회원정보 수정 실패",
+        description: error.response?.data || "서버 오류가 발생했습니다",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
     }
-  };
-
-  const handleUploadClick = () => {
-    fileInputRef.current.click();
   };
 
   return (
@@ -67,7 +113,11 @@ const UserInfo = () => {
             {/* 헤더 섹션 */}
             <Flex justify="space-between" align="center">
               <Heading size="xl" color="yellow.400">내 정보 수정</Heading>
-              <Avatar size="2xl" name="maenggu" src={previewUrl} />
+              <Avatar 
+                size="2xl" 
+                name={userInfo.userName || "User"} 
+                src={userInfo.profileImage}
+              />
             </Flex>
             
             <Divider borderColor={borderColor} />
@@ -77,6 +127,8 @@ const UserInfo = () => {
               <FormLabel htmlFor="userName" color="yellow.400">이름</FormLabel>
               <Input 
                 id="userName" 
+                value={userInfo.userName}
+                onChange={handleInputChange}
                 placeholder="이름을 입력하세요" 
                 bg={inputBgColor} 
                 borderColor={borderColor} 
@@ -90,6 +142,8 @@ const UserInfo = () => {
               <FormLabel htmlFor="userEmail" color="yellow.400">이메일</FormLabel>
               <Input 
                 id="userEmail" 
+                value={userInfo.userEmail}
+                onChange={handleInputChange}
                 type="email" 
                 placeholder="이메일을 입력하세요" 
                 bg={inputBgColor} 
@@ -101,16 +155,22 @@ const UserInfo = () => {
 
             {/* 카카오 이메일 입력 */}
             <FormControl>
-              <FormLabel htmlFor="kakaoEmail" color="yellow.400">카카오 이메일</FormLabel>
-              <Input 
-                id="kakaoEmail" 
-                type="email" 
-                placeholder="카카오 이메일을 입력하세요" 
-                bg={inputBgColor} 
-                borderColor={borderColor} 
-                _placeholder={{ color: "gray.500" }}
-                _focus={{ borderColor: "yellow.400", boxShadow: "0 0 0 1px yellow.400" }}
-              />
+              <FormLabel htmlFor="kakaoEmail" color="yellow.400">
+                카카오 이메일
+              </FormLabel>
+              <InputGroup>
+                <Input 
+                  id="kakaoEmail" 
+                  value={userInfo.kakaoEmail || '카카오 계정이 연동되어 있지 않습니다'}
+                  onChange={handleInputChange}
+                  type="email" 
+                  isDisabled={!userInfo.kakaoEmail}
+                  bg={inputBgColor} 
+                  borderColor={borderColor} 
+                  _placeholder={{ color: "gray.500" }}
+                  _focus={{ borderColor: "yellow.400", boxShadow: "0 0 0 1px yellow.400" }}
+                />
+              </InputGroup>
             </FormControl>
 
             {/* 전화번호 입력 */}
@@ -123,6 +183,8 @@ const UserInfo = () => {
                 <Input 
                   id="userPhone" 
                   type="tel" 
+                  value={userInfo.userPhone}
+                  onChange={handleInputChange}
                   placeholder="전화번호를 입력하세요" 
                   bg={inputBgColor} 
                   borderColor={borderColor} 
@@ -132,35 +194,6 @@ const UserInfo = () => {
               </InputGroup>
             </FormControl>
 
-            {/* 프로필 사진 업로드 */}
-            <Box>
-              <Text mb={2} fontWeight="bold" color="yellow.400">프로필 사진</Text>
-              <Flex align="center">
-                <Avatar size="lg" name="John Doe" src={previewUrl} mr={4} />
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={handleFileChange}
-                  style={{ display: 'none' }}
-                  accept="image/*"
-                />
-                <Button 
-                  leftIcon={<Icon as={EditIcon} />} 
-                  colorScheme="yellow" 
-                  variant="outline" 
-                  onClick={handleUploadClick}
-                  _hover={{ bg: "yellow.400", color: "gray.900" }}
-                >
-                  사진 변경
-                </Button>
-                {selectedFile && (
-                  <Text ml={4} fontSize="sm" color="gray.400">
-                    {selectedFile.name}
-                  </Text>
-                )}
-              </Flex>
-            </Box>
-
             {/* 정보 수정 버튼 */}
             <Button 
               colorScheme="yellow" 
@@ -168,6 +201,7 @@ const UserInfo = () => {
               width="full"
               _hover={{ bg: "yellow.500", color: "gray.900" }}
               boxShadow="md"
+              onClick={handleSubmit}
             >
               정보 수정 완료
             </Button>

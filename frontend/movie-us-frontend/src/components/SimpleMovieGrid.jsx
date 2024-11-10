@@ -23,6 +23,9 @@ const SimpleMovieGrid = ({ movies, isLoading}) => {
                       REVIEWS
                       <span>{movie.reviewCount}</span>
                     </PostCount>
+                    <Rating style={{ color: movie.averageRating >= 5 ? '#FFD700' : '#FF0000' }}>
+                      ★ {movie.averageRating?.toFixed(1)}
+                    </Rating>
                   </Overlay>
                 </ImageWrapper>
               </MovieBox>
@@ -70,15 +73,22 @@ const PostCount = styled.div`
   font-weight: bold;
   text-align: center;
   
-  // POST 텍스트 스타일
   font-size: 1.2rem;
   
-  // 숫자 스타일
   span {
     display: block;
-    font-size: 2rem;  // 더 큰 폰트 사이즈
-    margin-top: 0.2rem;  // POST와 숫자 사이 간격
+    font-size: 2rem;
+    margin-top: 0.2rem;
   }
+`;
+
+const Rating = styled.div`
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  font-size: 1rem;
+  color: white;
+  font-weight: bold;
 `;
 
 export default SimpleMovieGrid;
