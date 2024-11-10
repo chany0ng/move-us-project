@@ -89,6 +89,7 @@ public class MovieController {
         if(movies.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
+
         return ResponseEntity.ok(movies);
     }
 

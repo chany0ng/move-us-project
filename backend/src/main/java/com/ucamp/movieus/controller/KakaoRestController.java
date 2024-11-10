@@ -89,7 +89,6 @@ public class KakaoRestController {
                 .queryParam("token", jwtToken)
                 .build()
                 .toUriString();
-
         // React 앱으로 리다이렉트
         RedirectView redirectView = new RedirectView();
         redirectView.setUrl(redirectUrl);
