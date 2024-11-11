@@ -59,26 +59,26 @@ const Movies = () => {
   }, [location, navigate]);
 
   useEffect(() => {
-    if (!searchQuery) {
-      const queryParams = new URLSearchParams({ genre, sort });
-      navigate(`?${queryParams.toString()}`, { replace: true });
+    if (searchQuery || sort === "review") return;
 
-      const fetchAndSetMovies = async () => {
-        const nowPlayingMovies = await fetchMovies(genre, sort);
-        const popularMovies = await fetchPopularMovies(genre, sort);
-        const totalMovies = [...nowPlayingMovies, ...popularMovies];
-        setMovies(totalMovies || []);
-      };
+    const queryParams = new URLSearchParams({ genre, sort });
+    navigate(`?${queryParams.toString()}`, { replace: true });
 
-      fetchAndSetMovies();
-    }
+    const fetchAndSetMovies = async () => {
+      const nowPlayingMovies = await fetchMovies(genre);
+      const popularMovies = await fetchPopularMovies(genre);
+      const totalMovies = [...nowPlayingMovies, ...popularMovies];
+      setMovies(totalMovies || []);
+    };
+
+    fetchAndSetMovies();
   }, [genre, sort, searchQuery]);
 
-  const fetchMovies = async (genre, sort) => {
+  const fetchMovies = async (genre) => {
     try {
       setIsLoading(true);
       const response = await getData("/movies/moviesList", {
-        params: { genre, sort },
+        params: { genre },
       });
       return response.data.map(normalizeMovieData);
     } catch (error) {
@@ -95,11 +95,11 @@ const Movies = () => {
     }
   };
 
-  const fetchPopularMovies = async (genre, sort) => {
+  const fetchPopularMovies = async (genre) => {
     try {
       setIsLoading(true);
       const response = await getData("/movies/allPopularMovies", {
-        params: { genre, sort },
+        params: { genre },
       });
       return response.data;
     } catch (error) {
@@ -118,7 +118,28 @@ const Movies = () => {
 
   const handleSortChange = (e) => {
     const newSort = e.target.value;
-    setSort(newSort);
+    if (newSort === "review") {
+      setSort(newSort);
+      fetchSortedMoviesByReview(genre);
+    }
+  };
+
+  const fetchSortedMoviesByReview = async (genre) => {
+    try {
+      const response = await getData("/movies/sortedByReviews", {
+        params: { genre: genre },
+      });
+      setMovies(response.data);
+    } catch (error) {
+      toast({
+        title: "리뷰순 정렬 조회 Error",
+        description: `Failed to fetch movies / ${error}`,
+        status: "error",
+        duration: 2000,
+        isClosable: true,
+      });
+      console.error(error);
+    }
   };
 
   const handleTabChange = (index) => {
@@ -200,6 +221,11 @@ const Movies = () => {
               <Tab
                 key={genre}
                 width="10%"
+                _hover={{
+                  transform: "translateY(-10px)", // 위로 3px 올라감
+                  scaleX: "1.1",
+                }}
+                transition="all 0.3s ease"
                 border="1px solid grey"
                 color="white"
               >
