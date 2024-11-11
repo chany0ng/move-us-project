@@ -171,6 +171,13 @@ const SignUp = () => {
     }));
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      handleSubmit();
+    }
+  };
+
+
   return (
     <>
       <BackGroundDiv
@@ -204,7 +211,7 @@ const SignUp = () => {
               Movie-us와 함께라면 더욱 특별한 영화 경험이 시작됩니다
             </Text>
 
-            <VStack p={4} spacing={4} align="stretch">
+            <VStack p={4} spacing={4} align="stretch" onKeyDown={handleKeyDown}>
               <FormControl>
                 <FormLabel fontSize="15px">이름</FormLabel>
                 <CustomInput
