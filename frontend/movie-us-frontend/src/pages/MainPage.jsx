@@ -102,7 +102,8 @@ const MainPage = () => {
           title: movie.title,
           poster_path: movie.posterPath,
           exists_in_db: movie.exists_in_db ?? true,
-        };});
+        };
+      });
       setLikedMovies(formatData);
     } catch (error) {
       toast({
@@ -139,7 +140,7 @@ const MainPage = () => {
 
   return (
     <Flex direction={"column"}>
-      <SearchBar />
+      {/* <SearchBar /> */}
       <Box pb={20}>
         <Carousel movies={wideMovies} />
       </Box>

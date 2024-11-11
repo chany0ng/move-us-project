@@ -1,11 +1,11 @@
 import {
   Box,
   Input,
-  Button,
   InputGroup,
   InputRightElement,
+  Button,
 } from "@chakra-ui/react";
-import { SearchIcon } from "@chakra-ui/icons"; // Chakra UI에서 제공하는 아이콘
+import { SearchIcon } from "@chakra-ui/icons";
 import { useState } from "react";
 
 const SearchBar = ({ onSearch }) => {
@@ -13,11 +13,10 @@ const SearchBar = ({ onSearch }) => {
 
   const handleSearch = () => {
     onSearch(query);
-    setQuery(""); // 검색 후 입력창 초기화
   };
 
   return (
-    <Box width={"500px"} py={5} alignSelf={"flex-end"}>
+    <Box width={"500px"} position="absolute" top={0} left={10}>
       <InputGroup>
         <InputRightElement
           height="100%"
@@ -30,10 +29,11 @@ const SearchBar = ({ onSearch }) => {
           placeholder="영화 제목으로 검색하기"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          size="lg" // 입력 필드 크기 조정
-          variant="outline" // 입력 필드 스타일
-          paddingRight="50px" // 아이콘과 텍스트 간의 여백 조정
-          lineHeight="1.5" // 입력 필드의 라인 높이 조정
+          size="lg"
+          color="white"
+          variant="outline"
+          paddingRight="50px"
+          lineHeight="1.5"
           _focus={{
             border: "0.1px solid #f7ce46 !important",
             boxShadow: "0 0 0 0.5px #f7ce46 !important",

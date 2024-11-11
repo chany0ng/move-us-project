@@ -150,14 +150,14 @@ const MovieGrid = ({ movies, title, isLoading, likedMovies }) => {
               {likedMovies ? (
                 <Heading fontSize="lg">관심목록이 없습니다</Heading>
               ) : (
-                <div>
+                <Flex direction="column">
                   <Heading fontSize="lg" fontWeight={"medium"}>
                     영화가 존재하지 않습니다!
                   </Heading>
                   <Button onClick={() => window.location.reload()}>
                     새로고침
                   </Button>
-                </div>
+                </Flex>
               )}
             </Flex>
           )}
