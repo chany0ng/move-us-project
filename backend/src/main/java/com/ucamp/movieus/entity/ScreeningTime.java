@@ -11,6 +11,7 @@ import java.time.LocalTime;
 public class ScreeningTime {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "time_id")
     private Long timeId;
 
     @ManyToOne
