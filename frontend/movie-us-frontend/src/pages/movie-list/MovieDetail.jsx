@@ -47,15 +47,15 @@ const MovieDetail = () => {
   useEffect(() => {
     const fetchMovieData = async () => {
       try {
-        // 각 API 호출을 개별적으로 처리
-        const favoritesResponse = await getData('/api/favorites');
+        // 찜목록 조회 API 호출 수정
+        const favoritesResponse = await getData(`/api/favorites/${userNum}`);
         const favoritesData = Array.isArray(favoritesResponse?.data) 
           ? favoritesResponse.data 
           : [];
         
         // favoriteId와 isWishlist 설정
         const favoriteItem = favoritesData.find(
-          item => item.tmdbId === Number(tmdbId)
+          item => item.favoriteId === Number(tmdbId)
         );
         
         if (favoriteItem) {
@@ -113,7 +113,7 @@ const MovieDetail = () => {
     };
 
     fetchMovieData();
-  }, [tmdbId]);
+  }, [tmdbId, userNum]);
 
   // refreshReviews 함수를 useCallback으로 감싸기
   const refreshReviews = useCallback(async () => {
@@ -134,8 +134,9 @@ const MovieDetail = () => {
   const handleWishlistClick = async () => {
     try {
       if (!isWishlist) {
-        // 찜하기 요청
+        // 찜하기 요청 - userNum 추가
         const response = await postData('/api/favorites', {
+          userNum: userNum,
           tmdbId: Number(tmdbId),
           title: movie.title,
           posterPath: movie.posterPath
