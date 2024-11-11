@@ -205,4 +205,9 @@ public class UserService {
         
         return modelMapper.map(savedUser, UserMyPageDTO.class);
     }
+
+    public Integer getUserNumByUsername(String userName) {
+        Optional<UserEntity> user = userRepository.findByUserName(userName);
+        return user != null ? user.get().getUserNum() : null;
+    }
 }
