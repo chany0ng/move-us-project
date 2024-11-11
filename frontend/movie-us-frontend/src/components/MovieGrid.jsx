@@ -13,7 +13,7 @@ import styled from "styled-components";
 import { ChevronLeftIcon, ChevronRightIcon, CloseIcon } from "@chakra-ui/icons";
 import { useRef } from "react";
 import { Link } from "react-router-dom";
-
+import alterImage from "../assets/images/image.jpg";
 // Swiper 스타일 import
 import "swiper/css";
 import "swiper/css/navigation";
@@ -89,7 +89,11 @@ const MovieGrid = ({ movies, title, isLoading, likedMovies }) => {
               <SwiperSlide key={index}>
                 <MovieBox position="relative">
                   <StyledImage
-                    src={"https://image.tmdb.org/t/p/w500" + movie.poster_path}
+                    src={
+                      movie.poster_path
+                        ? "https://image.tmdb.org/t/p/w500" + movie.poster_path
+                        : alterImage
+                    }
                     alt={movie.title}
                   />
                   <Box
