@@ -20,6 +20,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -32,15 +33,15 @@ public class FavoriteListService {
     private final ModelMapper modelMapper;
     private final RestTemplate restTemplate;
 
-    // 찜 목록을 조회하는 메서드
-    public List<FavoriteList> getUserFavoriteList(UserEntity user) {
-
+        // 찜 목록을 조회하는 메서드
+    public List<FavoriteListResponseDTO> getUserFavoriteList(UserEntity user) {
+        // 찜 목록을 DB에서 조회
         List<FavoriteList> favoriteList = favoriteListRepository.findAllByUser(user);
-        for (FavoriteList favorite : favoriteList) {
-            convertToResponseDTO(favorite);
-        }
 
-        return favoriteList;
+        // FavoriteList 객체를 FavoriteListResponseDTO로 변환하여 반환
+        return favoriteList.stream()
+                .map(favorite -> convertToResponseDTO(favorite))  // convertToResponseDTO 메서드를 호출하여 DTO로 변환
+                .collect(Collectors.toList());
     }
 
     private final String API_KEY = "40405429a36ddf7b1d4337a022992fbc";

@@ -47,15 +47,15 @@ const MovieDetail = () => {
   useEffect(() => {
     const fetchMovieData = async () => {
       try {
-        // 각 API 호출을 개별적으로 처리
-        const favoritesResponse = await getData('/api/favorites');
+        // 찜목록 조회 API 호출 수정
+        const favoritesResponse = await getData(`/api/favorites/${userNum}`);
         const favoritesData = Array.isArray(favoritesResponse?.data) 
           ? favoritesResponse.data 
           : [];
         
         // favoriteId와 isWishlist 설정
         const favoriteItem = favoritesData.find(
-          item => item.tmdbId === Number(tmdbId)
+          item => item.favoriteId === Number(tmdbId)
         );
         
         if (favoriteItem) {
@@ -113,7 +113,7 @@ const MovieDetail = () => {
     };
 
     fetchMovieData();
-  }, [tmdbId]);
+  }, [tmdbId, userNum]);
 
   // refreshReviews 함수를 useCallback으로 감싸기
   const refreshReviews = useCallback(async () => {
@@ -134,8 +134,9 @@ const MovieDetail = () => {
   const handleWishlistClick = async () => {
     try {
       if (!isWishlist) {
-        // 찜하기 요청
+        // 찜하기 요청 - userNum 추가
         const response = await postData('/api/favorites', {
+          userNum: userNum,
           tmdbId: Number(tmdbId),
           title: movie.title,
           posterPath: movie.posterPath
@@ -285,6 +286,12 @@ const MovieDetail = () => {
                   href="https://www.netflix.com/kr/title/81787451"
                   target="_blank"
                   sx={styles.ottButton}
+                  isDisabled={exists_in_db}
+                  _disabled={{
+                    opacity: 0.4,
+                    cursor: 'not-allowed',
+                    pointerEvents: 'none'
+                  }}
                 >
                   <Image 
                     src={netflixLogo} 
@@ -297,6 +304,12 @@ const MovieDetail = () => {
                   href="https://www.tving.com/contents/M000377290"
                   target="_blank"
                   sx={styles.ottButton}
+                  isDisabled={exists_in_db}
+                  _disabled={{
+                    opacity: 0.4,
+                    cursor: 'not-allowed',
+                    pointerEvents: 'none'
+                  }}
                 >
                   <Image 
                     src={tvingLogo} 
@@ -305,6 +318,11 @@ const MovieDetail = () => {
                   />
                 </Button>
               </HStack>
+              {exists_in_db && (
+                <Text color="gray.500" fontSize="sm" mt={2}>
+                  현재 상영중인 영화는 OTT 서비스를 이용할 수 없습니다.
+                </Text>
+              )}
             </Box>
 
             {/* 영화 줄거리 섹션 */}
