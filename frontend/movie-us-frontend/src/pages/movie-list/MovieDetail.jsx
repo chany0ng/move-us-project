@@ -23,6 +23,9 @@ import tvingLogo from '../../assets/images/ott/Tving.png';
 import ReviewModal from "../../components/ReviewModal";  // 리뷰 작성 모달 컴포넌트
 import ReviewList from "../../components/ReviewList.jsx";  // 리뷰 목록 컴포넌트
 
+// 상단에 userStore import 추가
+import { userStore } from "../../../store";  // 상대 경로 사용
+
 const MovieDetail = () => {
   // URL에서 영화 ID 파라미터 추출
   const { tmdbId } = useParams();
@@ -41,29 +44,27 @@ const MovieDetail = () => {
   // TMDB 이미지 기본 URL (프로필 이미지용)
   const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w185";
 
-  const userNum = 1; // 임시 유저 번호 설정
+  // userStore를 직접 사용
+  const { user } = userStore;
+  const userNum = user?.user_num;
 
   // 모든 영화 관련 데이터 가져오기
   useEffect(() => {
     const fetchMovieData = async () => {
       try {
-        // 찜목록 조회 API 호출 수정
-        const favoritesResponse = await getData(`/api/favorites/${userNum}`);
-        const favoritesData = Array.isArray(favoritesResponse?.data) 
-          ? favoritesResponse.data 
-          : [];
-        
-        // favoriteId와 isWishlist 설정
-        const favoriteItem = favoritesData.find(
-          item => item.favoriteId === Number(tmdbId)
-        );
-        
-        if (favoriteItem) {
-          setFavoriteId(favoriteItem.favoriteId);
-          setIsWishlist(true);
-        } else {
-          setFavoriteId(null);
-          setIsWishlist(false);
+        // 로그인한 사용자의 찜 상태 확인
+        if (userNum) {
+          const favoritesResponse = await getData(`/api/favorites/${userNum}`);
+          const favoritesData = favoritesResponse?.data || [];
+          
+          // 현재 영화가 찜 목록에 있는지 확인
+          const favoriteItem = favoritesData.find(
+            item => Number(item.tmdbId) === Number(tmdbId)
+          );
+          
+          // 찜 상태 설정
+          setIsWishlist(!!favoriteItem);
+          setFavoriteId(favoriteItem?.favoriteId || null);
         }
 
         // 나머지 데이터 가져오기f
@@ -130,48 +131,74 @@ const MovieDetail = () => {
     refreshReviews();
   }, [refreshReviews]);  // refreshReviews를 의존성 배열에 추가
 
+  // 찜하기 상태 확인을 위한 별도의 useEffect
+  useEffect(() => {
+    const checkWishlistStatus = async () => {
+      if (!userNum || !tmdbId) return;
+
+      try {
+        const favoritesResponse = await getData(`/api/favorites/${userNum}`);
+        const favoritesData = favoritesResponse?.data || [];
+        
+        const favoriteItem = favoritesData.find(
+          item => Number(item.tmdbId) === Number(tmdbId)
+        );
+        
+        setIsWishlist(!!favoriteItem);
+        setFavoriteId(favoriteItem?.favoriteId || null);
+      } catch (error) {
+        console.error('찜하기 상태 확인 실패:', error);
+        setIsWishlist(false);
+        setFavoriteId(null);
+      }
+    };
+
+    checkWishlistStatus();
+  }, [userNum, tmdbId, isWishlist]); // isWishlist를 의존성 배열에 추가하여 상태 변경 시 재확인
+
   // 찜하기 토글 함수
   const handleWishlistClick = async () => {
     try {
+      if (!userNum) {
+        alert('로그인이 필요한 서비스입니다.');
+        return;
+      }
+
       if (!isWishlist) {
-        // 찜하기 요청 - userNum 추가
-        const response = await postData('/api/favorites', {
-          userNum: userNum,
+        // 찜하기 요청
+        const favoriteData = {
+          user: {
+            userNum: userNum  // user 객체로 감싸서 전송
+          },
           tmdbId: Number(tmdbId),
           title: movie.title,
           posterPath: movie.posterPath
-        });
+        };
+
+        const response = await postData('/api/favorites', favoriteData);
         
         if (response?.data) {
-          const newFavoriteId = response.data.favoriteId;
-          setFavoriteId(newFavoriteId);
           setIsWishlist(true);
-          console.log('찜하기 성공:', { newFavoriteId, response: response.data });
+          // 찜하기 상태 새로고침
+          const favoritesResponse = await getData(`/api/favorites/${userNum}`);
+          const favoriteItem = favoritesResponse?.data?.find(
+            item => Number(item.tmdbId) === Number(tmdbId)
+          );
+          setFavoriteId(favoriteItem?.favoriteId);
+          console.log('찜하기 성공:', response.data);
         }
       } else {
-        // favoriteId 확인 및 로깅
-        console.log('찜하기 취소 시도:', { favoriteId, isWishlist });
+        // 찜 취소 요청
         if (!favoriteId) {
-          // favoriteId가 없는 경우 다시 찾기 시도
-          const favoritesResponse = await getData('/api/favorites');
-          const favoriteItem = favoritesResponse.data.find(
-            item => item.tmdbId === Number(tmdbId)
-          );
-          
-          if (!favoriteItem?.favoriteId) {
-            console.error('찜하기 ID를 찾을 수 없습니다');
-            return;
-          }
-          setFavoriteId(favoriteItem.favoriteId);
+          console.error('찜하기 ID를 찾을 수 없습니다');
+          return;
         }
 
-        // 찜 취소 요청
         const response = await deleteData(`/api/favorites/${favoriteId}`);
-        console.log('찜하기 취소 응답:', response);
         
         if (response?.status === 200 || response?.status === 204) {
-          setFavoriteId(null);
           setIsWishlist(false);
+          setFavoriteId(null);
           console.log('찜하기 취소 성공');
         }
       }
@@ -335,7 +362,7 @@ const MovieDetail = () => {
 
             <Divider borderColor="#3F3F3F" />
             
-            {/* 감독과 출연진 정보 섹션 */}
+            {/* 감독과 출연진 보 섹션 */}
             <Flex direction={{ base: "column", md: "row" }} gap={8} width="100%">
               {/* 감독 정보 */}
               <Box flex="1">

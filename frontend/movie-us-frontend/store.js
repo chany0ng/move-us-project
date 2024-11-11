@@ -6,6 +6,7 @@ export const userStore = create((set) => ({
     user_email: null,
     kakao_email: null,
     user_phone: null,
+    user_num: null
   },
   setUser: (newUser) =>
     set((state) => ({
@@ -21,6 +22,7 @@ export const userStore = create((set) => ({
         user_email: null,
         kakao_email: null,
         user_phone: null,
+        user_num: null
       },
     })),
 }));
