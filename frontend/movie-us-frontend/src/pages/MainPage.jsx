@@ -1,7 +1,6 @@
 import { Box, Flex, useToast } from "@chakra-ui/react";
 import Carousel from "../components/Carousel";
 import MovieGrid from "../components/MovieGrid";
-import SearchBar from "../components/SearchBar";
 import { useEffect, useState } from "react";
 import { getData } from "../api/axios";
 import { wideMovies } from "../assets/contents/movieData";
@@ -149,43 +148,43 @@ const MainPage = () => {
         <MovieGrid title={`${user.user_name}님의 관심 목록`} isLoading={true} />
       ) : likedMovies.length > 0 ? (
         <MovieGrid
-          title={`${user.user_name}님의 관심 목록`}
+          title={`💕 ${user.user_name}님의 관심 목록`}
           movies={likedMovies}
           isLoading={false}
         />
       ) : (
         <MovieGrid
-          title={`${user.user_name}님의 관심 목록`}
+          title={`💕 ${user.user_name}님의 관심 목록`}
           isLoading={false}
           likedMovies={true}
         />
       )}
 
       {isMoviesLoading ? (
-        <MovieGrid title="전세계 상영영화 순위" isLoading={true} />
+        <MovieGrid title="🎥 전세계 상영영화 순위" isLoading={true} />
       ) : (
         <MovieGrid
-          title="전세계 상영영화 순위"
+          title="🎥 전세계 상영영화 순위"
           movies={movies}
           isLoading={false}
         />
       )}
 
       {isPopularMoviesLoading ? (
-        <MovieGrid title="전체 영화 인기순위" isLoading={true} />
+        <MovieGrid title="🎥 전체 영화 인기순위" isLoading={true} />
       ) : (
         <MovieGrid
-          title="전체 영화 인기순위"
+          title="🎥 전체 영화 인기순위"
           movies={popularMovies}
           isLoading={false}
         />
       )}
 
       {isBoxOfficeMoviesLoading ? (
-        <MovieGrid title="국내 일일 박스오피스 순위" isLoading={true} />
+        <MovieGrid title="🏆 국내 일일 박스오피스 순위" isLoading={true} />
       ) : (
         <MovieGrid
-          title="국내 일일 박스오피스 순위"
+          title="🏆 국내 일일 박스오피스 순위"
           movies={boxOfficeMovies}
           isLoading={false}
         />

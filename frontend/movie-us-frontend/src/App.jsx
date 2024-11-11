@@ -18,8 +18,8 @@ import UserReviewHistory from "./pages/my-page/UserReviewHistory";
 import MovieTicketing from "./pages/ticketing/MovieTicketing";
 import SeatSelection from "./pages/ticketing/SeatSelection";
 import ProtectedRoute from "./ProtectedRoute";
+import NotFound from "./pages/NotFound";
 function App() {
-  
   return (
     <>
       <GlobalStyle />
@@ -37,7 +37,10 @@ function App() {
             <Route path="/movie-detail/:tmdbId" element={<MovieDetail />} />
             <Route path="/community/movie-reviews" element={<MovieReviews />} />
             <Route path="/community/notice" element={<Notice />} />
-            <Route path="/community/notice/:noticeId" element={<NoticeDetail />} />
+            <Route
+              path="/community/notice/:noticeId"
+              element={<NoticeDetail />}
+            />
             <Route path="/ticketing/:indexId?" element={<MovieTicketing />} />
             <Route
               path="/ticketing/seat-selection"
@@ -76,6 +79,7 @@ function App() {
               }
             />
           </Route>
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
     </>

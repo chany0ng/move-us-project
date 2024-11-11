@@ -14,6 +14,7 @@ import {
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import noImage from "../assets/images/image.jpg";
 
 const MovieTabPanel = ({ movies, isLoading }) => {
   const navigate = useNavigate();
@@ -47,7 +48,11 @@ const MovieTabPanel = ({ movies, isLoading }) => {
         >
           <Tooltip label={movie.title} hasArrow placement="top">
             <StyledImage
-              src={"https://image.tmdb.org/t/p/w500" + movie.poster_path}
+              src={
+                movie.poster_path
+                  ? "https://image.tmdb.org/t/p/w500" + movie.poster_path
+                  : noImage
+              }
               alt="No Poster"
             />
           </Tooltip>

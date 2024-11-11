@@ -33,7 +33,7 @@ const Movies = () => {
   const initialGenre =
     new URLSearchParams(location.search).get("genre") || "All";
   const initialSort =
-    new URLSearchParams(location.search).get("sort") || "latest";
+    new URLSearchParams(location.search).get("sort") || "popular";
 
   const [genre, setGenre] = useState(initialGenre);
   const [sort, setSort] = useState(initialSort);
@@ -53,8 +53,8 @@ const Movies = () => {
   useEffect(() => {
     if (location.pathname === "/movies" && !location.search) {
       setGenre("All");
-      setSort("latest");
-      navigate("?genre=All&sort=latest", { replace: true });
+      setSort("popular");
+      navigate("?genre=All&sort=popular", { replace: true });
     }
   }, [location, navigate]);
 
@@ -178,9 +178,11 @@ const Movies = () => {
           onChange={handleSortChange}
           value={sort}
         >
-          <option value="latest">최신순</option>
-          <option value="like">오래된 순</option>
-          <option value="review">가나다 순</option>
+          <option value="popular">인기순</option>
+          <option value="review">리뷰 많은 순</option>
+          <option value="latest" disabled>
+            최신순
+          </option>
         </Select>
       </Box>
 
