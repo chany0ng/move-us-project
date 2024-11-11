@@ -1,14 +1,20 @@
 package com.ucamp.movieus.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ucamp.movieus.dto.PaymentRequestDTO;
 import com.ucamp.movieus.dto.PaymentResponseDTO;
 import com.ucamp.movieus.entity.Payment;
+import com.ucamp.movieus.entity.ScreeningTime;
 import com.ucamp.movieus.repository.PaymentRepository;
+import com.ucamp.movieus.repository.ScreeningTimeRepository;
+import com.ucamp.movieus.repository.SeatRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
@@ -25,11 +31,17 @@ public class PaymentService {
     private static final Logger logger = LoggerFactory.getLogger(PaymentService.class);
     private final PaymentRepository paymentRepository;
     private final RestTemplate restTemplate = new RestTemplate();
+    private final SeatRepository seatRepository;
+    private final ScreeningTimeRepository screeningTimeRepository;
 
     private final String tossPaymentsBaseUrl = "https://api.tosspayments.com/v1/payments";
 
-    public PaymentService(PaymentRepository paymentRepository) {
+    public PaymentService(PaymentRepository paymentRepository,
+                          SeatRepository seatRepository,
+                          ScreeningTimeRepository screeningTimeRepository) {
         this.paymentRepository = paymentRepository;
+        this.seatRepository = seatRepository;
+        this.screeningTimeRepository = screeningTimeRepository;
     }
 
     public Payment findPaymentByOrderId(String orderId) {
@@ -143,9 +155,17 @@ public class PaymentService {
     }
 
 
+    public void updateReservedSeats(Long timeId) {
+        // timeId에 해당하는 예약된 좌석 수를 조회
+        int reservedCount = seatRepository.countReservedSeatsByTimeId(timeId);
 
-
-
+        // 조회한 예약 좌석 수로 screening_time 테이블의 reserved_seats 업데이트
+        ScreeningTime screeningTime = screeningTimeRepository.findById(timeId).orElse(null);
+        if (screeningTime != null) {
+            screeningTime.setReservedSeats(reservedCount); // 업데이트
+            screeningTimeRepository.save(screeningTime); // 저장
+        }
+    }
 
 
 

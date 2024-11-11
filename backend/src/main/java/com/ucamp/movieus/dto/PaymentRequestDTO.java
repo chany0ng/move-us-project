@@ -26,4 +26,6 @@ public class PaymentRequestDTO {
     private LocalDate screeningDate; // 상영 날짜
     private LocalTime screeningTime; // 상영 시간
     private List<String> seatIds; // 좌석 리스트
+    private List<String> seatNumbers; // Seat IDs 대신 Seat Numbers를 받습니다.
+
 }
