@@ -16,6 +16,7 @@ const TicketSummary = ({
   selectedSeats,
   selectedPeople,
   handlePayment,
+  availableSeats,
 }) => {
   const navigate = useNavigate();
   const toast = useToast();
@@ -26,7 +27,7 @@ const TicketSummary = ({
 
   const handleGoToSeatSelection = () => {
     navigate(
-      `/ticketing/seat-selection?movie=${selectedMovieTmdbId}&poster=${posterPath}&title=${title}&theater=${selectedTheater}&date=${selectedDate}&time=${selectedSession}`
+      `/ticketing/seat-selection?movie=${selectedMovieTmdbId}&poster=${posterPath}&title=${title}&theater=${selectedTheater}&date=${selectedDate}&time=${selectedSession}&seats=${availableSeats}`
     );
   };
   const requireLoginHandler = () => {
@@ -130,14 +131,23 @@ const TicketSummary = ({
             {selectedSeats ? (
               <Box flex="1" p={2}>
                 <Text fontWeight="bold" fontSize="xl" mb={1}>
-                  좌석 선택
+                  좌석 정보
                 </Text>
-                <Text>좌석번호 {selectedSeats.join(",")}</Text>
+                <Text>선택 좌석: {selectedSeats.join(",")}</Text>
+                <Text>
+                  결제 금액:{" "}
+                  {(selectedSeats.length * SEAT_PRICE).toLocaleString("ko-KR")}
+                  원
+                </Text>
               </Box>
             ) : (
-              <Text fontWeight="bold" fontSize="xl" mb={1}>
-                <ArrowRightIcon /> 좌석 선택
-              </Text>
+              <Box flex="1" p={2}>
+                <Text fontWeight="bold" fontSize="xl" mb={1}>
+                  좌석 정보
+                </Text>
+                <Text>선택 좌석: 미 지정</Text>
+                <Text>결제 금액: 0 \</Text>
+              </Box>
             )}
           </Box>
         </Box>

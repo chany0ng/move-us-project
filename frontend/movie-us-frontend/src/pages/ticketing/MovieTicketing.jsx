@@ -33,6 +33,7 @@ const MovieTicketing = () => {
   const [allTimeArray, setAllTimeArray] = useState([]);
   const [selectedTime, setSelectedTime] = useState(null);
   const [selectedSession, setSelectedSession] = useState(null);
+  const [availableSeats, setAvailableSeats] = useState(100);
 
   useEffect(() => {
     fetchData();
@@ -409,10 +410,13 @@ const MovieTicketing = () => {
                             }
                             onClick={() => {
                               setSelectedTime(session.timeId);
-                              setSelectedSession(session.screeningTime);
+                              setSelectedSession(
+                                session.screeningTime.slice(0, 5)
+                              );
+                              setAvailableSeats(100 - session.reservedSeats);
                             }}
                           >
-                            {session.screeningTime}
+                            {session.screeningTime.slice(0, 5)}
                           </Button>
                           <Text>{100 - session.reservedSeats}석</Text>
                         </Flex>
@@ -433,6 +437,7 @@ const MovieTicketing = () => {
           selectedDate={formatDate(selectedDate)}
           selectedTime={selectedTime}
           selectedSession={selectedSession}
+          availableSeats={availableSeats}
         />
       )}
     </Flex>
