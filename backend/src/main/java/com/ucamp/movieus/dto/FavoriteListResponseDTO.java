@@ -1,5 +1,6 @@
 package com.ucamp.movieus.dto;
 
+import com.ucamp.movieus.entity.UserEntity;
 import lombok.Data;
 
 @Data
