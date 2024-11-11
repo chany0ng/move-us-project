@@ -286,6 +286,12 @@ const MovieDetail = () => {
                   href="https://www.netflix.com/kr/title/81787451"
                   target="_blank"
                   sx={styles.ottButton}
+                  isDisabled={exists_in_db}
+                  _disabled={{
+                    opacity: 0.4,
+                    cursor: 'not-allowed',
+                    pointerEvents: 'none'
+                  }}
                 >
                   <Image 
                     src={netflixLogo} 
@@ -298,6 +304,12 @@ const MovieDetail = () => {
                   href="https://www.tving.com/contents/M000377290"
                   target="_blank"
                   sx={styles.ottButton}
+                  isDisabled={exists_in_db}
+                  _disabled={{
+                    opacity: 0.4,
+                    cursor: 'not-allowed',
+                    pointerEvents: 'none'
+                  }}
                 >
                   <Image 
                     src={tvingLogo} 
@@ -306,6 +318,11 @@ const MovieDetail = () => {
                   />
                 </Button>
               </HStack>
+              {exists_in_db && (
+                <Text color="gray.500" fontSize="sm" mt={2}>
+                  현재 상영중인 영화는 OTT 서비스를 이용할 수 없습니다.
+                </Text>
+              )}
             </Box>
 
             {/* 영화 줄거리 섹션 */}
