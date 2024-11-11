@@ -357,7 +357,7 @@ public class MovieService {
         return filteredMovies;
     }
 
-    public List<Map<String, Object>> getMoviesSortedByReviewCount(List<Map<String, Object>> apiMovies) {
+    public List<Map<String, Object>> getMoviesSortedByReviewCountAndGenre(List<Map<String, Object>> apiMovies, String genreName) {
         System.out.println("Service method invoked");
         List<Map<String, Object>> allMovies = new ArrayList<>();
 
@@ -379,56 +379,61 @@ public class MovieService {
                     throw new IllegalArgumentException("Invalid ID type: " + idObject.getClass().getName());
                 }
 
-                Integer reviewCount = getReviewCount(tmdbId); // 해당 영화의 리뷰 개수 가져오기
-                System.out.println("Review count for TMDB ID " + tmdbId + ": " + reviewCount); // 리뷰 개수 출력
-                movie.put("reviewCount", reviewCount); // 영화 정보에 리뷰 개수를 추가
+                Integer reviewCount = getReviewCount(tmdbId); // 리뷰 개수 가져오기
+                System.out.println("Review count for TMDB ID " + tmdbId + ": " + reviewCount);
+                movie.put("reviewCount", reviewCount); // 리뷰 개수 추가
+
+                // 장르 추가
+                movie.put("genres", movie.get("genres")); // API에서 장르 리스트를 그대로 사용
 
                 allMovies.add(movie);
             }
         }
 
-        // 3. DB에서 영화 데이터 가져오기
+        // 2. DB에서 영화 데이터 가져오기
         List<Movie> dbMovies = movieRepository.findAllByOrderByRankingAsc();
         System.out.println("findAllByOrderByRankingAsc()");
-        if (dbMovies == null || dbMovies.isEmpty()) {
-            System.out.println("No movies found in DB");
-        } else {
-            System.out.println("DB Movies: " + dbMovies);
-        }
+        if (dbMovies != null && !dbMovies.isEmpty()) {
+            for (Movie dbMovie : dbMovies) {
+                Long tmdbId = dbMovie.getTmdbId();
 
-        // 4. DB 데이터를 Map 형태로 변환 후 추가
-        Set<Long> processedTmdbIds = allMovies.stream()
-                .map(movie -> {
-                    Object id = movie.get("id");
-                    if (id instanceof Integer) {
-                        return ((Integer) id).longValue();
-                    } else if (id instanceof Long) {
-                        return (Long) id;
-                    } else {
-                        throw new IllegalArgumentException("Invalid ID type in allMovies: " + id.getClass().getName());
-                    }
-                })
-                .collect(Collectors.toSet());
+                if (tmdbId != null) {
+                    Map<String, Object> movieMap = new HashMap<>();
+                    movieMap.put("id", tmdbId);
+                    movieMap.put("title", dbMovie.getTitle());
+                    movieMap.put("original_title", dbMovie.getOriginalTitle());
+                    movieMap.put("poster_path", dbMovie.getPosterPath());
+                    movieMap.put("exists_in_db", true); // DB에서 가져온 데이터임을 표시
 
-        for (Movie dbMovie : dbMovies) {
-            Long tmdbId = dbMovie.getTmdbId();
+                    // DB 영화의 장르 리스트 추가
+                    Set<Genre> genres = dbMovie.getGenres(); // DB에서 장르 Set 가져오기
+                    movieMap.put("genres", genres);
 
-            // tmdbId가 null이면 건너뜁니다.
-            if (tmdbId != null && !processedTmdbIds.contains(tmdbId)) {
-                Map<String, Object> movieMap = new HashMap<>();
-                movieMap.put("id", tmdbId);
-                movieMap.put("title", dbMovie.getTitle());
-                movieMap.put("original_title", dbMovie.getOriginalTitle());
-                movieMap.put("poster_path", dbMovie.getPosterPath());
-                movieMap.put("exists_in_db", true); // DB에서 가져온 데이터임을 표시
-                Integer reviewCount = getReviewCount(tmdbId);
-                movieMap.put("reviewCount", reviewCount);
-                allMovies.add(movieMap);
+                    Integer reviewCount = getReviewCount(tmdbId);
+                    movieMap.put("reviewCount", reviewCount);
+
+                    allMovies.add(movieMap);
+                }
             }
         }
 
-        // 5. 리뷰 개수를 기준으로 내림차순 정렬
-        List<Map<String, Object>> sortedMovies = allMovies.stream()
+        // 3. 장르 필터링 (genreName이 제공된 경우에만)
+        List<Map<String, Object>> filteredMovies;
+        if (genreName != null && !genreName.isBlank()) {
+            filteredMovies = allMovies.stream()
+                    .filter(movie -> {
+                        Set<Genre> genres = (Set<Genre>) movie.get("genres");
+                        if (genres == null) return false;
+                        return genres.stream().anyMatch(genre -> genreName.equalsIgnoreCase(genre.getName()));
+                    })
+                    .collect(Collectors.toList());
+        } else {
+            // 장르 필터링 없이 모든 영화 사용
+            filteredMovies = allMovies;
+        }
+
+        // 4. 리뷰 개수를 기준으로 내림차순 정렬
+        List<Map<String, Object>> sortedMovies = filteredMovies.stream()
                 .sorted((movie1, movie2) -> {
                     Integer reviewCount1 = (Integer) movie1.get("reviewCount");
                     Integer reviewCount2 = (Integer) movie2.get("reviewCount");
@@ -436,9 +441,10 @@ public class MovieService {
                 })
                 .collect(Collectors.toList());
 
-        System.out.println("Sorted Movies: " + sortedMovies);
+        System.out.println("Sorted and Filtered Movies: " + sortedMovies);
         return sortedMovies;
     }
+
 
     // TMDB ID로 해당 영화의 리뷰 개수를 가져오는 메서드
     private Integer getReviewCount(Long tmdbId) {
@@ -448,5 +454,36 @@ public class MovieService {
         Integer count = reviewRepository.countByTmdbId(tmdbId);
         return count != null ? count : 0; // null인 경우 0을 반환
     }
+    public List<Map<String, Object>> getAllPopularMovies2() {
+        List<Map<String, Object>> moviesWithDbInfo = new ArrayList<>();
+
+        // DB에 저장된 영화의 TMDB ID 목록 가져오기
+        List<Integer> dbMovieIds = movieRepository.findAllTmdbIds();
+        Set<Integer> dbMovieIdSet = new HashSet<>(dbMovieIds);
+
+        // 1페이지부터 5페이지까지 TMDB API에서 인기 영화 목록 가져오기
+        for (int page = 1; page <= 5; page++) {
+            String url = BASE_URL + "popular?api_key=" + API_KEY + "&language=ko-KR&region=KR&page=" + page;
+
+            // TMDB API 요청
+            Map<String, Object> response = restTemplate.getForObject(url, Map.class);
+            List<Map<String, Object>> movies = (List<Map<String, Object>>) response.get("results");
+
+            // API에서 가져온 영화 목록에 DB 존재 여부 표시
+            for (Map<String, Object> movie : movies) {
+                Integer tmdbId = (Integer) movie.get("id");
+                boolean existsInDb = dbMovieIdSet.contains(tmdbId);
+
+                // exists_in_db 필드 추가
+                movie.put("exists_in_db", existsInDb);
+                if (!existsInDb) {
+                    moviesWithDbInfo.add(movie);
+                }
+            }
+        }
+
+        return moviesWithDbInfo;
+    }
+
 
 }

@@ -13,14 +13,17 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-//@RestController
-@Controller
+@RestController
+//@Controller
 @RequestMapping("/api/v1/payments")
 public class PaymentController {
     private final PaymentService paymentService;
@@ -322,10 +325,24 @@ public class PaymentController {
                     .collect(Collectors.toList());
             responseDTO.setSeats(seatDTOs);
 
-            return ResponseEntity.ok(responseDTO);
+            // 리액트의 예약 내역 페이지로 리다이렉트 URL 설정
+            String redirectUrl = "http://localhost:3000/my-page/activity/user-reservation-history"
+                    + "?paymentId=" + payment.getPaymentId()
+                    + "&paymentKey=" + payment.getPaymentKey()
+                    + "&movieTitle=" + URLEncoder.encode(payment.getScreeningSchedule().getMovie().getTitle(), StandardCharsets.UTF_8)
+                    + "&orderId=" + payment.getOrderId()
+                    + "&paymentDate=" + URLEncoder.encode(payment.getPaymentDate().toString(), StandardCharsets.UTF_8)
+                    + "&theaterName=" + URLEncoder.encode(payment.getScreeningSchedule().getTheater().getTheaterName(), StandardCharsets.UTF_8)
+                    + "&screeningDate=" + URLEncoder.encode(payment.getScreeningSchedule().getScreeningDate().toString(), StandardCharsets.UTF_8)
+                    + "&screeningTime=" + URLEncoder.encode(payment.getScreeningTime().getScreeningTime().toString(), StandardCharsets.UTF_8);
+            return ResponseEntity.status(HttpStatus.FOUND)
+                    .location(URI.create(redirectUrl)) // 설정된 리다이렉트 URL로 이동
+                    .build();
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
+
+
     }
 
 

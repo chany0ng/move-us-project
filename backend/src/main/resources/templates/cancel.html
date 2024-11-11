@@ -9,7 +9,7 @@
 
 <script>
     function cancelPayment() {
-        const paymentKey = "tviva20241111093527CAK39";
+        const paymentKey = "tviva20241111212107AKWY0";
         const cancelReason = "User requested cancellation";
 
         fetch(`/api/v1/payments/toss/cancel?paymentKey=${paymentKey}&cancelReason=${encodeURIComponent(cancelReason)}`, {
