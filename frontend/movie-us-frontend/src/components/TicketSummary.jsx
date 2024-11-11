@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Heading, Text, useToast } from "@chakra-ui/react";
+import { Box, Button, Flex, Text, useToast } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getData } from "../api/axios";
@@ -8,12 +8,14 @@ import { userStore } from "../../store";
 const SEAT_PRICE = 10000;
 
 const TicketSummary = ({
-  selectedMovie,
+  selectedMovieTmdbId,
+  selectedSession,
   selectedTheater,
   selectedDate,
   selectedTime,
   selectedSeats,
   selectedPeople,
+  handlePayment,
 }) => {
   const navigate = useNavigate();
   const toast = useToast();
@@ -21,9 +23,10 @@ const TicketSummary = ({
   const [title, setTitle] = useState("");
   const [posterPath, setPosterPath] = useState("");
   const [releaseDate, setReleaseDate] = useState("");
+
   const handleGoToSeatSelection = () => {
     navigate(
-      `/ticketing/seat-selection?movie=${selectedMovie}&poster=${posterPath}&title=${title}&theater=${selectedTheater}&date=${selectedDate}&time=${selectedTime}`
+      `/ticketing/seat-selection?movie=${selectedMovieTmdbId}&poster=${posterPath}&title=${title}&theater=${selectedTheater}&date=${selectedDate}&time=${selectedSession}`
     );
   };
   const requireLoginHandler = () => {
@@ -50,11 +53,11 @@ const TicketSummary = ({
 
   useEffect(() => {
     fetchMovieData();
-  }, [selectedMovie]);
+  }, [selectedMovieTmdbId]);
 
   const fetchMovieData = async () => {
     try {
-      const response = await getData(`/movies/${selectedMovie}`);
+      const response = await getData(`/movies/${selectedMovieTmdbId}`);
       setTitle(response.data.title);
       setPosterPath(response.data.posterPath);
       setReleaseDate(response.data.releaseDate);
@@ -72,6 +75,7 @@ const TicketSummary = ({
 
   const payHandler = () => {
     alert("결제요청!");
+    handlePayment();
   };
   return (
     <Box
