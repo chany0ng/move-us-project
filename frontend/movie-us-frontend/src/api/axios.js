@@ -80,15 +80,13 @@ export const customAxios = axios.create({
 //   }
 // };
 
-//todo config에 Query Parameter 전달하는법
-/*
-{
-  params: {
-    search: 'John',  // 검색 키워드
-    sort: 'asc',     // 정렬 순서
-  },
-}
-*/
+// User이름 -> UserNum 받아오기
+export const getUserNum = async (url, userName) => {
+  const response = await customAxios.get(url, {
+    params: { userName: userName },
+  });
+  return response;
+};
 
 // GET Method
 export const getData = async (url, config) => {

@@ -14,4 +14,6 @@ public interface ReviewRepository extends JpaRepository<ReviewEntity, Long> {
 
    Optional<ReviewEntity> findByTmdbIdAndUser(Long tmdbId, UserEntity user);
    Optional<ReviewEntity> findByReviewIdAndReportUserEmail(Long reviewId, String reportUserEmail);
+
+   Integer countByTmdbId(Long tmdbId);
 }

@@ -19,6 +19,7 @@ import MovieTicketing from "./pages/ticketing/MovieTicketing";
 import SeatSelection from "./pages/ticketing/SeatSelection";
 import ProtectedRoute from "./ProtectedRoute";
 function App() {
+  
   return (
     <>
       <GlobalStyle />
@@ -36,8 +37,8 @@ function App() {
             <Route path="/movie-detail/:tmdbId" element={<MovieDetail />} />
             <Route path="/community/movie-reviews" element={<MovieReviews />} />
             <Route path="/community/notice" element={<Notice />} />
-            <Route path="/ticketing/:tmdbId?" element={<MovieTicketing />} />
             <Route path="/community/notice/:noticeId" element={<NoticeDetail />} />
+            <Route path="/ticketing/:indexId?" element={<MovieTicketing />} />
             <Route
               path="/ticketing/seat-selection"
               element={<SeatSelection />}

@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Heading, Text, useToast } from "@chakra-ui/react";
+import { Box, Button, Flex, Text, useToast } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getData } from "../api/axios";
@@ -8,12 +8,15 @@ import { userStore } from "../../store";
 const SEAT_PRICE = 10000;
 
 const TicketSummary = ({
-  selectedMovie,
+  selectedMovieTmdbId,
+  selectedSession,
   selectedTheater,
   selectedDate,
   selectedTime,
   selectedSeats,
   selectedPeople,
+  handlePayment,
+  availableSeats,
 }) => {
   const navigate = useNavigate();
   const toast = useToast();
@@ -21,9 +24,10 @@ const TicketSummary = ({
   const [title, setTitle] = useState("");
   const [posterPath, setPosterPath] = useState("");
   const [releaseDate, setReleaseDate] = useState("");
+
   const handleGoToSeatSelection = () => {
     navigate(
-      `/ticketing/seat-selection?movie=${selectedMovie}&poster=${posterPath}&title=${title}&theater=${selectedTheater}&date=${selectedDate}&time=${selectedTime}`
+      `/ticketing/seat-selection?movie=${selectedMovieTmdbId}&poster=${posterPath}&title=${title}&theater=${selectedTheater}&date=${selectedDate}&time=${selectedSession}&seats=${availableSeats}`
     );
   };
   const requireLoginHandler = () => {
@@ -50,11 +54,11 @@ const TicketSummary = ({
 
   useEffect(() => {
     fetchMovieData();
-  }, [selectedMovie]);
+  }, [selectedMovieTmdbId]);
 
   const fetchMovieData = async () => {
     try {
-      const response = await getData(`/movies/${selectedMovie}`);
+      const response = await getData(`/movies/${selectedMovieTmdbId}`);
       setTitle(response.data.title);
       setPosterPath(response.data.posterPath);
       setReleaseDate(response.data.releaseDate);
@@ -72,6 +76,7 @@ const TicketSummary = ({
 
   const payHandler = () => {
     alert("결제요청!");
+    handlePayment();
   };
   return (
     <Box
@@ -126,14 +131,23 @@ const TicketSummary = ({
             {selectedSeats ? (
               <Box flex="1" p={2}>
                 <Text fontWeight="bold" fontSize="xl" mb={1}>
-                  좌석 선택
+                  좌석 정보
                 </Text>
-                <Text>좌석번호 {selectedSeats.join(",")}</Text>
+                <Text>선택 좌석: {selectedSeats.join(",")}</Text>
+                <Text>
+                  결제 금액:{" "}
+                  {(selectedSeats.length * SEAT_PRICE).toLocaleString("ko-KR")}
+                  원
+                </Text>
               </Box>
             ) : (
-              <Text fontWeight="bold" fontSize="xl" mb={1}>
-                <ArrowRightIcon /> 좌석 선택
-              </Text>
+              <Box flex="1" p={2}>
+                <Text fontWeight="bold" fontSize="xl" mb={1}>
+                  좌석 정보
+                </Text>
+                <Text>선택 좌석: 미 지정</Text>
+                <Text>결제 금액: 0 \</Text>
+              </Box>
             )}
           </Box>
         </Box>

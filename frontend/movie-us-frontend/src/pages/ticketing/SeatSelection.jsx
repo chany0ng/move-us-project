@@ -12,11 +12,13 @@ import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Seat from "../../components/Seat";
 import TicketSummary from "../../components/TicketSummary";
+import { postData } from "../../api/axios";
 
 const SEAT_PRICE = 10000;
 // 좌석 배열 생성
-const SEAT_ROWS = "ABCDEFGHIJ".split("");
-const SEAT_COLUMNS = Array.from({ length: 10 }, (_, i) => i + 1);
+const SEAT_ROWS = "ABCDEFGHIJKLMN".split(""); // "J" 뒤에 4개의 행 추가 ("K", "L", "M", "N")
+const SEAT_COLUMNS = Array.from({ length: 10 }, (_, i) => i + 1); // 기본 10열
+const EXTENDED_COLUMNS = Array.from({ length: 16 }, (_, i) => i + 1); // 추가 열(16개)
 
 const SeatSelection = () => {
   const navigate = useNavigate();
@@ -30,6 +32,7 @@ const SeatSelection = () => {
   const selectedTheater = searchParams.get("theater");
   const selectedDate = searchParams.get("date");
   const selectedTime = searchParams.get("time");
+  const availableSeats = searchParams.get("seats");
 
   // 좌석 선택 관련 State
   const [selectedSeats, setSelectedSeats] = useState([]);
@@ -38,6 +41,10 @@ const SeatSelection = () => {
   const handlePeopleSelect = (count) => {
     setSelectedPeople(count);
     setSelectedSeats([]);
+  };
+  const handleReset = () => {
+    setSelectedSeats([]); // 선택된 좌석 초기화
+    setSelectedPeople(1); // 선택된 인원 초기화
   };
 
   // 좌석 선택 함수
@@ -62,14 +69,9 @@ const SeatSelection = () => {
     const totalAmount = selectedSeats.length * SEAT_PRICE;
     try {
       // 결제 API 요청 (가상의 API URL)
-      const response = await fetch("/api/payment", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          seats: selectedSeats,
-          people: selectedPeople,
-          totalAmount,
-        }),
+      const response = await postData("/api/v1/payments/toss", {
+        movie: "",
+        amout: totalAmount,
       });
 
       if (response.ok) {
@@ -114,7 +116,7 @@ const SeatSelection = () => {
           <RepeatClockIcon mr={2} />
           영화 재선택
         </Button>
-        <Button width="fit-content" m={5}>
+        <Button width="fit-content" m={5} onClick={handleReset}>
           <RepeatClockIcon mr={2} />
           인원/좌석 초기화
         </Button>
@@ -159,8 +161,10 @@ const SeatSelection = () => {
                 <p>{selectedTheater}</p>
                 <p>{selectedTitle}</p>
                 <p>
-                  남은 좌석{" "}
-                  <span style={{ color: " red", fontWeight: "bold" }}>98</span>
+                  남은 좌석:
+                  <span style={{ color: " red", fontWeight: "bold" }}>
+                    {availableSeats}
+                  </span>
                   /100
                 </p>
               </Flex>
@@ -203,7 +207,26 @@ const SeatSelection = () => {
             >
               Screen
             </Box>
-            <Grid
+            {SEAT_ROWS.map((row) => (
+              <Grid
+                key={row}
+                templateColumns={`repeat(${row <= "J" ? 10 : 16}, 1fr)`} // "J"까지는 10열, 이후는 16열
+                gap={1}
+                width="fit-content"
+                mx="auto"
+                mt="2"
+              >
+                {(row <= "J" ? SEAT_COLUMNS : EXTENDED_COLUMNS).map((col) => (
+                  <Seat
+                    key={`${row}${col}`}
+                    seatId={`${row}${col}`}
+                    isSelected={selectedSeats.includes(`${row}${col}`)}
+                    onSeatClick={handleSeatClick}
+                  />
+                ))}
+              </Grid>
+            ))}
+            {/* <Grid
               templateColumns="repeat(10, 0fr)"
               gap={1}
               width="fit-content"
@@ -220,17 +243,18 @@ const SeatSelection = () => {
                   />
                 ))
               )}
-            </Grid>
+            </Grid> */}
           </Box>
         </Flex>
       </Box>
       <TicketSummary
-        selectedMovie={selectedMovie}
+        selectedMovieTmdbId={selectedMovie}
         selectedTheater={selectedTheater}
         selectedDate={selectedDate}
         selectedTime={selectedTime}
         selectedSeats={selectedSeats}
         selectedPeople={selectedPeople}
+        handlePayment={handlePayment}
       />
     </Flex>
   );
