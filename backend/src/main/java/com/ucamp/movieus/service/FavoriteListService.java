@@ -60,6 +60,7 @@ public class FavoriteListService {
             try {
                 Map<String, Object> movieDetails = getMovieDetailsFromApi(favorite.getTmdbId());
                 responseDTO.setTitle((String) movieDetails.get("title"));
+                responseDTO.setPosterPath((String) movieDetails.get("poster_path")); // 포스터 경로 추가
                 Map<String, Object> collection = (Map<String, Object>) movieDetails.get("belongs_to_collection");
                 if (collection != null) {
                     responseDTO.setTitle((String) collection.get("name"));

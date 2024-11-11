@@ -37,10 +37,10 @@ public class PaymentController {
     private  ScreeningTimeRepository screeningTimeRepository;
 
     public PaymentController(PaymentService paymentService
-                            , UserRepository userRepository
-                            , ScreeningScheduleRepository screeningScheduleRepository
-                            , SeatRepository seatRepository
-                            , ScreeningTimeRepository screeningTimeRepository) {
+            ,UserRepository userRepository
+            ,ScreeningScheduleRepository screeningScheduleRepository
+            ,SeatRepository seatRepository
+            ,ScreeningTimeRepository screeningTimeRepository) {
         this.paymentService = paymentService;
         this.userRepository=userRepository;
         this.screeningTimeRepository = screeningTimeRepository;
@@ -59,7 +59,6 @@ public class PaymentController {
 
 
 
-
 //    @PostMapping("/toss")
 //    @ResponseBody
 //    public ResponseEntity<Map<String, Object>> createPayment(@RequestBody PaymentRequestDTO paymentRequestDTO) {
@@ -67,153 +66,195 @@ public class PaymentController {
 //
 //        // 요청에서 필요한 데이터 추출
 //        int amount = paymentRequestDTO.getAmount();
-//        String orderId = UUID.randomUUID().toString(); // 고유한 orderId 생성
+//        String orderId = UUID.randomUUID().toString();
 //        String orderName = paymentRequestDTO.getOrderName();
+//        String paymentMethod = paymentRequestDTO.getPaymentMethod();
+//        Long timeId = paymentRequestDTO.getTimeId();
+//        int userNum = paymentRequestDTO.getUserNum();
+//        LocalDate screeningDate = paymentRequestDTO.getScreeningDate();
+//        LocalTime screeningTime = paymentRequestDTO.getScreeningTime();
+//
+//        // 좌석 ID 리스트 처리
+//        List<String> seatIds = paymentRequestDTO.getSeatIds();
+//        List<Seat> seats = new ArrayList<>();
+//        if (seatIds != null && !seatIds.isEmpty()) {
+//            for (String seatId : seatIds) {
+//                Seat seatEntity = seatRepository.findById(Integer.parseInt(seatId)).orElse(null);
+//                if (seatEntity != null) {
+//                    seats.add(seatEntity);
+//                }
+//            }
+//        }
+//
+//        System.out.println("amount: " + amount);
+//        System.out.println("orderId: " + orderId);
+//        System.out.println("paymentMethod: " + paymentMethod);
+//        System.out.println("timeId: " + timeId);
+//        System.out.println("userNum: " + userNum);
+//        System.out.println("screeningDate: " + screeningDate);
+//        System.out.println("screeningTime: " + screeningTime);
+//        System.out.println("seatIds: " + seatIds);
 //
 //        // 결제 정보를 데이터베이스에 저장
 //        Payment payment = new Payment();
-//        payment.setPaymentMethod("카드");
+//        payment.setPaymentMethod(paymentMethod);
 //        payment.setAmount(amount);
 //        payment.setStatus("PENDING");
 //        payment.setPaymentDate(LocalDateTime.now());
-//        payment.setOrderId(orderId); // orderId 설정
+//        payment.setOrderId(orderId);
 //
+//        // User 설정
+//        UserEntity user = userRepository.findById(userNum).orElse(null);
+//        if (user == null) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "User not found"));
+//        }
+//        payment.setUser(user);
+//
+//        // ScreeningTime을 통해 ScreeningSchedule 조회
+//        ScreeningTime screeningTimeEntity = screeningTimeRepository.findById(timeId).orElse(null);
+//        if (screeningTimeEntity == null) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Screening time not found"));
+//        }
+//        payment.setScreeningTime(screeningTimeEntity);
+//
+//        // ScreeningSchedule 설정 및 관련 정보 추출
+//        ScreeningSchedule screeningSchedule = screeningTimeEntity.getScreeningSchedule();
+//        if (screeningSchedule == null) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Screening schedule not found"));
+//        }
+//        payment.setScreeningSchedule(screeningSchedule);
+//        Long movieId = screeningSchedule.getMovie().getId();
+//        int theaterId = screeningSchedule.getTheater().getTheaterId();
+//
+//        // 좌석 리스트 설정
+//        payment.setSeats(seats);
+//
+//        // Payment 저장
 //        payment = paymentRepository.save(payment);
 //
 //        // 성공 및 실패 URL 설정
-//        String completeUrl = "http://localhost:8080/api/v1/payments/toss/complete"; // complete URL
+//        String completeUrl = "http://localhost:8080/api/v1/payments/toss/complete";
 //        String failUrl = "http://localhost:8080/api/v1/payments/toss/fail";
 //
 //        // 응답 데이터
-//        response.put("paymentMethod", "카드");
+//        response.put("paymentMethod", paymentMethod);
 //        response.put("amount", amount);
 //        response.put("orderId", orderId);
 //        response.put("orderName", orderName);
-//        response.put("successUrl", completeUrl); // complete URL을 사용
+//        response.put("successUrl", completeUrl);
 //        response.put("failUrl", failUrl);
 //        response.put("paymentId", payment.getPaymentId());
+//        response.put("userNum", userNum);
+//        response.put("movieId", movieId);
+//        response.put("theaterId", theaterId);
+//        response.put("screeningDate", screeningDate);
+//        response.put("screeningTime", screeningTime);
+//        response.put("seatIds", seatIds);
 //
 //        return new ResponseEntity<>(response, HttpStatus.OK);
 //    }
-@PostMapping("/toss")
-@ResponseBody
-public ResponseEntity<Map<String, Object>> createPayment(@RequestBody PaymentRequestDTO paymentRequestDTO) {
-    Map<String, Object> response = new HashMap<>();
 
-    // 요청에서 필요한 데이터 추출
-    int amount = paymentRequestDTO.getAmount();
-    String orderId = UUID.randomUUID().toString(); // 고유한 orderId 생성
-    String orderName = paymentRequestDTO.getOrderName();
-    String paymentMethod = paymentRequestDTO.getPaymentMethod();
-    Long movieId = paymentRequestDTO.getMovieId();
-    int theaterId = paymentRequestDTO.getTheaterId();
-    Long timeId = paymentRequestDTO.getTimeId();
-    int userNum = paymentRequestDTO.getUserNum();
-    Long screeningScheduleId = paymentRequestDTO.getScreeningScheduleId();
-    LocalDate screeningDate = paymentRequestDTO.getScreeningDate();
-    LocalTime screeningTime = paymentRequestDTO.getScreeningTime();
 
-    // 좌석 ID 리스트 처리
-    List<String> seatIds = paymentRequestDTO.getSeatIds();
-    List<Seat> seats = new ArrayList<>();
+    @PostMapping("/toss")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> createPayment(@RequestBody PaymentRequestDTO paymentRequestDTO) {
+        Map<String, Object> response = new HashMap<>();
 
-    if (seatIds == null || seatIds.isEmpty()) {
-        System.out.println("seatIds 리스트가 비어 있습니다.");
-    } else {
-        for (String seatId : seatIds) {
-            if (seatId != null && !seatId.isEmpty()) {
-                try {
-                    Seat seatEntity = seatRepository.findById(Integer.parseInt(seatId)).orElse(null);
-                    if (seatEntity != null) {
-                        seats.add(seatEntity);
-                    } else {
-                        System.out.println("Seat with ID " + seatId + " not found.");
-                    }
-                } catch (NumberFormatException e) {
-                    System.out.println("Invalid seatId format: " + seatId);
+        // 요청에서 필요한 데이터 추출
+        int amount = paymentRequestDTO.getAmount();
+        String orderId = UUID.randomUUID().toString();
+        String orderName = paymentRequestDTO.getOrderName();
+        String paymentMethod = paymentRequestDTO.getPaymentMethod();
+        Long timeId = paymentRequestDTO.getTimeId();
+        int userNum = paymentRequestDTO.getUserNum();
+        LocalDate screeningDate = paymentRequestDTO.getScreeningDate();
+        LocalTime screeningTime = paymentRequestDTO.getScreeningTime();
+
+        // 좌석 번호 리스트 처리
+        List<String> seatNumbers = paymentRequestDTO.getSeatNumbers();
+        List<Seat> seats = new ArrayList<>();
+        if (seatNumbers != null && !seatNumbers.isEmpty()) {
+            for (String seatNumber : seatNumbers) {
+                Seat seatEntity = seatRepository.findByScreeningTimeAndSeatNumber(timeId, seatNumber).orElse(null);
+                if (seatEntity != null) {
+                    seats.add(seatEntity);
+                } else {
+                    System.out.println("Seat with number " + seatNumber + " not found.");
                 }
-            } else {
-                System.out.println("seatId가 null이거나 빈 문자열입니다.");
             }
         }
+
+        System.out.println("amount: " + amount);
+        System.out.println("orderId: " + orderId);
+        System.out.println("paymentMethod: " + paymentMethod);
+        System.out.println("timeId: " + timeId);
+        System.out.println("userNum: " + userNum);
+        System.out.println("screeningDate: " + screeningDate);
+        System.out.println("screeningTime: " + screeningTime);
+        System.out.println("seatNumbers: " + seatNumbers);
+
+        // 결제 정보를 데이터베이스에 저장
+        Payment payment = new Payment();
+        payment.setPaymentMethod(paymentMethod);
+        payment.setAmount(amount);
+        payment.setStatus("PENDING");
+        payment.setPaymentDate(LocalDateTime.now());
+        payment.setOrderId(orderId);
+
+        // User 설정
+        UserEntity user = userRepository.findById(userNum).orElse(null);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "User not found"));
+        }
+        payment.setUser(user);
+
+        // ScreeningTime을 통해 ScreeningSchedule 조회
+        ScreeningTime screeningTimeEntity = screeningTimeRepository.findById(timeId).orElse(null);
+        if (screeningTimeEntity == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Screening time not found"));
+        }
+        payment.setScreeningTime(screeningTimeEntity);
+
+        // ScreeningSchedule 설정 및 관련 정보 추출
+        ScreeningSchedule screeningSchedule = screeningTimeEntity.getScreeningSchedule();
+        if (screeningSchedule == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Screening schedule not found"));
+        }
+        payment.setScreeningSchedule(screeningSchedule);
+        Long movieId = screeningSchedule.getMovie().getId();
+        int theaterId = screeningSchedule.getTheater().getTheaterId();
+
+        // 좌석 리스트 설정
+        payment.setSeats(seats);
+
+        // Payment 저장
+        payment = paymentRepository.save(payment);
+
+        // 성공 및 실패 URL 설정
+        String completeUrl = "http://localhost:8080/api/v1/payments/toss/complete";
+        String failUrl = "http://localhost:8080/api/v1/payments/toss/fail";
+
+        // 응답 데이터
+        response.put("paymentMethod", paymentMethod);
+        response.put("amount", amount);
+        response.put("orderId", orderId);
+        response.put("orderName", orderName);
+        response.put("successUrl", completeUrl);
+        response.put("failUrl", failUrl);
+        response.put("paymentId", payment.getPaymentId());
+        response.put("userNum", userNum);
+        response.put("movieId", movieId);
+        response.put("theaterId", theaterId);
+        response.put("screeningDate", screeningDate);
+        response.put("screeningTime", screeningTime);
+        response.put("seatNumbers", seatNumbers);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
-    System.out.println("amount: " + amount);
-    System.out.println("orderId: " + orderId);
-    System.out.println("orderName: " + orderName);
-    System.out.println("paymentMethod: " + paymentMethod);
-    System.out.println("movieId: " + movieId);
-    System.out.println("theaterId: " + theaterId);
-    System.out.println("timeId: " + timeId);
-    System.out.println("userNum: " + userNum);
-    System.out.println("screeningDate: " + screeningDate);
-    System.out.println("screeningTime: " + screeningTime);
-    System.out.println("seatIds: " + seatIds);
-
-    System.out.println("Received screeningScheduleId: " + screeningScheduleId);
-
-    // 결제 정보를 데이터베이스에 저장
-    Payment payment = new Payment();
-    payment.setPaymentMethod(paymentMethod);
-    payment.setAmount(amount);
-    payment.setStatus("PENDING");
-    payment.setPaymentDate(LocalDateTime.now());
-    payment.setOrderId(orderId);
-
-    // UserEntity 설정
-    UserEntity user = userRepository.findById(userNum).orElse(null);
-    if (user == null) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "User not found"));
-    }
-    payment.setUser(user);
-
-    // ScreeningSchedule 설정
-    ScreeningSchedule screeningSchedule = screeningScheduleRepository.findById(screeningScheduleId).orElse(null);
-    if (screeningSchedule == null) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Screening schedule not found"));
-    }
-    payment.setScreeningSchedule(screeningSchedule);
-
-    System.out.println("Set ScreeningSchedule with ID: " + screeningSchedule.getScheduleId());
-
-    // ScreeningTime 설정
-    ScreeningTime screeningTimeEntity = screeningTimeRepository.findById(timeId).orElse(null);
-    if (screeningTimeEntity == null) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Screening time not found"));
-    }
-    payment.setScreeningTime(screeningTimeEntity);
-
-    // 좌석 리스트 설정
-    payment.setSeats(seats);
-
-    // Payment 저장
-    payment = paymentRepository.save(payment);
-
-    // 성공 및 실패 URL 설정
-    String completeUrl = "http://localhost:8080/api/v1/payments/toss/complete";
-    String failUrl = "http://localhost:8080/api/v1/payments/toss/fail";
-
-    // 응답 데이터
-    response.put("paymentMethod", paymentMethod);
-    response.put("amount", amount);
-    response.put("orderId", orderId);
-    response.put("orderName", orderName);
-    response.put("successUrl", completeUrl);
-    response.put("failUrl", failUrl);
-    response.put("paymentId", payment.getPaymentId());
-    response.put("userNum", userNum);
-    response.put("movieId", movieId);
-    response.put("theaterId", theaterId);
-    response.put("screeningDate", screeningDate);
-    response.put("screeningTime", screeningTime);
-    response.put("seatIds", seatIds);
-    response.put("screeningScheduleId", screeningScheduleId);
-
-    return new ResponseEntity<>(response, HttpStatus.OK);
-}
 
 
     @GetMapping("/toss/complete")
-    public ResponseEntity<String> completePaymentGet(@RequestParam Map<String, String> requestParams) {
+    public ResponseEntity<PaymentResponseDTO> completePaymentGet(@RequestParam Map<String, String> requestParams) {
         System.out.println("Received request parameters: " + requestParams);
 
         String paymentKey = requestParams.get("paymentKey");
@@ -221,91 +262,74 @@ public ResponseEntity<Map<String, Object>> createPayment(@RequestBody PaymentReq
         String amountStr = requestParams.get("amount");
 
         if (paymentKey == null || orderId == null || amountStr == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Required parameters are missing");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
 
         int amount;
         try {
             amount = Integer.parseInt(amountStr);
         } catch (NumberFormatException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Amount is not a valid integer");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
 
-        // 결제 검증 호출
         boolean isPaymentSuccessful = paymentService.verifyPayment(paymentKey, orderId, amount);
 
         if (isPaymentSuccessful) {
             Payment payment = paymentService.findPaymentByOrderId(orderId);
 
             if (payment == null) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Payment not found.");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
             }
 
-            // 결제 성공 시 paymentKey와 상태를 업데이트하고 저장
             payment.setPaymentKey(paymentKey);
             payment.setStatus("SUCCESS");
-            paymentRepository.save(payment);  // paymentRepository.save(payment); 호출로 데이터베이스에 저장
+            paymentRepository.save(payment);
 
-            // 결제 성공 시 예약된 좌석 상태를 is_reserved = true로 변경
             List<Seat> seats = payment.getSeats();
-            for (Seat seat : seats) {
-                seat.setReserved(true);  // 좌석 예약 상태 업데이트
-            }
-            seatRepository.saveAll(seats);  // 좌석 정보 업데이트
+            seats.forEach(seat -> seat.setReserved(true));
+            seatRepository.saveAll(seats);
 
-            return ResponseEntity.status(HttpStatus.FOUND)
-                    .header("Location", "/api/v1/payments/toss/success?paymentId=" + payment.getPaymentId() + "&orderId=" + orderId)
-                    .build();
+            paymentService.updateReservedSeats(payment.getScreeningTime().getTimeId());
+
+            // PaymentResponseDTO로 응답 데이터 구성
+            PaymentResponseDTO responseDTO = new PaymentResponseDTO();
+            responseDTO.setPaymentId(payment.getPaymentId());
+            responseDTO.setStatus(payment.getStatus());
+            responseDTO.setMessage("결제가 성공적으로 완료되었습니다!");
+            responseDTO.setAmount(payment.getAmount());
+            responseDTO.setOrderId(payment.getOrderId());
+            responseDTO.setOrderName(payment.getOrderName());
+            responseDTO.setPaymentDate(payment.getPaymentDate());
+            responseDTO.setPaymentKey(payment.getPaymentKey());
+
+            if (payment.getScreeningSchedule() != null) {
+                responseDTO.setMovieId(payment.getScreeningSchedule().getMovie().getId());
+                responseDTO.setTheaterName(payment.getScreeningSchedule().getTheater().getTheaterName()); // 극장 이름 설정
+                responseDTO.setScreeningDate(payment.getScreeningSchedule().getScreeningDate());
+            }
+
+            if (payment.getUser() != null) {
+                responseDTO.setUserNum(payment.getUser().getUserNum());
+            }
+
+            if (payment.getScreeningTime() != null) {
+                responseDTO.setTimeId(payment.getScreeningTime().getTimeId());
+                responseDTO.setScreeningTime(payment.getScreeningTime().getScreeningTime());
+            }
+
+            List<SeatDTO> seatDTOs = payment.getSeats().stream()
+                    .map(seat -> new SeatDTO(seat.getSeatId(), seat.getSeatNumber(), seat.getScreeningTime().getTimeId(), seat.isReserved()))
+                    .collect(Collectors.toList());
+            responseDTO.setSeats(seatDTOs);
+
+            return ResponseEntity.ok(responseDTO);
         } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Payment verification failed.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
 
-////잠시
-////    @GetMapping("/toss/complete")
-////    public ResponseEntity<String> completePaymentGet(@RequestParam Map<String, String> requestParams) {
-////        String paymentKey = requestParams.get("paymentKey");
-////        String orderId = requestParams.get("orderId");
-////        int amount = Integer.parseInt(requestParams.get("amount"));
-////
-////        // 결제 검증 호출
-////        boolean isPaymentSuccessful = paymentService.verifyPayment(paymentKey, orderId, amount);
-////
-////        if (isPaymentSuccessful) {
-////            Payment payment = paymentService.findPaymentByOrderId(orderId);
-////
-////            if (payment == null) {
-////                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Payment not found.");
-////            }
-////
-////            paymentService.updatePaymentStatus(orderId, "SUCCESS");
-////            return ResponseEntity.status(HttpStatus.FOUND)
-////                    .header("Location", "/api/v1/payments/toss/success?paymentId=" + payment.getPaymentId() + "&orderId=" + orderId)
-////                    .build();
-////        } else {
-////            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Payment verification failed.");
-////        }
-////    }
 
-    // 결제 성공 페이지
-//    @GetMapping("/toss/success")
-//    public String paymentSuccess(@RequestParam Long paymentId, Model model) {
-//        Payment payment = paymentRepository.findByPaymentId(paymentId);
-//        if (payment != null) {
-//            PaymentResponseDTO responseDTO = new PaymentResponseDTO();
-//            responseDTO.setPaymentId(payment.getPaymentId());
-//            responseDTO.setStatus(payment.getStatus());
-//            responseDTO.setMessage("결제가 성공적으로 완료되었습니다!");
-//            responseDTO.setAmount(payment.getAmount());
-//            responseDTO.setOrderId(payment.getOrderId());
-//            responseDTO.setPaymentDate(payment.getPaymentDate());
-//
-//            model.addAttribute("paymentResponse", responseDTO);
-//        } else {
-//            model.addAttribute("error", "결제 정보를 찾을 수 없습니다.");
-//        }
-//        return "success"; // success.html로 리턴
-//    }
+
 
     @GetMapping("/toss/success")
     public ResponseEntity<?> paymentSuccess(@RequestParam Long paymentId) {
@@ -333,7 +357,7 @@ public ResponseEntity<Map<String, Object>> createPayment(@RequestBody PaymentReq
             // ScreeningSchedule 정보 설정
             if (payment.getScreeningSchedule() != null) {
                 responseDTO.setMovieId(payment.getScreeningSchedule().getMovie().getId());
-                responseDTO.setTheaterId(payment.getScreeningSchedule().getTheater().getTheaterId());
+                responseDTO.setTheaterName(payment.getScreeningSchedule().getTheater().getTheaterName());
                 responseDTO.setScreeningDate(payment.getScreeningSchedule().getScreeningDate());
             }
 
@@ -376,20 +400,55 @@ public ResponseEntity<Map<String, Object>> createPayment(@RequestBody PaymentReq
 
 
 
-    @PostMapping("/toss/cancel")
-    @ResponseBody
-    public ResponseEntity<String> cancelPayment(@RequestParam String paymentKey,
-                                                @RequestParam String cancelReason) {
-        boolean isCancelled = paymentService.cancelPayment(paymentKey, cancelReason);
+//    @PostMapping("/toss/cancel")
+//    @ResponseBody
+//    public ResponseEntity<String> cancelPayment(@RequestParam String paymentKey,
+//                                                @RequestParam String cancelReason) {
+//        boolean isCancelled = paymentService.cancelPayment(paymentKey, cancelReason);
+//
+//        if (isCancelled) {
+//            // 결제 취소 성공 시 상태를 "CANCEL"로 업데이트
+//            paymentService.updatePaymentStatusByPaymentKey(paymentKey, "CANCEL");
+//            return ResponseEntity.ok("Payment cancelled successfully.");
+//        } else {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to cancel payment.");
+//        }
+//    }
 
+    @PostMapping("/toss/cancel")
+    public ResponseEntity<String> cancelPayment(@RequestParam String paymentKey, @RequestParam String cancelReason) {
+        // 결제 정보 조회
+        Optional<Payment> optionalPayment = paymentRepository.findByPaymentKey(paymentKey);
+        if (optionalPayment.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Payment not found.");
+        }
+
+        Payment payment = optionalPayment.get();
+
+        // 결제 취소 처리
+        boolean isCancelled = paymentService.cancelPayment(paymentKey, cancelReason);
         if (isCancelled) {
-            // 결제 취소 성공 시 상태를 "CANCEL"로 업데이트
-            paymentService.updatePaymentStatusByPaymentKey(paymentKey, "CANCEL");
-            return ResponseEntity.ok("Payment cancelled successfully.");
+            // 결제 취소 성공 시 payment 상태를 "CANCEL"로 업데이트하고 저장
+            payment.setStatus("CANCEL");
+            paymentRepository.save(payment);
+
+            // 좌석 예약 상태 초기화
+            List<Seat> seats = payment.getSeats();
+            for (Seat seat : seats) {
+                seat.setReserved(false);  // 좌석 예약 취소
+            }
+            seatRepository.saveAll(seats);  // 좌석 정보 업데이트
+
+            // ScreeningTime 테이블의 reserved_seats 감소
+            paymentService.updateReservedSeats(payment.getScreeningTime().getTimeId());
+
+            return ResponseEntity.ok("Payment and reservation cancelled successfully.");
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to cancel payment.");
         }
     }
+
+
 
     //예약 좌석 조회
     @GetMapping("/{paymentId}/seats")
@@ -423,6 +482,39 @@ public ResponseEntity<Map<String, Object>> createPayment(@RequestBody PaymentReq
         return ResponseEntity.ok(reservedSeats);
     }
 
+
+    @GetMapping("/payment/{id}")
+    public ResponseEntity<PaymentResponseDTO> getPaymentDetails(@PathVariable Long id) {
+        Payment payment = paymentRepository.findById(id).orElse(null);
+        if (payment == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+
+        PaymentResponseDTO responseDTO = new PaymentResponseDTO();
+        responseDTO.setPaymentId(payment.getPaymentId());
+        responseDTO.setStatus(payment.getStatus());
+        responseDTO.setAmount(payment.getAmount());
+        responseDTO.setOrderId(payment.getOrderId());
+        responseDTO.setPaymentDate(payment.getPaymentDate());
+
+        // 영화, 상영관, 사용자 정보 등 추가 설정
+        if (payment.getScreeningSchedule() != null) {
+            responseDTO.setMovieId(payment.getScreeningSchedule().getMovie().getId());  // movieId 설정
+        }
+        responseDTO.setTheaterName(payment.getScreeningSchedule().getTheater().getTheaterName());
+        responseDTO.setUserNum(payment.getUser() != null ? payment.getUser().getUserNum() : null);  // userNum 설정
+        responseDTO.setScreeningDate(payment.getScreeningTime().getScreeningSchedule().getScreeningDate());
+        responseDTO.setScreeningTime(payment.getScreeningTime().getScreeningTime());
+        responseDTO.setTimeId(payment.getScreeningTime().getTimeId());
+
+        // 좌석 정보 변환 및 설정
+        List<SeatDTO> seatDTOs = payment.getSeats().stream()
+                .map(SeatDTO::new)
+                .collect(Collectors.toList());
+        responseDTO.setSeats(seatDTOs);
+
+        return ResponseEntity.ok(responseDTO);
+    }
 
 
 }
