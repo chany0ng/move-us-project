@@ -139,4 +139,22 @@ public class MovieController {
         }
     }
 
+    // 리뷰 개수를 기준으로 정렬된 영화 목록 가져오기
+    @GetMapping("/sortedByReviews")
+    public ResponseEntity<List<Map<String, Object>>> getMoviesSortedByReviews() {
+        try {
+            System.out.println("Controller method invoked");
+            // 서비스에서 정렬된 영화 목록 가져오기
+            List<Map<String, Object>> apiMovies = movieService.getAllPopularMovies();
+            List<Map<String, Object>> sortedMovies = movieService.getMoviesSortedByReviewCount(apiMovies);
+
+            // 결과 반환
+            return new ResponseEntity<>(sortedMovies, HttpStatus.OK);
+
+        } catch (Exception e) {
+            // 예외 처리
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }
