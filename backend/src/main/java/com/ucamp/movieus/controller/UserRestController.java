@@ -252,4 +252,24 @@ public class UserRestController {
             return ResponseEntity.ok(updatedUser);
         }
 
+    //userNum 반환 url
+    @GetMapping("/getUserNum")
+    public ResponseEntity<Map<String, Object>> getUserNum(@RequestParam String userName) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            Integer userNum = userService.getUserNumByUsername(userName);
+            if (userNum != null) {
+                response.put("userNum", userNum);
+                return ResponseEntity.ok(response);
+            } else {
+                response.put("message", "User not found");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
+        } catch (Exception e) {
+            response.put("message", "Error retrieving user number");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
 }
