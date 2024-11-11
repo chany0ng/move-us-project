@@ -337,6 +337,7 @@ public class MovieService {
 
         // 검색어에서 공백 제거
         String cleanedSearchQuery = searchQuery.replaceAll("\\s+", "").toLowerCase(); // 공백 제거 후 소문자 처리
+        List<Map<String, Object>> filteredMovies = new ArrayList<>();
 
         // 이름으로 검색 (대소문자 구분 없이)
         for (Map<String, Object> movie : allMovies) {
