@@ -20,13 +20,22 @@ import java.util.List;
 public class ScreeningController {
     private final ScreeningService screeningService;
 
-    @GetMapping("/times")
-    public ResponseEntity<List<ScreeningTimeDTO>> getScreeningTimes(
-            @RequestParam Long movieId,
-            @RequestParam int theaterId,
-            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate screeningDate) {
+//    @GetMapping("/times")
+//    public ResponseEntity<List<ScreeningTimeDTO>> getScreeningTimes(
+//            @RequestParam Long movieId,
+//            @RequestParam int theaterId,
+//            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate screeningDate) {
+//
+//        List<ScreeningTimeDTO> times = screeningService.getScreeningTimes(movieId,theaterId,screeningDate);
+//        return ResponseEntity.ok(times);
+//    }
+@GetMapping("/times")
+public ResponseEntity<List<ScreeningTimeDTO>> getScreeningTimes(
+        @RequestParam Long movieId,
+        @RequestParam String theaterName,
+        @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate screeningDate) {
 
-        List<ScreeningTimeDTO> times = screeningService.getScreeningTimes(movieId,theaterId,screeningDate);
-        return ResponseEntity.ok(times);
-    }
+    List<ScreeningTimeDTO> times = screeningService.getScreeningTimes(movieId, theaterName, screeningDate);
+    return ResponseEntity.ok(times);
+}
 }
