@@ -16,7 +16,7 @@ import {
 } from "@chakra-ui/react";  // UI 컴포넌트 라이브러리
 import { AiFillHeart} from "react-icons/ai";  // 하트 아이콘
 
-// API 및 에셋 임포트
+// API 및 에셋 임포트.
 import { getData, postData, deleteData } from "../../api/axios";  // API 호출 함수
 import netflixLogo from '../../assets/images/ott/Netflix.png';
 import tvingLogo from '../../assets/images/ott/Tving.png';
