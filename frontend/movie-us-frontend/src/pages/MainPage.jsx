@@ -93,8 +93,9 @@ const MainPage = () => {
   const fetchLikedMovies = async () => {
     try {
       setIsLikedMoviesLoading(true);
-      const response = await getData("/movies/moviesList");
-      setLikedMovies(response.data);
+      const response = await getData(`/api/favorites/${user.user_num}`);
+      console.log(response.data);
+      setLikedMovies(normalizeMovieData(response.data));
     } catch (error) {
       toast({
         title: "좋아요 누른 영화 조회 Error",
@@ -112,7 +113,7 @@ const MainPage = () => {
   const normalizeMovieData = (movie) => {
     return {
       id: movie.tmdbId,
-      indexId: movie.id,
+      indexId: movie.id ?? null,
       title: movie.title,
       poster_path: movie.posterPath,
       exists_in_db: movie.exists_in_db ?? true,
@@ -136,18 +137,19 @@ const MainPage = () => {
       </Box>
 
       {user.user_name && isLikedMoviesLoading ? (
+        <MovieGrid title={`${user.user_name}님의 관심 목록`} isLoading={true} />
+      ) : likedMovies.length > 0 ? (
         <MovieGrid
-          title={`${user.user_name}님이 좋아요 누른 영화`}
-          isLoading={true}
+          title={`${user.user_name}님의 관심 목록`}
+          movies={likedMovies}
+          isLoading={false}
         />
       ) : (
-        likedMovies.length > 0 && (
-          <MovieGrid
-            title={`${user.user_name}님이 좋아요 누른 영화`}
-            movies={likedMovies}
-            isLoading={false}
-          />
-        )
+        <MovieGrid
+          title={`${user.user_name}님의 관심 목록`}
+          isLoading={false}
+          likedMovies={true}
+        />
       )}
 
       {isMoviesLoading ? (
