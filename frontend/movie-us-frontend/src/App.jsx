@@ -19,6 +19,7 @@ import MovieTicketing from "./pages/ticketing/MovieTicketing";
 import SeatSelection from "./pages/ticketing/SeatSelection";
 import ProtectedRoute from "./ProtectedRoute";
 function App() {
+  
   return (
     <>
       <GlobalStyle />

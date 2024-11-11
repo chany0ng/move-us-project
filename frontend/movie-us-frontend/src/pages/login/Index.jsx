@@ -19,7 +19,7 @@ import { ChevronRightIcon, CheckIcon, EmailIcon } from "@chakra-ui/icons";
 import { Link as RouterLink } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getData, postData } from "../../api/axios";
+import { getData, getUserNum, postData } from "../../api/axios";
 import { userStore } from "../../../store";
 import { jwtDecode } from "jwt-decode";
 
@@ -41,10 +41,27 @@ const Index = () => {
     if (token) {
       localStorage.setItem("accessToken", token);
       const decodedToken = jwtDecode(token);
-      userStore.getState().setUser({ user_name: decodedToken.name }); // 사용자 정보 저장
+      const userName = decodedToken.name;
+      userStore.getState().setUser({ user_name: userName });
+      getUserNumWhenKaKaoLogin(userName);
       navigate("/main");
     }
   }, [navigate]);
+  const getUserNumWhenKaKaoLogin = async (userName) => {
+    try {
+      const response = await getUserNum("/api/movies/getUserNum", userName);
+      userStore.getState().setUser({ user_num: response.data.userNum });
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: "카카오 로그인 User Num받기 에러",
+        status: "error",
+        duration: 2000,
+        isClosable: true,
+        position: "top",
+      });
+    }
+  };
   const passwordChangeHandler = (e) => {
     setPassword(e.target.value);
     if (e.target.value?.length < 8) {
@@ -189,7 +206,6 @@ const Index = () => {
             <div></div>
           ) : (
             <Box flex="3.5" bg="rgba(24, 24, 27, 0.8)" h="100vh">
-              (
               <Flex
                 direction="column"
                 align="flex-start"
