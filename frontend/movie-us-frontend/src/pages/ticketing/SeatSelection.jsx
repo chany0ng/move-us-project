@@ -25,6 +25,8 @@ const SeatSelection = () => {
   const { user } = userStore();
   const navigate = useNavigate();
   const location = useLocation();
+  const { seatsData } = location.state || {};
+  console.log(seatsData);
   const toast = useToast();
   const searchParams = new URLSearchParams(location.search);
   const [tossPayments, setTossPayments] = useState(null);
@@ -49,6 +51,7 @@ const SeatSelection = () => {
   // 좌석 선택 관련 State
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [selectedPeople, setSelectedPeople] = useState(1);
+
   // 인원수 선택 함수
   const handlePeopleSelect = (count) => {
     setSelectedPeople(count);
@@ -260,14 +263,21 @@ const SeatSelection = () => {
                 mx="auto"
                 mt="2"
               >
-                {(row <= "J" ? SEAT_COLUMNS : EXTENDED_COLUMNS).map((col) => (
-                  <Seat
-                    key={`${row}${col}`}
-                    seatId={`${row}${col}`}
-                    isSelected={selectedSeats.includes(`${row}${col}`)}
-                    onSeatClick={handleSeatClick}
-                  />
-                ))}
+                {(row <= "J" ? SEAT_COLUMNS : EXTENDED_COLUMNS).map((col) => {
+                  const seatId = `${row}${col}`;
+                  const isReserved = seatsData.some(
+                    (seat) => seat.seatNumber === seatId
+                  );
+                  return (
+                    <Seat
+                      key={seatId}
+                      seatId={seatId}
+                      isSelected={selectedSeats.includes(seatId)}
+                      onSeatClick={handleSeatClick}
+                      isDisabled={isReserved} // 이미 예매된 좌석은 비활성화
+                    />
+                  );
+                })}
               </Grid>
             ))}
           </Box>

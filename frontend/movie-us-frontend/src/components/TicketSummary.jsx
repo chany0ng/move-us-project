@@ -25,11 +25,29 @@ const TicketSummary = ({
   const [title, setTitle] = useState("");
   const [posterPath, setPosterPath] = useState("");
   const [releaseDate, setReleaseDate] = useState("");
-
-  const handleGoToSeatSelection = () => {
+  const handleGoToSeatSelection = async () => {
+    const seatsData = await getReservedSeats();
     navigate(
-      `/ticketing/seat-selection?movie=${selectedMovie}&tmdb=${selectedMovieTmdbId}&poster=${posterPath}&title=${title}&theater=${selectedTheater}&date=${selectedDate}&time=${selectedTime}&session=${selectedSession}&seats=${availableSeats}`
+      `/ticketing/seat-selection?movie=${selectedMovie}&tmdb=${selectedMovieTmdbId}&poster=${posterPath}&title=${title}&theater=${selectedTheater}&date=${selectedDate}&time=${selectedTime}&session=${selectedSession}&seats=${availableSeats}`,
+      { state: { seatsData: seatsData } }
     );
+  };
+  const getReservedSeats = async () => {
+    try {
+      const response = await getData(
+        `/api/v1/payments/time/${selectedTime}/seats`
+      );
+      return response.data;
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: "예매된 좌석 조회 에러",
+        status: "error",
+        duration: 2000,
+        isClosable: true,
+        position: "top",
+      });
+    }
   };
   const requireLoginHandler = () => {
     toast({
@@ -42,7 +60,6 @@ const TicketSummary = ({
     });
   };
   const isLogin = () => {
-    console.log(user.user_email);
     if (user.user_email) return true;
     return false;
   };
@@ -76,7 +93,6 @@ const TicketSummary = ({
   };
 
   const payHandler = () => {
-    alert("결제요청!");
     handlePayment();
   };
   return (
