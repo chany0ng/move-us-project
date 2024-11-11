@@ -1,13 +1,21 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vite + React</title>
+
+    <!-- TossPayments 스크립트 추가 -->
+    <!-- <script src="https://js.tosspayments.com/v2"></script>-->
+    <script src="https://js.tosspayments.com/v1/payment"></script>
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+    <script type="module" src="/src/main.jsx">
+      var clientKey = "test_ck_P9BRQmyarYylegdO2gMarJ07KzLN"; // 테스트용 클라이언트 키
+      // 2. 결제창 SDK 초기화
+      var tossPayments = TossPayments(clientKey);
+    </script>
   </body>
 </html>

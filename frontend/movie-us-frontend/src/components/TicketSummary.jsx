@@ -8,6 +8,7 @@ import { userStore } from "../../store";
 const SEAT_PRICE = 10000;
 
 const TicketSummary = ({
+  selectedMovie,
   selectedMovieTmdbId,
   selectedSession,
   selectedTheater,
@@ -27,7 +28,7 @@ const TicketSummary = ({
 
   const handleGoToSeatSelection = () => {
     navigate(
-      `/ticketing/seat-selection?movie=${selectedMovieTmdbId}&poster=${posterPath}&title=${title}&theater=${selectedTheater}&date=${selectedDate}&time=${selectedSession}&seats=${availableSeats}`
+      `/ticketing/seat-selection?movie=${selectedMovie}&tmdb=${selectedMovieTmdbId}&poster=${posterPath}&title=${title}&theater=${selectedTheater}&date=${selectedDate}&time=${selectedTime}&session=${selectedSession}&seats=${availableSeats}`
     );
   };
   const requireLoginHandler = () => {

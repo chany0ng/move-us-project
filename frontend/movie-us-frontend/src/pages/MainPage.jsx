@@ -1,7 +1,6 @@
 import { Box, Flex, useToast } from "@chakra-ui/react";
 import Carousel from "../components/Carousel";
 import MovieGrid from "../components/MovieGrid";
-import SearchBar from "../components/SearchBar";
 import { useEffect, useState } from "react";
 import { getData } from "../api/axios";
 import { wideMovies } from "../assets/contents/movieData";
