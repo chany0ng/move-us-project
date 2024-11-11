@@ -24,4 +24,10 @@ public class SeatDTO {
         this.price = seat.getPrice();
     }
 
+    public SeatDTO(int seatId, String seatNumber, Long timeId, boolean reserved) {
+        this.seatId = seatId;
+        this.seatNumber = seatNumber;
+        this.timeId = timeId;
+        this.isReserved = reserved;
+    }
 }
