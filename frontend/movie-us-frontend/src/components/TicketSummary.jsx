@@ -117,7 +117,7 @@ const TicketSummary = ({
           </Text>
           <Text>극장: {selectedTheater}</Text>
           <Text>
-            일시: {selectedDate} {selectedTime}
+            일시: {selectedDate} {selectedSession}
           </Text>
         </Box>
 

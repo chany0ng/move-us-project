@@ -95,7 +95,16 @@ const MainPage = () => {
       setIsLikedMoviesLoading(true);
       const response = await getData(`/api/favorites/${user.user_num}`);
       console.log(response.data);
-      setLikedMovies(normalizeMovieData(response.data));
+      const formatData = response.data.map((movie) => {
+        return {
+          id: movie.tmdbId,
+          indexId: movie.id ?? null,
+          title: movie.title,
+          poster_path: movie.posterPath,
+          exists_in_db: movie.exists_in_db ?? true,
+        };
+      });
+      setLikedMovies(formatData);
     } catch (error) {
       toast({
         title: "좋아요 누른 영화 조회 Error",
@@ -131,7 +140,7 @@ const MainPage = () => {
 
   return (
     <Flex direction={"column"}>
-      <SearchBar />
+      {/* <SearchBar /> */}
       <Box pb={20}>
         <Carousel movies={wideMovies} />
       </Box>
