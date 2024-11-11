@@ -22,9 +22,8 @@ import netflixLogo from '../../assets/images/ott/Netflix.png';
 import tvingLogo from '../../assets/images/ott/Tving.png';
 import ReviewModal from "../../components/ReviewModal";  // 리뷰 작성 모달 컴포넌트
 import ReviewList from "../../components/ReviewList.jsx";  // 리뷰 목록 컴포넌트
+import { userStore } from "../../../store.js";
 
-// 상단에 userStore import 추가
-import { userStore } from "../../../store";  // 상대 경로 사용
 
 const MovieDetail = () => {
   // URL에서 영화 ID 파라미터 추출
@@ -45,8 +44,8 @@ const MovieDetail = () => {
   const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w185";
 
   // userStore를 직접 사용
-  const { user } = userStore;
-  const userNum = user?.user_num;
+  const { user, getState } = userStore;
+  const userNum = getState().user.user_num;
 
   // 모든 영화 관련 데이터 가져오기
   useEffect(() => {

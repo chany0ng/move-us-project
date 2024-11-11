@@ -68,12 +68,6 @@ public class MovieController {
         return ResponseEntity.ok(moviesWithDbInfo);
     }
 
-    // TMDB API의 인기 영화 목록에 DB 존재 여부 표시 page1~page5
-    @GetMapping("/allPopularMovies")
-    public ResponseEntity<List<Map<String, Object>>> getAllPopularMovies() {
-        List<Map<String, Object>> moviesWithDbInfo = movieService.getAllPopularMovies();
-        return ResponseEntity.ok(moviesWithDbInfo);
-    }
 
     // TMDB API의 영화 상세 페이지 (TMDB API - TMDB id)
     @GetMapping("/{id}/getMovieDetail")
