@@ -25,6 +25,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -54,17 +55,31 @@ public class MovieService {
         List<Movie> movies = fetchMoviesFromApi();
         List<Movie> existingMovies = movieRepository.findAll();
 
-        // 기존 영화들을 TMDB ID 기준으로 Map으로 변환
         Map<Long, Movie> existingMovieMap = existingMovies.stream()
                 .collect(Collectors.toMap(Movie::getTmdbId, Function.identity()));
 
+        Set<Long> currentTmdbIds = new HashSet<>();
+
+        // 랭킹 설정
+        int rank = 1; // 랭킹은 1부터 시작
+
         for (Movie movie : movies) {
+            currentTmdbIds.add(movie.getTmdbId());
+            movie.setRanking(rank++); // 랭킹 설정
+
             if (existingMovieMap.containsKey(movie.getTmdbId())) {
-                updateMovie(existingMovieMap.get(movie.getTmdbId()), movie); // 기존 영화 업데이트
+                Movie existingMovie = existingMovieMap.get(movie.getTmdbId());
+                updateMovie(existingMovie, movie);
             } else {
-                movieRepository.save(movie); // 새 영화 저장
+                movieRepository.save(movie);
             }
         }
+
+        // 상영 종료된 영화 처리 (예: 상태 변경 또는 삭제)
+        List<Movie> moviesToDelete = existingMovies.stream()
+                .filter(movie -> !currentTmdbIds.contains(movie.getTmdbId()))
+                .collect(Collectors.toList());
+        movieRepository.deleteAll(moviesToDelete);
     }
 
     private List<Movie> fetchMoviesFromApi() {
@@ -172,7 +187,7 @@ public class MovieService {
 
                 // exists_in_db 필드 추가
                 movie.put("exists_in_db", existsInDb);
-                if(!existsInDb){
+                if (!existsInDb) {
                     moviesWithDbInfo.add(movie);
                 }
             }
@@ -290,4 +305,30 @@ public class MovieService {
         dto.setPosterPath(boxOffice.getPosterPath()); // 포스터 경로 설정
         return dto;
     }
+    public List<Map<String, Object>> searchMoviesByTitle(String searchQuery) {
+        System.out.println("Search query: " + searchQuery); // 여기서 쿼리값 확인
+        List<Map<String, Object>> allMovies = getAllPopularMovies();
+        List<Map<String, Object>> filteredMovies = new ArrayList<>();
+
+        // 검색어에서 공백 제거
+        String cleanedSearchQuery = searchQuery.replaceAll("\\s+", "").toLowerCase(); // 공백 제거 후 소문자 처리
+
+        // 이름으로 검색 (대소문자 구분 없이)
+        for (Map<String, Object> movie : allMovies) {
+            String title = (String) movie.get("title");
+            String originalTitle = (String) movie.get("original_title");
+
+            // 각 영화 제목과 original_title 확인
+            System.out.println("Checking movie: " + title + " / " + originalTitle);
+
+            // title 또는 original_title에서 공백을 제거한 후 검색어와 비교
+            if ((title != null && title.replaceAll("\\s+", "").toLowerCase().contains(cleanedSearchQuery)) ||
+                    (originalTitle != null && originalTitle.replaceAll("\\s+", "").toLowerCase().contains(cleanedSearchQuery))) {
+                filteredMovies.add(movie);
+            }
+        }
+
+        return filteredMovies;
+    }
+
 }

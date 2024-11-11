@@ -1,6 +1,6 @@
 // 필요한 라이브러리 및 컴포넌트 임포트
-import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";  // URL 파라미터를 가져오기 위한 hook
+import { useState, useEffect, useCallback } from "react";
+import { useParams, Link } from "react-router-dom";  // URL 파라미터를 가져오기 위한 hook
 import {
   Box,
   Container,
@@ -35,6 +35,8 @@ const MovieDetail = () => {
   const [runtime, setRuntime] = useState(null);  // runtime 상태 
   const [movieReviews, setMovieReviews] = useState([]); // 영화 리뷰 상태
   const [favoriteId, setFavoriteId] = useState(null);  // favorite pk값 저장을 위한 state 추가
+  const [exists_in_db, setExistsInDb] = useState(false); // 상영 여부 상태 추가
+  const [selectedReview, setSelectedReview] = useState(null); // 수정할 리뷰 상태 추가
 
   // TMDB 이미지 기본 URL (프로필 이미지용)
   const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w185";
@@ -44,102 +46,137 @@ const MovieDetail = () => {
   // 모든 영화 관련 데이터 가져오기
   useEffect(() => {
     const fetchMovieData = async () => {
-      if (!tmdbId) return;
-
       try {
-        const [
-          movieResponse,
-          creditsResponse,
-          runtimeResponse,
-          reviewsResponse,
-          favoritesResponse
-        ] = await Promise.all([
-          getData(`/movies/${tmdbId}`),
-          getData(`/movies/${tmdbId}/credits`),
-          getData(`/movies/${tmdbId}/runtime`),
-          getData(`/api/review/movieReview/${tmdbId}`),
-          getData(`/api/favorites`)
+        // 각 API 호출을 개별적으로 처리
+        const favoritesResponse = await getData('/api/favorites');
+        const favoritesData = Array.isArray(favoritesResponse?.data) 
+          ? favoritesResponse.data 
+          : [];
+        
+        // favoriteId와 isWishlist 설정
+        const favoriteItem = favoritesData.find(
+          item => item.tmdbId === Number(tmdbId)
+        );
+        
+        if (favoriteItem) {
+          setFavoriteId(favoriteItem.favoriteId);
+          setIsWishlist(true);
+        } else {
+          setFavoriteId(null);
+          setIsWishlist(false);
+        }
+
+        // 나머지 데이터 가져오기f
+        const moviesListResponse = await getData('/movies/moviesList');
+        const isInDb = moviesListResponse?.data?.some(
+          movie => movie.tmdbId === parseInt(tmdbId)
+        );
+        setExistsInDb(isInDb);
+
+        // 영화 데이터 가져오기
+        const movieResponse = await getData(
+          isInDb ? `/movies/${tmdbId}` : `/movies/${tmdbId}/getMovieDetail`
+        );
+        
+        const movieData = isInDb ? movieResponse.data : {
+          tmdbId: parseInt(tmdbId),
+          title: movieResponse.data.title,
+          posterPath: movieResponse.data.poster_path,
+          overview: movieResponse.data.overview,
+          releaseDate: movieResponse.data.release_date,
+        };
+        
+        setMovie(movieData);
+
+        // 나머지 데이터 병렬로 가져오기
+        const [creditsResponse, runtimeResponse, reviewsResponse] = await Promise.all([
+          getData(`/movies/${tmdbId}/credits`).catch(() => ({ data: { cast: [], crew: [] } })),
+          getData(`/movies/${tmdbId}/runtime`).catch(() => ({ data: { runtime: null } })),
+          getData(`/api/review/movieReview/${tmdbId}`).catch(() => ({ data: [] }))
         ]);
 
-        // 영화 상세 정보 설정
-        if (movieResponse?.data) {
-          setMovie(movieResponse.data);
-        }
+        setCredits(creditsResponse.data);
+        setRuntime(runtimeResponse.data.runtime);
+        setMovieReviews(reviewsResponse.data);
 
-        // 출연진 정보 설정
-        if (creditsResponse?.data) {
-          setCredits(creditsResponse.data);
-        }
-
-        // 상영 시간 설정
-        if (runtimeResponse?.data) {
-          setRuntime(runtimeResponse.data.runtime);
-        }
-
-        // 리뷰 설정
-        if (reviewsResponse?.data) {
-          setMovieReviews(reviewsResponse.data);
-        }
-
-        // 찜하기 상태 설정
-        if (favoritesResponse?.data) {
-          const favoriteItem = favoritesResponse.data.find(
-            item => item.movie.tmdbId === parseInt(tmdbId)
-          );
-          setIsWishlist(!!favoriteItem);
-          setFavoriteId(favoriteItem?.favoriteId || null);
-        }
-
-      } catch {
+      } catch (error) {
+        console.error("Error fetching movie data:", error);
+        // 에러 시 모든 상태 초기화
         setMovie(null);
         setCredits({ cast: [], crew: [] });
         setRuntime(null);
         setMovieReviews([]);
         setIsWishlist(false);
         setFavoriteId(null);
+        setExistsInDb(false);
       }
     };
 
     fetchMovieData();
   }, [tmdbId]);
 
-  // 리뷰 목록 새로고침 함수
-  const refreshReviews = async () => {
+  // refreshReviews 함수를 useCallback으로 감싸기
+  const refreshReviews = useCallback(async () => {
     try {
       const response = await getData(`/api/review/movieReview/${tmdbId}`);
-      if (response?.data) {
-        setMovieReviews(response.data);
-      }
-    } catch {
-      setMovieReviews([]);
+      console.log('리뷰 데이터:', response.data);
+      setMovieReviews(response.data);
+    } catch (error) {
+      console.error('리뷰를 불러오는데 실패했습니다:', error);
     }
-  };
+  }, [tmdbId]);
+
+  useEffect(() => {
+    refreshReviews();
+  }, [refreshReviews]);  // refreshReviews를 의존성 배열에 추가
 
   // 찜하기 토글 함수
-  const handleWishlist = async () => {
+  const handleWishlistClick = async () => {
     try {
-      setIsWishlist(prev => !prev);
-
-      if (isWishlist) {
-        await deleteData(`/api/favorites/${favoriteId}`);
-        setFavoriteId(null);
-      } else {
-        const requestData = {
-          user: { userNum },
-          movie: { tmdbId: parseInt(tmdbId) }
-        };
-        await postData('/api/favorites', requestData);
+      if (!isWishlist) {
+        // 찜하기 요청
+        const response = await postData('/api/favorites', {
+          tmdbId: Number(tmdbId),
+          title: movie.title,
+          posterPath: movie.posterPath
+        });
         
-        const favoritesResponse = await getData(`/api/favorites`);
-        const favoriteItem = favoritesResponse.data.find(
-          item => item.movie.tmdbId === parseInt(tmdbId)
-        );
-        if (favoriteItem) {
+        if (response?.data) {
+          const newFavoriteId = response.data.favoriteId;
+          setFavoriteId(newFavoriteId);
+          setIsWishlist(true);
+          console.log('찜하기 성공:', { newFavoriteId, response: response.data });
+        }
+      } else {
+        // favoriteId 확인 및 로깅
+        console.log('찜하기 취소 시도:', { favoriteId, isWishlist });
+        if (!favoriteId) {
+          // favoriteId가 없는 경우 다시 찾기 시도
+          const favoritesResponse = await getData('/api/favorites');
+          const favoriteItem = favoritesResponse.data.find(
+            item => item.tmdbId === Number(tmdbId)
+          );
+          
+          if (!favoriteItem?.favoriteId) {
+            console.error('찜하기 ID를 찾을 수 없습니다');
+            return;
+          }
           setFavoriteId(favoriteItem.favoriteId);
         }
+
+        // 찜 취소 요청
+        const response = await deleteData(`/api/favorites/${favoriteId}`);
+        console.log('찜하기 취소 응답:', response);
+        
+        if (response?.status === 200 || response?.status === 204) {
+          setFavoriteId(null);
+          setIsWishlist(false);
+          console.log('찜하기 취소 성공');
+        }
       }
-    } catch {
-      setIsWishlist(prev => !prev);
+    } catch (error) {
+      console.error('찜하기 토글 에러:', error);
+      alert('찜하기 처리 중 오류가 발생했습니다.');
     }
   };
 
@@ -169,11 +206,29 @@ const MovieDetail = () => {
   // 로딩 상태 처리
   if (!movie) return <div>로딩중...</div>;
 
-  // 리뷰 모달 닫기 핸들러 수정
+  // 리뷰 수정 핸들러
+  const handleEditReview = (review) => {
+    console.log("수정할 리뷰:", review); // 디버깅용 로그 추가
+    setSelectedReview(review);
+    setIsReviewModalOpen(true);
+  };
+
+  // 모달 닫기 핸들러
   const handleCloseModal = (isSubmitted = false) => {
     setIsReviewModalOpen(false);
+    setSelectedReview(null); // 모달 닫을 때 선택된 리뷰 초기화
     if (isSubmitted) {
-      refreshReviews(); // 리뷰가 제출되었을 때만 리뷰 목록 새로고침
+      refreshReviews();
+    }
+  };
+
+  const handleDeleteReview = async (reviewId) => {
+    try {
+      await deleteData(`/api/review/${reviewId}`);
+      refreshReviews(); // 리뷰 목록 새로고침
+    } catch (error) {
+      console.error("리뷰 삭제 실패:", error);
+      alert("리뷰 삭제에 실패했습니다.");
     }
   };
 
@@ -196,12 +251,11 @@ const MovieDetail = () => {
                 )}
               </HStack>
               <Button
-                onClick={handleWishlist}
+                onClick={handleWishlistClick}
                 variant="ghost"
                 size="md"
                 _hover={{ bg: 'transparent' }}
               >
-                {/* 찜하기 버튼 */}
                 <HStack spacing={1}>
                   {isWishlist ? (
                     <>
@@ -327,13 +381,31 @@ const MovieDetail = () => {
               alt={movie.title}
               fallback={<Box>이미지를 불러올 수 없습니다.</Box>}
             />
-            <Button
-              sx={styles.reviewButton}
-              colorScheme="blue"
-              onClick={() => setIsReviewModalOpen(true)}
-            >
-              리뷰 작성하기
-            </Button>
+            <VStack spacing={2} width="100%" mt={4}>
+              <Button
+                sx={styles.actionButton}
+                colorScheme="blue"
+                onClick={() => setIsReviewModalOpen(true)}
+                width="100%"
+              >
+                리뷰 작성하기
+              </Button>
+              {exists_in_db ? (
+                <Link to={`/ticketing/${tmdbId}`} style={{ width: '100%' }}>
+                  <Button
+                    sx={styles.actionButton}
+                    colorScheme="teal"
+                    width="100%"
+                  >
+                    예매하기
+                  </Button>
+                </Link>
+              ) : (
+                <Text color="gray.500" fontSize="sm" textAlign="center">
+                  현재 상영중이지 않은 영화입니다.
+                </Text>
+              )}
+            </VStack>
           </Box>
         </Flex>
 
@@ -343,7 +415,12 @@ const MovieDetail = () => {
           <Flex justify="space-between" align="center" mb={4}>
             <Heading size="lg">리뷰</Heading>
           </Flex>
-          <ReviewList reviews={movieReviews} />
+          <ReviewList 
+            reviews={movieReviews}
+            currentUserNum={userNum} // 현재 사용자 번호 전달
+            onEditReview={handleEditReview}
+            onDeleteReview={handleDeleteReview}
+          />
         </Box>
       </Container>
 
@@ -354,6 +431,8 @@ const MovieDetail = () => {
         tmdbId={tmdbId}
         movie={movie}
         userNum={userNum}
+        reviewToEdit={selectedReview} // 수정할 리뷰 데이터 전달
+        onReviewSubmitted={refreshReviews}
       />
     </div>
   );
@@ -408,9 +487,8 @@ const styles = {
   },
 
   // 버튼 관련 스타일
-  reviewButton: {
-    marginTop: "4",
-    width: "100%"
+  actionButton: {
+    width: "100%",
   },
   ottButton: {
     variant: "ghost",

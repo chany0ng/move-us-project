@@ -133,7 +133,7 @@ public class UserService {
                 }
             }
 
-            return new UserReqDTO(email, null, null, name, phoneNumber);
+            return new UserReqDTO(email, null, "USER", name, phoneNumber);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -168,7 +168,6 @@ public class UserService {
                 .orElseThrow(() -> new BusinessException("User not Found", HttpStatus.NOT_FOUND));
     }
 
-    // 사용자 저장 또는 업데이트 메서드 (카카오 연동 사용자의 경우)
     public UserEntity saveOrUpdateUser(UserReqDTO userDTO) {
         UserEntity user = userRepository.findByKakaoEmail(userDTO.getKakaoEmail())
                 .orElseGet(() -> {
@@ -176,33 +175,39 @@ public class UserService {
                     newUser.setUserName(userDTO.getUserName());
                     newUser.setKakaoEmail(userDTO.getKakaoEmail());
                     newUser.setUserPhone(userDTO.getUserPhone());
+                    newUser.setRole("USER"); // 기본 역할 설정
                     return newUser;
                 });
 
         user.setUserName(userDTO.getUserName());
         user.setUserPhone(userDTO.getUserPhone());
 
+        // 이미 존재하는 사용자의 Role이 null인 경우 기본 역할을 설정
+        if (user.getRole() == null) {
+            user.setRole("USER");
+        }
+
         return userRepository.save(user);
     }
 
-     //재하 추가 코드 (회원정보 조회)
-    public UserMyPageDTO getUserMyPage(String userEmail) {
-    UserEntity user = userRepository.findByUserEmail(userEmail)
-        .orElseThrow(() -> new RuntimeException("User not found"));
-    
-    UserMyPageDTO dto = new UserMyPageDTO();
-    modelMapper.map(user, dto);
-    return dto;
-}
+    //재하 추가 코드 (회원정보 조회)
+    public UserMyPageDTO getUserMyPageByNum(Integer userNum) {
+        UserEntity user = userRepository.findById(userNum)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        UserMyPageDTO dto = new UserMyPageDTO();
+        modelMapper.map(user, dto);
+        return dto;
+    }
 
     //재하 추가 코드 (회원정보 수정)
-    public UserMyPageDTO updateUserInfo(String userEmail, UserMyPageDTO updateDto) {
-        UserEntity user = userRepository.findByUserEmail(userEmail)
-            .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
-        
+    public UserMyPageDTO updateUserInfoByNum(Integer userNum, UserMyPageDTO updateDto) {
+        UserEntity user = userRepository.findById(userNum)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+
         modelMapper.map(updateDto, user);
         UserEntity savedUser = userRepository.save(user);
-        
+
         return modelMapper.map(savedUser, UserMyPageDTO.class);
     }
 }
