@@ -8,6 +8,8 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -44,10 +46,12 @@ public class UserEntity {
 
     private String role;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<ReviewEntity> reviews;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<FavoriteList> favoriteLists;
