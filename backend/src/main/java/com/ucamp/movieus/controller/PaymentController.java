@@ -288,10 +288,40 @@ public ResponseEntity<Map<String, Object>> createPayment(@RequestBody PaymentReq
 ////    }
 
     // 결제 성공 페이지
+//    @GetMapping("/toss/success")
+//    public String paymentSuccess(@RequestParam Long paymentId, Model model) {
+//        Payment payment = paymentRepository.findByPaymentId(paymentId);
+//        if (payment != null) {
+//            PaymentResponseDTO responseDTO = new PaymentResponseDTO();
+//            responseDTO.setPaymentId(payment.getPaymentId());
+//            responseDTO.setStatus(payment.getStatus());
+//            responseDTO.setMessage("결제가 성공적으로 완료되었습니다!");
+//            responseDTO.setAmount(payment.getAmount());
+//            responseDTO.setOrderId(payment.getOrderId());
+//            responseDTO.setPaymentDate(payment.getPaymentDate());
+//
+//            model.addAttribute("paymentResponse", responseDTO);
+//        } else {
+//            model.addAttribute("error", "결제 정보를 찾을 수 없습니다.");
+//        }
+//        return "success"; // success.html로 리턴
+//    }
+
     @GetMapping("/toss/success")
-    public String paymentSuccess(@RequestParam Long paymentId, Model model) {
+    public ResponseEntity<?> paymentSuccess(@RequestParam Long paymentId) {
+        // 결제 ID로 Payment 정보 조회
         Payment payment = paymentRepository.findByPaymentId(paymentId);
+
+        // Payment 정보가 존재할 경우 처리
         if (payment != null) {
+            // 로그 출력으로 각 필드 값 확인
+            System.out.println("Payment found: " + payment.getPaymentId());
+            System.out.println("ScreeningSchedule: " + payment.getScreeningSchedule());
+            System.out.println("User: " + payment.getUser());
+            System.out.println("ScreeningTime: " + payment.getScreeningTime());
+            System.out.println("Seats: " + payment.getSeats());
+
+            // PaymentResponseDTO 생성 및 데이터 설정
             PaymentResponseDTO responseDTO = new PaymentResponseDTO();
             responseDTO.setPaymentId(payment.getPaymentId());
             responseDTO.setStatus(payment.getStatus());
@@ -300,11 +330,37 @@ public ResponseEntity<Map<String, Object>> createPayment(@RequestBody PaymentReq
             responseDTO.setOrderId(payment.getOrderId());
             responseDTO.setPaymentDate(payment.getPaymentDate());
 
-            model.addAttribute("paymentResponse", responseDTO);
+            // ScreeningSchedule 정보 설정
+            if (payment.getScreeningSchedule() != null) {
+                responseDTO.setMovieId(payment.getScreeningSchedule().getMovie().getId());
+                responseDTO.setTheaterId(payment.getScreeningSchedule().getTheater().getTheaterId());
+                responseDTO.setScreeningDate(payment.getScreeningSchedule().getScreeningDate());
+            }
+
+            // User 정보 설정
+            if (payment.getUser() != null) {
+                responseDTO.setUserNum(payment.getUser().getUserNum());
+            }
+
+            // ScreeningTime 정보 설정
+            if (payment.getScreeningTime() != null) {
+                responseDTO.setTimeId(payment.getScreeningTime().getTimeId());
+                responseDTO.setScreeningTime(payment.getScreeningTime().getScreeningTime());
+            }
+
+            // 좌석 정보 설정
+            List<SeatDTO> seatDTOs = payment.getSeats().stream()
+                    .map(seat -> new SeatDTO(seat.getSeatId(), seat.getSeatNumber(), seat.getScreeningTime().getTimeId(), seat.isReserved()))
+                    .collect(Collectors.toList());
+            responseDTO.setSeats(seatDTOs);
+
+            // ResponseEntity로 JSON 응답 반환
+            return ResponseEntity.ok(responseDTO);
         } else {
-            model.addAttribute("error", "결제 정보를 찾을 수 없습니다.");
+            // Payment 정보가 없는 경우
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "결제 정보를 찾을 수 없습니다."));
         }
-        return "success"; // success.html로 리턴
     }
 
     @GetMapping("/toss/fail")

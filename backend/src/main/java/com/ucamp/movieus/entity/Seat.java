@@ -9,6 +9,7 @@ import lombok.Data;
 public class Seat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="seat_id")
     private int seatId;
 
     @ManyToOne
