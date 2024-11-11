@@ -11,8 +11,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface SeatRepository extends JpaRepository<Seat, Integer> {
-    List<Seat> findByScreeningTime(ScreeningTime time);
-
     @Query("SELECT s FROM Seat s WHERE s.screeningTime.timeId = :timeId")
     List<Seat> findSeatsByTimeId(@Param("timeId") Integer timeId);
 
@@ -21,4 +19,13 @@ public interface SeatRepository extends JpaRepository<Seat, Integer> {
     void reserveSeats(@Param("seatIds") List<Integer> seatIds);
 
     Optional<Seat> findByScreeningTimeAndSeatId(ScreeningTime screeningTime, Integer seatId);
+
+    // ScreeningTime을 기준으로 좌석 조회
+    List<Seat> findByScreeningTime(ScreeningTime screeningTime);
+
+    @Query("SELECT COUNT(s) FROM Seat s WHERE s.screeningTime.timeId = :timeId AND s.isReserved = true")
+    int countReservedSeatsByTimeId(@Param("timeId") Long timeId);
+
+    @Query("SELECT s FROM Seat s WHERE s.screeningTime.timeId = :timeId AND s.seatNumber = :seatNumber")
+    Optional<Seat> findByScreeningTimeAndSeatNumber(@Param("timeId") Long timeId, @Param("seatNumber") String seatNumber);
 }
