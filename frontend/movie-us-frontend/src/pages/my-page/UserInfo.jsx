@@ -16,6 +16,7 @@ import {
 import { useState, useEffect } from "react";
 import Sidebar from "./../../components/Sidebar";
 import { getData, putData } from "../../api/axios";
+import { userStore } from "../../../store";
 
 const UserInfo = () => {
   const bgColor = "gray.900";
@@ -24,7 +25,8 @@ const UserInfo = () => {
   const inputBgColor = "gray.700";
   const borderColor = "gray.600";
 
-  const userNum = 1; // 임시 유저 번호 설정 (나중에 실제 로그인된 사용자의 번호로 대체)
+  const { getState } = userStore;
+  const userNum = getState().user.user_num;
 
   const toast = useToast();
 

@@ -7,13 +7,15 @@ import styled from "styled-components";
 import { SearchIcon } from "@chakra-ui/icons";
 import { useNavigate } from "react-router-dom";
 import ReportButton from '../../components/ReportButton';
+import { userStore } from "../../../store";
 
 const MovieReviews = () => {
   const [reviews, setReviews] = useState([]);
   const [topMovies, setTopMovies] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const userNum = 1; // 임시 유저 번호 설정
+  const { getState } = userStore;
+  const userNum = getState().user.user_num;
   const toast = useToast();
   const navigate = useNavigate();
 

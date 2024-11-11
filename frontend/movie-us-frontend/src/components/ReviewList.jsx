@@ -59,8 +59,8 @@ const ReviewList = ({ reviews, currentUserNum, onEditReview, onDeleteReview }) =
           >
             <Flex justify="space-between" align="center" mb={2}>
               <Flex align="center" gap={4}>
-                <Avatar size="sm" name={review.username || `User ${review.userNum}`} />
-                <Text fontWeight="bold">{review.username || `User ${review.userNum}`}</Text>
+                <Avatar size="sm" name={review.userName} />
+                <Text fontWeight="bold">{review.userName}</Text>
               </Flex>
               <Flex align="center" gap={4}>
                 <Text fontSize="sm" color="gray.500">
