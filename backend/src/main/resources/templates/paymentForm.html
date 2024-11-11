@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Payment</title>
+    <script src="https://js.tosspayments.com/v1"></script>
+    <script>
+        async function pay() {
+            try {
+                // 결제 정보를 Toss Payments로 요청
+                const response = await fetch("/api/v1/payments/toss", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                            paymentMethod: '카드',
+                            amount: 30000,
+                            orderName: '영화 예매',
+                            movieId: 2,
+                            theaterId: 9,
+                            userNum: 2,
+                            screeningScheduleId: 69,
+                            timeId: 292,
+                            screeningDate: '2024-11-13',
+                            screeningTime: '09:30:00',
+                            seatIds: ['117', '118', '119'],
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error("Failed to initiate payment");
+                }
+
+                const data = await response.json();
+
+                const tossPayments = TossPayments("test_ck_P9BRQmyarYylegdO2gMarJ07KzLN");
+
+                tossPayments.requestPayment("카드", {
+                    amount: data.amount,
+                    orderId: data.orderId,
+                    orderName: data.orderName,
+                    successUrl: data.successUrl,
+                    failUrl: data.failUrl
+                }).catch(function (error) {
+                    console.error(error);
+                    alert("결제 창을 여는 도중 오류가 발생했습니다.");
+                });
+            } catch (error) {
+                console.error(error);
+                alert("결제 요청 중 오류가 발생했습니다: " + error.message);
+            }
+        }
+    </script>
+
+</head>
+<body>
+<h1>결제하기</h1>
+<button onclick="pay()">결제하기</button>
+</body>
+</html>
