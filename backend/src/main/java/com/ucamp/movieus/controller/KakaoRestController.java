@@ -37,14 +37,14 @@ public class KakaoRestController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/login") // 로그인 프로세스를 시작하는 엔드포인트
-    public ResponseEntity<String> login() {
-        return ResponseEntity.ok("로그인 엔드포인트에 접근했습니다. /kakao/login을 사용하여 카카오 인증을 시작하세요.");
-    }
+//    @GetMapping("/login") // 로그인 프로세스를 시작하는 엔드포인트
+//    public ResponseEntity<String> login() {
+//        return ResponseEntity.ok("로그인 엔드포인트에 접근했습니다. /kakao/login을 사용하여 카카오 인증을 시작하세요.");
+//    }
 
-    @GetMapping("/logout") // 로그인 프로세스를 시작하는 엔드포인트
-    public ResponseEntity<String> logout() {
-        return ResponseEntity.ok("로그아웃 엔드포인트에 접근했습니다.");
+    @GetMapping("/login") // 로그아웃 프로세스를 시작하는 엔드포인트
+    public RedirectView logout() {
+        return new RedirectView("http://localhost:3000");
     }
 
     @GetMapping("/kakao/login") // 카카오 로그인으로 리디렉션
