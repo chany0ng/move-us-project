@@ -1,4 +1,14 @@
-import { Box, Flex, Heading, SimpleGrid, Text, Divider, Icon, VStack, useDisclosure } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  Heading,
+  SimpleGrid,
+  Text,
+  Divider,
+  Icon,
+  VStack,
+  useDisclosure,
+} from "@chakra-ui/react";
 import { useState, useEffect } from "react";
 import { StarIcon } from "@chakra-ui/icons";
 import Sidebar from "./../../components/Sidebar";
@@ -28,8 +38,7 @@ const UserReviewHistory = () => {
     try {
       setIsLoading(true);
       const response = await getData(`/api/review/userReview/${userNum}`);
-      console.log('사용자 리뷰 데이터:', response.data);
-      setReviewHistory(response.data);
+      setReviewHistory(response.data.reverse());
     } catch (error) {
       toast({
         title: "리뷰 조회 오류",
@@ -82,10 +91,18 @@ const UserReviewHistory = () => {
           <Sidebar />
         </Box>
 
-        <Box flex="1" bg={cardBgColor} borderRadius="lg" p={8} boxShadow="dark-lg">
-          <Heading size="lg" color="yellow.400" mb={6}>내가 작성한 리뷰</Heading>
+        <Box
+          flex="1"
+          bg={cardBgColor}
+          borderRadius="lg"
+          p={8}
+          boxShadow="dark-lg"
+        >
+          <Heading size="lg" color="yellow.400" mb={6}>
+            내가 작성한 리뷰
+          </Heading>
           <Divider mb={4} borderColor={borderColor} />
-          
+
           {isLoading ? (
             <Text color="white">리뷰 내역을 불러오는 중...</Text>
           ) : reviewHistory.length === 0 ? (
@@ -93,72 +110,74 @@ const UserReviewHistory = () => {
           ) : (
             <SimpleGrid columns={[1, 2, 3]} spacing={5}>
               {reviewHistory.map((review) => (
-                <Box 
-                  key={review.reviewId} 
-                  bg="gray.700" 
-                  borderRadius="md" 
-                  overflow="hidden" 
-                  p={4} 
+                <Box
+                  key={review.reviewId}
+                  bg="gray.700"
+                  borderRadius="md"
+                  overflow="hidden"
+                  p={4}
                   boxShadow="lg"
                   position="relative"
                 >
                   {/* 영화 포스터 - 클릭 이벤트 추가 */}
-                  <Box 
-                    position="relative" 
+                  <Box
+                    position="relative"
                     height="300px"
                     onClick={() => navigate(`/movie-detail/${review.tmdbId}`)}
                     cursor="pointer"
                     _hover={{ opacity: 0.8 }}
                   >
                     {review.posterPath ? (
-                      <img 
-                        src={`https://image.tmdb.org/t/p/w500${review.posterPath}`} 
-                        alt={`${review.title} 포스터`} 
-                        style={{ 
-                          width: '100%', 
-                          height: '100%', 
-                          objectFit: 'cover', 
-                          borderRadius: '0.375rem' 
-                        }} 
+                      <img
+                        src={`https://image.tmdb.org/t/p/w500${review.posterPath}`}
+                        alt={`${review.title} 포스터`}
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                          borderRadius: "0.375rem",
+                        }}
                       />
                     ) : (
-                      <Box 
-                        height="100%" 
-                        bg="gray.600" 
-                        display="flex" 
-                        alignItems="center" 
+                      <Box
+                        height="100%"
+                        bg="gray.600"
+                        display="flex"
+                        alignItems="center"
                         justifyContent="center"
                       >
                         <Text color={textColor}>이미지 없음</Text>
                       </Box>
                     )}
                   </Box>
-                  
+
                   {/* 영화 정보 및 리뷰 */}
                   <VStack align="stretch" mt={3} spacing={2}>
                     <Heading size="md" color={textColor}>
                       {review.title}
                     </Heading>
-                    
+
                     <Flex>
                       {Array(5)
                         .fill("")
                         .map((_, i) => (
-                          <Icon 
-                            as={StarIcon} 
-                            key={i} 
-                            color={i < (review.rating / 2) ? "yellow.400" : "gray.500"} 
+                          <Icon
+                            as={StarIcon}
+                            key={i}
+                            color={
+                              i < review.rating / 2 ? "yellow.400" : "gray.500"
+                            }
                           />
                         ))}
                       <Text ml={2} color={textColor}>
                         {review.rating / 2}/5
                       </Text>
                     </Flex>
-                    
+
                     <Text color={textColor} noOfLines={3}>
                       {review.comment}
                     </Text>
-                    
+
                     <Text color="gray.400" fontSize="sm">
                       작성일: {new Date(review.reviewDate).toLocaleDateString()}
                     </Text>
