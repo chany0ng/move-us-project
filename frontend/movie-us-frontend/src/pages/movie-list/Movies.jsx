@@ -44,7 +44,7 @@ const Movies = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalElements, setTotalElements] = useState(0);
 
-  const fetchSortedMoviesByPopularity = async (genre, page = 1, size = 30) => {
+  const fetchSortedMoviesByPopularity = async (genre, page = 1, size = 20) => {
     try {
       setIsLoading(true);
       const response = await getData("/movies/combinedMovies", {
@@ -82,8 +82,8 @@ const Movies = () => {
     navigate(`?${queryParams.toString()}`, { replace: true });
 
     if (sort === "popular") {
-      console.log("sort가 popular에요");
       fetchSortedMoviesByPopularity(genre, currentPage);
+      window.scrollTo(0, 0);
     }
   }, [genre, searchQuery, sort, currentPage]);
 

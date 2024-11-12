@@ -139,7 +139,6 @@ const MainPage = () => {
 
   return (
     <Flex direction={"column"}>
-      {/* <SearchBar /> */}
       <Box pb={20}>
         <Carousel movies={wideMovies} />
       </Box>
@@ -153,11 +152,7 @@ const MainPage = () => {
           isLoading={false}
         />
       ) : (
-        <MovieGrid
-          title={`💕 ${user.user_name}님의 관심 목록`}
-          isLoading={false}
-          likedMovies={true}
-        />
+        <div></div>
       )}
 
       {isMoviesLoading ? (

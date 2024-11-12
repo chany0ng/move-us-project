@@ -15,7 +15,8 @@ const MyMenu = () => {
   const logoutHandler = () => {
     clearUser();
     localStorage.removeItem("accessToken");
-    navigate("/");
+    window.location.href =
+      "https://kauth.kakao.com/oauth/logout?client_id=b065fbf13eab4a247d0e6aab61b49d88&logout_redirect_uri=http://localhost:8080/logout";
   };
   return (
     <>
