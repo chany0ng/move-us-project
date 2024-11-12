@@ -17,6 +17,7 @@ import styled from "styled-components";
 import noImage from "../assets/images/image.jpg";
 
 const MovieTabPanel = ({ movies, isLoading }) => {
+  console.log(movies);
   const navigate = useNavigate();
 
   if (isLoading) {
