@@ -16,7 +16,7 @@ import {
 } from "@chakra-ui/react";  // UI 컴포넌트 라이브러리
 import { AiFillHeart} from "react-icons/ai";  // 하트 아이콘
 
-// API 및 에셋 임포트
+// API 및 에셋 임포트.
 import { getData, postData, deleteData } from "../../api/axios";  // API 호출 함수
 import netflixLogo from '../../assets/images/ott/Netflix.png';
 import tvingLogo from '../../assets/images/ott/Tving.png';
@@ -44,29 +44,38 @@ const MovieDetail = () => {
   const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w185";
 
   // userStore를 직접 사용
-  const { user, getState } = userStore;
+  const { getState } = userStore;
   const userNum = getState().user.user_num;
+  const userEmail = getState().user.user_email;
 
-  // 모든 영화 관련 데이터 가져오기
+  // 찜하기 상태 확인 함수를 별도로 분리하고 useCallback으로 메모이제이션
+  const checkWishlistStatus = useCallback(async () => {
+    if (!userNum || !tmdbId) return;
+
+    try {
+      const favoritesResponse = await getData(`/api/favorites/${userNum}`);
+      const favoritesData = favoritesResponse?.data || [];
+      
+      const favoriteItem = favoritesData.find(
+        item => Number(item.tmdbId) === Number(tmdbId)
+      );
+      
+      setIsWishlist(!!favoriteItem);
+      setFavoriteId(favoriteItem?.favoriteId || null);
+    } catch (error) {
+      console.error('찜하기 상태 확인 실패:', error);
+      setIsWishlist(false);
+      setFavoriteId(null);
+    }
+  }, [userNum, tmdbId]);
+
+  // 초기 데이터 로딩 및 찜하기 상태 확인
   useEffect(() => {
     const fetchMovieData = async () => {
       try {
-        // 로그인한 사용자의 찜 상태 확인
-        if (userNum) {
-          const favoritesResponse = await getData(`/api/favorites/${userNum}`);
-          const favoritesData = favoritesResponse?.data || [];
-          
-          // 현재 영화가 찜 목록에 있는지 확인
-          const favoriteItem = favoritesData.find(
-            item => Number(item.tmdbId) === Number(tmdbId)
-          );
-          
-          // 찜 상태 설정
-          setIsWishlist(!!favoriteItem);
-          setFavoriteId(favoriteItem?.favoriteId || null);
-        }
+        await checkWishlistStatus();
 
-        // 나머지 데이터 가져오기f
+        // 나머지 데이터 가져오기
         const moviesListResponse = await getData('/movies/moviesList');
         const isInDb = moviesListResponse?.data?.some(
           movie => movie.tmdbId === parseInt(tmdbId)
@@ -113,13 +122,19 @@ const MovieDetail = () => {
     };
 
     fetchMovieData();
-  }, [tmdbId, userNum]);
+  }, [tmdbId, userNum, checkWishlistStatus]);
+
+  // 찜하기 상태 변경 시 상태 업데이트
+  useEffect(() => {
+    if (isWishlist !== undefined) {
+      checkWishlistStatus();
+    }
+  }, [isWishlist, checkWishlistStatus]);
 
   // refreshReviews 함수를 useCallback으로 감싸기
   const refreshReviews = useCallback(async () => {
     try {
       const response = await getData(`/api/review/movieReview/${tmdbId}`);
-      console.log('리뷰 데이터:', response.data);
       setMovieReviews(response.data);
     } catch (error) {
       console.error('리뷰를 불러오는데 실패했습니다:', error);
@@ -235,7 +250,6 @@ const MovieDetail = () => {
 
   // 리뷰 수정 핸들러
   const handleEditReview = (review) => {
-    console.log("수정할 리뷰:", review); // 디버깅용 로그 추가
     setSelectedReview(review);
     setIsReviewModalOpen(true);
   };
@@ -461,7 +475,8 @@ const MovieDetail = () => {
           </Flex>
           <ReviewList 
             reviews={movieReviews}
-            currentUserNum={userNum} // 현재 사용자 번호 전달
+            currentUserNum={userNum}
+            currentUserEmail={userEmail}
             onEditReview={handleEditReview}
             onDeleteReview={handleDeleteReview}
           />

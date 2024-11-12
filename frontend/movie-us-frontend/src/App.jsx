@@ -1,3 +1,4 @@
+
 import GlobalStyle from "./style/GlobalStyle";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Index from "./pages/login/Index";
@@ -19,12 +20,15 @@ import MovieTicketing from "./pages/ticketing/MovieTicketing";
 import SeatSelection from "./pages/ticketing/SeatSelection";
 import ProtectedRoute from "./ProtectedRoute";
 import NotFound from "./pages/NotFound";
+import ChannelChatbot from "./components/ChannelChatbot"; // 챗봇 컴포넌트 가져오기
+
 function App() {
   return (
     <>
       <GlobalStyle />
       <Router>
         <ScrollToTopWhenPageChange />
+        <ChannelChatbot /> {/* 챗봇 컴포넌트를 추가 */}
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/change-pw/:email" element={<ChangePw />} />

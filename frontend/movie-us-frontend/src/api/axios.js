@@ -5,10 +5,10 @@ export const customAxios = axios.create({
   // baseURL: "https://api.comission-platform.store", // AWS EC2 API서버의 BASE URL
   baseURL: "http://localhost:8080", // 개발용 로컬서버의 BASE URL
   timeout: 5000,
-  withCredentials: true,
+  // withCredentials: true,
 });
 
-// // 요청 interceptor
+// 요청 interceptor
 // customAxios.interceptors.request.use(
 //   (config) => {
 //     const accessToken = localStorage.getItem("accessToken");
@@ -30,34 +30,14 @@ export const customAxios = axios.create({
 //   (response) => response,
 //   async (error) => {
 //     const errorStatus = error.response?.status;
-//     const requestUrl = error.config.url;
-
-//     if (requestUrl === "/api/reissue") {
-//       // reissue 실패 시 명시적으로 에러 메시지 반환
-//       return Promise.reject(new Error("토큰 갱신 요청 failed"));
-//     }
+//     console.log(error);
 //     // accessToken 만료 시 받는 status를 정해야함.
-//     else if (errorStatus === 401) {
-//       try {
-//         const newAccessToken = await refreshAccessToken();
-//         if (newAccessToken) {
-//           // 이전 요청에 Authorization 헤더 추가
-//           error.config.headers.Authorization = `Bearer ${newAccessToken}`;
-//           return customAxios.request(error.config); // 이전 요청 재시도
-//         }
-// else {
-//   // 새 토큰을 가져오지 못한 경우 (로그인 페이지로 리디렉션)
-//   window.location.href = "/";
-//   return Promise.reject(new Error("이전 요청 재시도 실패"));
-// }
-//       } catch (error) {
-//         if (error.response?.status === 403) {
-//           // 예: refreshToken이 만료된 경우
-//           // 로그인 페이지로 리디렉션
-//           window.location.href = "/"; // 또는 사용자가 원하는 다른 페이지로
-//         }
-//         return Promise.reject(new Error("Access Token 재발급 실패"));
-//       }
+//     if (error.response && errorStatus === 401) {
+//       alert("로그인 세션이 만료되었습니다. 다시 로그인해주세요.");
+
+//       // 토큰을 제거하고 로그인 페이지로 이동
+//       localStorage.removeItem("accessToken");
+//       window.location.href = "/"; // 로그인 페이지로 리다이렉트
 //     }
 //     return Promise.reject(error);
 //   }

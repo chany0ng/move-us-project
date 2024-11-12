@@ -1,51 +1,112 @@
-import { Box, Flex, Heading, SimpleGrid, Text, Divider, Button } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  Heading,
+  SimpleGrid,
+  Text,
+  Divider,
+  Button,
+} from "@chakra-ui/react";
 import { useState, useEffect } from "react";
 import Sidebar from "./../../components/Sidebar";
 import { useToast } from "@chakra-ui/react";
 import { getData } from "../../api/axios"; // API 요청을 위한 함수
+import { useLocation } from "react-router-dom";
+import { userStore } from "../../../store.js";
 
 const UserReservationHistory = () => {
   const bgColor = "gray.900";
   const cardBgColor = "gray.800";
   const textColor = "gray.100";
   const borderColor = "gray.600";
+
+  const location = useLocation();
+  const [reservations, setReservations] = useState([]);
   const toast = useToast();
 
-  const [bookingHistory, setBookingHistory] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const fetchBookingHistory = async () => {
-    try {
-      setIsLoading(true);
-      const response = await getData("/movies/moviesList");
-      
-      // 더미 데이터가 포함된 예매 배열로 변환
-      const bookingsWithDummyData = response.data.map((booking) => ({
-        ...booking,
-        ageRating: "15세 이상 관람가", // 임시 관람등급
-        location: "서울 CGV 강남", // 임시 영화관 위치
-        date: "2024-11-20", // 임시 날짜
-        time: "18:30", // 임시 시간
-      }));
-      
-      setBookingHistory(bookingsWithDummyData);
-    } catch (error) {
-      toast({
-        title: "예매 조회 오류",
-        description: `예매 데이터를 불러올 수 없습니다 / ${error}`,
-        status: "error",
-        duration: 2000,
-        isClosable: true,
-      });
-      console.error("예매 데이터 조회 중 오류:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const { getState } = userStore;
+  const userNum = getState().user.user_num;
 
   useEffect(() => {
-    fetchBookingHistory();
-  }, []);
+    const fetchReservations = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:8080/api/v1/reservations/user/${userNum}`
+        );
+        if (response.ok) {
+          const data = await response.json();
+          const sortedData = data.sort(
+            (a, b) => new Date(b.paymentDate) - new Date(a.paymentDate)
+          );
+          setReservations(sortedData);
+        }
+      } catch (error) {
+        console.error("Error fetching reservations:", error);
+        toast({
+          title: "오류 발생",
+          description: "서버와의 통신 중 오류가 발생했습니다.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+      }
+    };
+
+    if (userNum) {
+      fetchReservations();
+    }
+  }, [userNum]);
+
+  const handleCancelReservation = async (paymentKey) => {
+    console.log("Attempting to cancel payment with key:", paymentKey);
+
+    try {
+      const response = await fetch(
+        `http://localhost:8080/api/v1/payments/toss/cancel?paymentKey=${paymentKey}&cancelReason=${encodeURIComponent(
+          "사용자 요청으로 인한 취소"
+        )}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log("Response status:", response.status);
+      const responseData = await response.text();
+      console.log("Response data:", responseData);
+
+      if (response.ok) {
+        toast({
+          title: "취소 완료",
+          description: "예매가 성공적으로 취소되었습니다.",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
+
+        window.location.href = "/my-page/activity/user-reservation-history";
+      } else {
+        toast({
+          title: "취소 실패",
+          description: `결제 취소 중 오류가 발생했습니다. (Status: ${response.status})`,
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+      }
+    } catch (error) {
+      console.error("Error details:", error);
+      toast({
+        title: "취소 실패",
+        description: "결제 취소 중 오류가 발생했습니다.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
 
   return (
     <Box bg={bgColor} minHeight="100vh" p={5}>
@@ -54,36 +115,104 @@ const UserReservationHistory = () => {
           <Sidebar />
         </Box>
 
-        <Box flex="1" bg={cardBgColor} borderRadius="lg" p={8} boxShadow="dark-lg">
-          <Heading size="lg" color="yellow.400" mb={6}>예매 내역 조회</Heading>
+        <Box
+          flex="1"
+          bg={cardBgColor}
+          borderRadius="lg"
+          p={8}
+          boxShadow="dark-lg"
+        >
+          <Heading size="lg" color="yellow.400" mb={6}>
+            예매 내역 조회
+          </Heading>
           <Divider mb={4} borderColor={borderColor} />
-          
-          {isLoading ? (
-            <Text color="white">로딩 중...</Text>
-          ) : (
-            <SimpleGrid columns={[1, 2, 3]} spacing={5}>
-              {bookingHistory.map((booking) => (
-                <Box key={booking.id} bg="gray.700" borderRadius="md" overflow="hidden" position="relative" p={4} boxShadow="lg">
-                  {/* 영화 포스터 */}
-                  <img 
-                    src={`https://image.tmdb.org/t/p/w500${booking.posterPath}`} 
-                    alt={`${booking.title} 포스터`} 
-                    style={{ width: '100%', height: '300px', objectFit: 'cover', borderRadius: 'md' }} 
-                  />
-                  
-                  {/* 영화 제목과 예매 정보 */}
-                  <Box mt={3}>
-                    <Heading size="md" color={textColor} mb={2}>{booking.title}</Heading>
-                    <Text color="gray.400" fontSize="sm" mb={1}>{booking.ageRating}</Text>
-                    <Text color={textColor} fontSize="sm">영화관: {booking.location}</Text>
-                    <Text color={textColor} fontSize="sm">{booking.date} ({booking.time})</Text>
-                  </Box>
 
-                  {/* 예매 취소 버튼 */}
-                  <Button mt={4} colorScheme="red" size="sm">예매 취소</Button>
+          {reservations.length > 0 ? (
+            <SimpleGrid columns={1} spacing={6}>
+              {reservations.map((reservation) => (
+                <Box
+                  key={reservation.paymentId}
+                  bg={reservation.status === "CANCEL" ? "gray.800" : "gray.700"}
+                  borderRadius="md"
+                  p={6}
+                  boxShadow="lg"
+                  opacity={reservation.status === "CANCEL" ? 0.7 : 1}
+                  filter={
+                    reservation.status === "CANCEL" ? "brightness(0.8)" : "none"
+                  }
+                >
+                  <Flex
+                    justifyContent="space-between"
+                    alignItems="center"
+                    mb={4}
+                  >
+                    <Heading size="md" fontSize="1.3rem" color={textColor}>
+                      {reservation.movieName}
+                    </Heading>
+                    <Text
+                      color={
+                        reservation.status === "CANCEL"
+                          ? "red.400"
+                          : "green.400"
+                      }
+                      fontWeight="bold"
+                    >
+                      {reservation.status === "CANCEL" ? "취소됨" : "예매완료"}
+                    </Text>
+                  </Flex>
+                  <SimpleGrid columns={2} spacing={4}>
+                    <Text color={textColor}>
+                      상영관: {reservation.theaterName}
+                    </Text>
+                    <Text color={textColor}>
+                      결제 금액: {reservation.amount.toLocaleString()}원
+                    </Text>
+                    <Text color={textColor}>
+                      상영 날짜: {reservation.screeningDate}
+                    </Text>
+                    <Text color={textColor}>
+                      상영 시간: {reservation.screeningTime.substring(0, 5)}
+                    </Text>
+                    <Text color={textColor}>
+                      좌석 번호: {reservation.seatNumbers}
+                    </Text>
+                    <Text color={textColor}>
+                      결제 일시:{" "}
+                      {new Date(reservation.paymentDate).toLocaleString(
+                        "ko-KR",
+                        {
+                          year: "numeric",
+                          month: "2-digit",
+                          day: "2-digit",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: false,
+                        }
+                      )}
+                    </Text>
+                    <Text color={textColor}>
+                      주문 번호: {reservation.orderId}
+                    </Text>
+                  </SimpleGrid>
+                  {reservation.status !== "CANCEL" && (
+                    <Button
+                      mt={6}
+                      colorScheme="red"
+                      size="md"
+                      onClick={() =>
+                        handleCancelReservation(reservation.paymentKey)
+                      }
+                    >
+                      예매 취소
+                    </Button>
+                  )}
                 </Box>
               ))}
             </SimpleGrid>
+          ) : (
+            <Text color={textColor} textAlign="center">
+              예매 내역이 없습니다.
+            </Text>
           )}
         </Box>
       </Flex>

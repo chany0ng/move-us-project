@@ -13,6 +13,7 @@ import { getData } from "../../api/axios";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import SearchBar from "../../components/SearchBar";
+import Pagination from "../../components/Pagination";
 
 const GENRES = [
   "All",
@@ -40,14 +41,29 @@ const Movies = () => {
   const [movies, setMovies] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalElements, setTotalElements] = useState(0);
 
-  const normalizeMovieData = (movie) => {
-    return {
-      id: movie.tmdbId,
-      title: movie.title,
-      poster_path: movie.posterPath,
-      exists_in_db: movie.exists_in_db || true,
-    };
+  const fetchSortedMoviesByPopularity = async (genre, page = 1, size = 30) => {
+    try {
+      setIsLoading(true);
+      const response = await getData("/movies/combinedMovies", {
+        params: { genre: genre, page: page, size: size, sort: "popular" }, // 정렬 기준을 popular로 전달
+      });
+      setTotalElements(response.data.totalElements);
+      setMovies(response.data.content);
+    } catch (error) {
+      toast({
+        title: "인기순 정렬 페이징 조회 Error",
+        description: `Failed to fetch movies / ${error}`,
+        status: "error",
+        duration: 2000,
+        isClosable: true,
+      });
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -59,70 +75,17 @@ const Movies = () => {
   }, [location, navigate]);
 
   useEffect(() => {
-    if (searchQuery || sort === "review") return;
+    // 검색 중이라면, useEffect의 데이터 fetching을 중단
+    if (searchQuery) return;
 
     const queryParams = new URLSearchParams({ genre, sort });
     navigate(`?${queryParams.toString()}`, { replace: true });
 
-    const fetchAndSetMovies = async () => {
-      const nowPlayingMovies = await fetchMovies(genre);
-      const popularMovies = await fetchPopularMovies(genre);
-      const totalMovies = [...nowPlayingMovies, ...popularMovies];
-      setMovies(totalMovies || []);
-    };
-
-    fetchAndSetMovies();
-  }, [genre, sort, searchQuery]);
-
-  const fetchMovies = async (genre) => {
-    try {
-      setIsLoading(true);
-      const response = await getData("/movies/moviesList", {
-        params: { genre },
-      });
-      return response.data.map(normalizeMovieData);
-    } catch (error) {
-      toast({
-        title: "현재 상영 영화 조회 Error",
-        description: `Failed to fetch movies / ${error}`,
-        status: "error",
-        duration: 2000,
-        isClosable: true,
-      });
-      console.error("Error fetching NowPlaying data:", error);
-    } finally {
-      setIsLoading(false);
+    if (sort === "popular") {
+      console.log("sort가 popular에요");
+      fetchSortedMoviesByPopularity(genre, currentPage);
     }
-  };
-
-  const fetchPopularMovies = async (genre) => {
-    try {
-      setIsLoading(true);
-      const response = await getData("/movies/allPopularMovies", {
-        params: { genre },
-      });
-      return response.data;
-    } catch (error) {
-      toast({
-        title: "인기 영화 조회 Error",
-        description: `Failed to fetch movies / ${error}`,
-        status: "error",
-        duration: 2000,
-        isClosable: true,
-      });
-      console.error("Error fetching data:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleSortChange = (e) => {
-    const newSort = e.target.value;
-    if (newSort === "review") {
-      setSort(newSort);
-      fetchSortedMoviesByReview(genre);
-    }
-  };
+  }, [genre, searchQuery, sort, currentPage]);
 
   const fetchSortedMoviesByReview = async (genre) => {
     try {
@@ -139,6 +102,17 @@ const Movies = () => {
         isClosable: true,
       });
       console.error(error);
+    }
+  };
+
+  const handleSortChange = (e) => {
+    const newSort = e.target.value;
+    setSort(newSort);
+
+    if (newSort === "review") {
+      fetchSortedMoviesByReview(genre); // 리뷰순 정렬
+    } else if (newSort === "popular") {
+      fetchSortedMoviesByPopularity(genre, currentPage); // 인기순 정렬
     }
   };
 
@@ -179,7 +153,7 @@ const Movies = () => {
         </Flex>
         <Flex align={"center"} gap={3} pl={3} color="#cfcfcf">
           <Text fontSize={"lg"} fontWeight={"bold"}>
-            총 {movies?.length}건의 영화가 조회되었습니다
+            총 {totalElements}건의 영화가 조회되었습니다
           </Text>
         </Flex>
       </Box>
@@ -241,6 +215,13 @@ const Movies = () => {
             />
           </TabPanels>
         </Tabs>
+      </Box>
+      <Box flex="1" color="white" p={5}>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={Math.ceil(totalElements / 20)} // 20은 페이지당 항목 수
+          onPageChange={(page) => setCurrentPage(page)}
+        />
       </Box>
     </Flex>
   );

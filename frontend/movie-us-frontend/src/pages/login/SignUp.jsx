@@ -15,7 +15,7 @@ import { useState } from "react";
 import { CheckIcon, CloseIcon } from "@chakra-ui/icons";
 import { Link as RouterLink } from "react-router-dom";
 import { CustomInput } from "./Index";
-import { postData } from "../../api/axios";
+import { postData, getData } from "../../api/axios";
 import { useNavigate } from "react-router-dom";
 const SignUp = () => {
   const navigate = useNavigate();
@@ -88,7 +88,26 @@ const SignUp = () => {
       });
       return;
     }
+
     try {
+      // 이메일 중복 체크
+      try {
+        const response = await getData(`/api/movies/check-signup-email/${email}`);
+      } catch (error) {
+        if (error.response && error.response.status === 409) {
+          toast({
+            title: "이미 가입된 이메일입니다",
+            description: "다른 이메일을 사용해주세요.",
+            status: "warning",
+            duration: 2000,
+            isClosable: true,
+            position: "top",
+          });
+          return;
+        }
+      }
+
+      // 회원가입 진행
       const response = await postData("/api/movies/signup", {
         userName: name,
         userEmail: email,
@@ -107,8 +126,8 @@ const SignUp = () => {
       navigate("/");
     } catch (error) {
       toast({
-        title: "회원가입 중 문제가 발생했습니다. 다시 시도해주세요.",
-        description: error,
+        title: "회원가입 중 문제가 발생했습니다.",
+        description: "다시 시도해주세요.",
         status: "error",
         duration: 2000,
         isClosable: true,

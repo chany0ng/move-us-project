@@ -14,17 +14,19 @@ import {
   Text,
   FormControl,
   FormLabel,
-  Select
+  Select,
+  useToast
 } from "@chakra-ui/react";
 import { MdReportProblem } from 'react-icons/md';
 import { useRef, useState } from 'react';
 import { postData } from "../api/axios";
 
-const ReportButton = ({ reviewId, onReportSubmit, size = "sm" }) => {
+const ReportButton = ({ reviewId, userEmail, size = "sm" }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const cancelRef = useRef();
   const [reportComment, setReportComment] = useState("");
   const [reportReason, setReportReason] = useState("");
+  const toast = useToast();
 
   const handleReportClick = (e) => {
     e.stopPropagation();
@@ -33,38 +35,76 @@ const ReportButton = ({ reviewId, onReportSubmit, size = "sm" }) => {
 
   const handleConfirm = async () => {
     if (!reportReason) {
-      alert("신고 사유를 선택해주세요.");
+      toast({
+        title: "신고 사유 필요",
+        description: "신고 사유를 선택해주세요.",
+        status: "warning",
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+      });
       return;
     }
 
     if (reportReason === "기타" && !reportComment.trim()) {
-      alert("구체적인 신고 사유를 입력해주세요.");
+      toast({
+        title: "신고 사유 필요",
+        description: "구체적인 신고 사유를 입력해주세요.",
+        status: "warning",
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+      });
       return;
     }
 
     try {
       const reportData = {
-        reviewId: reviewId,
+        reviewId: parseInt(reviewId),
         reportReason: reportReason,
         reportComment: reportReason === "기타" ? reportComment : reportReason,
+        reportUserEmail: userEmail
       };
+
+      console.log('Sending report data:', reportData);
 
       const response = await postData('/api/review/report', reportData);
       
-      if (response.status === 201) {
-        alert("리뷰 신고가 접수되었습니다.");
-        onReportSubmit?.(reportData);
+      if (response.status === 201 || response.status === 200) {
+        toast({
+          title: "신고 완료",
+          description: "리뷰 신고가 접수되었습니다.",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+          position: "top",
+        });
         setReportComment("");
         setReportReason("");
         onClose();
       }
     } catch (error) {
-      console.error("신고 처리 중 오류 발생:", error);
+      console.error('Error details:', error.response?.data);
       if (error.response?.status === 400) {
-        alert(error.response.data || "신고 처리 중 오류가 발생했습니다.");
+        toast({
+          title: "신고 실패",
+          description: error.response?.data || "신고 처리 중 오류가 발생했습니다.",
+          status: "warning",
+          duration: 3000,
+          isClosable: true,
+          position: "top",
+        });
       } else {
-        alert("신고 처리 중 오류가 발생했습니다.");
+        toast({
+          title: "신고 실패",
+          description: "신고 처리 중 오류가 발생했습니다.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+          position: "top",
+        });
       }
+      onClose();
     }
   };
 
