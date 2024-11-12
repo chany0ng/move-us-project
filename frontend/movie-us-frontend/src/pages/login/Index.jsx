@@ -23,8 +23,6 @@ import { getData, getUserNum, postData } from "../../api/axios";
 import { userStore } from "../../../store";
 import { jwtDecode } from "jwt-decode";
 
-//todo 로그인창으로 오기전 path를 기억해내서 로그인 후 redirect 시켜야 한다
-//todo location.state.from.pathname || "/main" -> navigate(from, {replace: true})
 const Index = () => {
   const user = userStore();
   const navigate = useNavigate();
