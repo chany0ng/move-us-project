@@ -1,12 +1,19 @@
 import { Box, Flex, Heading, Text } from "@chakra-ui/react";
 import { AiFillFolder } from "react-icons/ai";
-import { Select } from "@chakra-ui/react";
-import { Tabs, TabList, TabPanels, Tab } from "@chakra-ui/react";
+import {
+  Select,
+  Tabs,
+  TabList,
+  TabPanels,
+  Tab,
+  useToast,
+} from "@chakra-ui/react";
 import MovieTabPanel from "../../components/MovieTabPanel";
 import { getData } from "../../api/axios";
 import { useEffect, useState } from "react";
-import { useToast } from "@chakra-ui/react";
 import { useLocation, useNavigate } from "react-router-dom";
+import SearchBar from "../../components/SearchBar";
+import Pagination from "../../components/Pagination";
 
 const GENRES = [
   "All",
@@ -24,89 +31,117 @@ const Movies = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // URL 파라미터에서 초기값 설정
   const initialGenre =
     new URLSearchParams(location.search).get("genre") || "All";
   const initialSort =
-    new URLSearchParams(location.search).get("sort") || "latest";
+    new URLSearchParams(location.search).get("sort") || "popular";
 
   const [genre, setGenre] = useState(initialGenre);
   const [sort, setSort] = useState(initialSort);
   const [movies, setMovies] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalElements, setTotalElements] = useState(0);
 
-  const normalizeMovieData = (movie) => {
-    return {
-      id: movie.tmdbId,
-      title: movie.title,
-      poster_path: movie.posterPath,
-      exists_in_db: movie.exists_in_db || true,
-    };
-  };
-
-  useEffect(() => {
-    const fetchAndSetMovies = async () => {
-      const nowPlayingMovies = await fetchMovies(genre, sort);
-      const popularMovies = await fetchPopularMovies(genre, sort);
-      const totalMovies = [...nowPlayingMovies, ...popularMovies];
-      setMovies(totalMovies);
-    };
-
-    fetchAndSetMovies();
-  }, [genre, sort]);
-
-  const fetchMovies = async (genre, sort) => {
+  const fetchSortedMoviesByPopularity = async (genre, page = 1, size = 30) => {
     try {
       setIsLoading(true);
-      const response = await getData("/movies/moviesList", {
-        params: { genre, sort },
+      const response = await getData("/movies/combinedMovies", {
+        params: { genre: genre, page: page, size: size, sort: "popular" }, // 정렬 기준을 popular로 전달
       });
-      return response.data.map(normalizeMovieData);
+      setTotalElements(response.data.totalElements);
+      setMovies(response.data.content);
     } catch (error) {
       toast({
-        title: "현재 상영 영화 조회 Error",
+        title: "인기순 정렬 페이징 조회 Error",
         description: `Failed to fetch movies / ${error}`,
         status: "error",
         duration: 2000,
         isClosable: true,
       });
-      console.error("Error fetching data:", error);
+      console.error(error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const fetchPopularMovies = async (genre, sort) => {
+  useEffect(() => {
+    if (location.pathname === "/movies" && !location.search) {
+      setGenre("All");
+      setSort("popular");
+      navigate("?genre=All&sort=popular", { replace: true });
+    }
+  }, [location, navigate]);
+
+  useEffect(() => {
+    // 검색 중이라면, useEffect의 데이터 fetching을 중단
+    if (searchQuery) return;
+
+    const queryParams = new URLSearchParams({ genre, sort });
+    navigate(`?${queryParams.toString()}`, { replace: true });
+
+    if (sort === "popular") {
+      console.log("sort가 popular에요");
+      fetchSortedMoviesByPopularity(genre, currentPage);
+    }
+  }, [genre, searchQuery, sort, currentPage]);
+
+  const fetchSortedMoviesByReview = async (genre) => {
     try {
-      setIsLoading(true);
-      const response = await getData("/movies/allPopularMovies", {
-        params: { genre, sort },
+      const response = await getData("/movies/sortedByReviews", {
+        params: { genre: genre },
       });
-      return response.data;
+      setMovies(response.data);
     } catch (error) {
       toast({
-        title: "인기 영화 조회 Error",
+        title: "리뷰순 정렬 조회 Error",
         description: `Failed to fetch movies / ${error}`,
         status: "error",
         duration: 2000,
         isClosable: true,
       });
-      console.error("Error fetching data:", error);
-    } finally {
-      setIsLoading(false);
+      console.error(error);
     }
   };
 
   const handleSortChange = (e) => {
     const newSort = e.target.value;
     setSort(newSort);
-    navigate(`?genre=${genre}&sort=${newSort}`);
+
+    if (newSort === "review") {
+      fetchSortedMoviesByReview(genre); // 리뷰순 정렬
+    } else if (newSort === "popular") {
+      fetchSortedMoviesByPopularity(genre, currentPage); // 인기순 정렬
+    }
   };
 
   const handleTabChange = (index) => {
     const newGenre = GENRES[index];
     setGenre(newGenre);
-    navigate(`?genre=${newGenre}&sort=${sort}`);
+  };
+
+  const handleSearch = async (query) => {
+    setSearchQuery(query);
+    if (query) {
+      try {
+        const response = await getData("/movies/search", {
+          params: { query },
+        });
+        setMovies(response.data);
+      } catch (error) {
+        toast({
+          title: "영화명 검색 Error",
+          description: `Failed to search movies / ${error}`,
+          status: "error",
+          duration: 2000,
+          isClosable: true,
+        });
+        console.error("Error Search movies:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
   };
 
   return (
@@ -118,12 +153,13 @@ const Movies = () => {
         </Flex>
         <Flex align={"center"} gap={3} pl={3} color="#cfcfcf">
           <Text fontSize={"lg"} fontWeight={"bold"}>
-            총 {movies?.length}건의 영화가 검색되었습니다
+            총 {totalElements}건의 영화가 조회되었습니다
           </Text>
         </Flex>
       </Box>
 
-      <Box color="black" p={5} position="relative">
+      <Box color="black" p={10} position="relative">
+        <SearchBar onSearch={handleSearch} />
         <Select
           bg="brand.primary"
           width="150px"
@@ -134,12 +170,14 @@ const Movies = () => {
           top={0}
           right={5}
           _focus={{ border: "1px solid black", boxShadow: "none" }}
-          onChange={(e) => handleSortChange(e)}
+          onChange={handleSortChange}
           value={sort}
         >
-          <option value="latest">최신순</option>
+          <option value="popular">인기순</option>
           <option value="review">리뷰 많은 순</option>
-          <option value="like">좋아요 많은 순</option>
+          <option value="latest" disabled>
+            최신순
+          </option>
         </Select>
       </Box>
 
@@ -150,29 +188,40 @@ const Movies = () => {
           size={"md"}
           onChange={(index) => handleTabChange(index)}
           minHeight="50vh"
-          index={GENRES.indexOf(genre)} // Tab의 초기 인덱스 설정
+          index={GENRES.indexOf(genre)}
         >
           <TabList gap={10} justifyContent={"center"}>
             {GENRES.map((genre) => (
               <Tab
                 key={genre}
                 width="10%"
+                _hover={{
+                  transform: "translateY(-10px)", // 위로 3px 올라감
+                  scaleX: "1.1",
+                }}
+                transition="all 0.3s ease"
                 border="1px solid grey"
                 color="white"
-                transition="transform 0.2s ease, box-shadow 0.2s ease"
-                _hover={{
-                  transform: "translateY(-5px)",
-                  boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.3)",
-                }}
               >
                 {genre}
               </Tab>
             ))}
           </TabList>
           <TabPanels minHeight="inherit" p={10}>
-            <MovieTabPanel key={genre} movies={movies} isLoading={isLoading} />
+            <MovieTabPanel
+              key={`${genre}-${sort}-${searchQuery}`}
+              movies={movies}
+              isLoading={isLoading}
+            />
           </TabPanels>
         </Tabs>
+      </Box>
+      <Box flex="1" color="white" p={5}>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={Math.ceil(totalElements / 20)} // 20은 페이지당 항목 수
+          onPageChange={(page) => setCurrentPage(page)}
+        />
       </Box>
     </Flex>
   );

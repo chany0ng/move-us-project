@@ -85,11 +85,10 @@ public class KakaoRestController {
         String jwtToken = jwtTokenProvider.generateTokenByEmailAndName(userDTO.getUserEmail(), userDTO.getUserName(), userDTO.getUserNum());
 
         // JWT 토큰을 포함한 리다이렉트 URL 생성
-        String redirectUrl = UriComponentsBuilder.fromUriString("http://localhost:3000/main")
+        String redirectUrl = UriComponentsBuilder.fromUriString("http://localhost:3000/")
                 .queryParam("token", jwtToken)
                 .build()
                 .toUriString();
-
         // React 앱으로 리다이렉트
         RedirectView redirectView = new RedirectView();
         redirectView.setUrl(redirectUrl);

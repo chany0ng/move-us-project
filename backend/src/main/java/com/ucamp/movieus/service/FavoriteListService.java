@@ -20,6 +20,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -33,14 +34,14 @@ public class FavoriteListService {
     private final RestTemplate restTemplate;
 
     // 찜 목록을 조회하는 메서드
-    public List<FavoriteList> getUserFavoriteList(UserEntity user) {
-
+    public List<FavoriteListResponseDTO> getUserFavoriteList(UserEntity user) {
+        // 찜 목록을 DB에서 조회
         List<FavoriteList> favoriteList = favoriteListRepository.findAllByUser(user);
-        for (FavoriteList favorite : favoriteList) {
-            convertToResponseDTO(favorite);
-        }
 
-        return favoriteList;
+        // FavoriteList 객체를 FavoriteListResponseDTO로 변환하여 반환
+        return favoriteList.stream()
+                .map(favorite -> convertToResponseDTO(favorite))  // convertToResponseDTO 메서드를 호출하여 DTO로 변환
+                .collect(Collectors.toList());
     }
 
     private final String API_KEY = "40405429a36ddf7b1d4337a022992fbc";
@@ -59,6 +60,7 @@ public class FavoriteListService {
             try {
                 Map<String, Object> movieDetails = getMovieDetailsFromApi(favorite.getTmdbId());
                 responseDTO.setTitle((String) movieDetails.get("title"));
+                responseDTO.setPosterPath((String) movieDetails.get("poster_path")); // 포스터 경로 추가
                 Map<String, Object> collection = (Map<String, Object>) movieDetails.get("belongs_to_collection");
                 if (collection != null) {
                     responseDTO.setTitle((String) collection.get("name"));
@@ -78,12 +80,16 @@ public class FavoriteListService {
     }
 
     // 찜 목록에 추가하는 메서드
-    public FavoriteList addFavorite(FavoriteList favoriteList) {
-        UserEntity user = userRepository.findById(favoriteList.getUser().getUserNum())
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
-                
-        favoriteList.setUser(user);
-        return favoriteListRepository.save(favoriteList);
+    public boolean addFavorite(FavoriteList favoriteList) {
+        // User와 조회
+        UserEntity user = userRepository.findById(favoriteList.getUser().getUserNum()).orElse(null);
+
+        if (user != null) {
+            favoriteList.setUser(user);  // User 설정
+            favoriteListRepository.save(favoriteList);  // FavoriteList 저장
+            return true;
+        }
+        return false;
     }
 
     // 찜 목록에서 삭제하는 메서드
@@ -94,5 +100,4 @@ public class FavoriteListService {
         }
         return false;
     }
-
 }

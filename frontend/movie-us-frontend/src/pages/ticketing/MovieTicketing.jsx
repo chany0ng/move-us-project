@@ -16,22 +16,29 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { getData } from "../../api/axios";
-import theaterData from "../../assets/data/theater.json";
 import DateSelector from "../../components/DateSelector";
 import { RepeatClockIcon } from "@chakra-ui/icons";
-import timeTable from "../../assets/data/timeTable.json";
 import TicketSummary from "../../components/TicketSummary";
 import { useParams } from "react-router-dom";
 
 const MovieTicketing = () => {
-  const { tmdbId } = useParams();
+  const { indexId } = useParams();
   const [selectedDate, setSelectedDate] = useState(null);
-  const [selectedMovie, setSelectedMovie] = useState(parseInt(tmdbId));
+  const [selectedMovie, setSelectedMovie] = useState(parseInt(indexId));
+  const [selectedMovieTmdbId, setSelectedMovieTmdbId] = useState(null);
+  const [cinemaData, setCinemaData] = useState(null);
+  const [allGuArray, setAllGuArray] = useState(null);
   const [selectedTheater, setSelectedTheater] = useState(null);
-  const [selectedGu, setSelectedGu] = useState(
-    Object.keys(theaterData["서울시"])[0]
-  );
+  const [selectedGu, setSelectedGu] = useState(null);
+  const [allTimeArray, setAllTimeArray] = useState([]);
   const [selectedTime, setSelectedTime] = useState(null);
+  const [selectedSession, setSelectedSession] = useState(null);
+  const [availableSeats, setAvailableSeats] = useState(100);
+
+  useEffect(() => {
+    fetchData();
+    fetchCinemaData();
+  }, []);
 
   const formatDate = (date) => {
     const year = date.getFullYear();
@@ -71,12 +78,58 @@ const MovieTicketing = () => {
       setIsLoading(false);
     }
   };
+  const fetchCinemaData = async () => {
+    try {
+      setIsLoading(true);
+      const response = await getData("/api/v1/cinemas/locations");
+      setCinemaData(response.data);
+      setAllGuArray(Object.keys(response.data));
+      setSelectedGu(Object.keys(response.data)[0]);
+    } catch (error) {
+      toast({
+        title: "영화관 조회 Error",
+        description: `Failed to fetch cinema locations / ${error}`,
+        status: "error",
+        duration: 2000,
+        isClosable: true,
+      });
+      console.error("Error fetching data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  const fetchScreeningTimeData = async () => {
+    const formattedDate = selectedDate.toISOString().split("T")[0];
+    try {
+      if (selectedMovie && selectedTheater && formattedDate) {
+        const response = await getData("/api/v1/screenings/times", {
+          params: {
+            movieId: selectedMovie,
+            theaterName: selectedTheater,
+            screeningDate: formattedDate,
+          },
+        });
+        console.log("상영 시간: ", response.data);
+        setAllTimeArray(response.data.reverse());
+      }
+    } catch (error) {
+      toast({
+        title: "상영시간 조회 Error",
+        description: `Failed to fetch screening time / ${error}`,
+        status: "error",
+        duration: 2000,
+        isClosable: true,
+      });
+      console.error("Error fetching Screening time:", error);
+    }
+  };
+
   useEffect(() => {
-    fetchData();
-  }, []);
+    fetchScreeningTimeData();
+  }, [selectedMovie, selectedTheater, selectedDate]);
 
   const resetHandler = () => {
-    setSelectedGu(Object.keys(theaterData["서울시"])[0]);
+    setSelectedGu(allGuArray[0]);
     setSelectedDate(null);
     setSelectedMovie(null);
     setSelectedTheater(null);
@@ -132,25 +185,21 @@ const MovieTicketing = () => {
                 <VStack align="flex-start" width="100%">
                   {movies.map((movie) => (
                     <Box
-                      key={movie.tmdbId}
+                      key={movie.id}
                       fontWeight="bold"
                       cursor="pointer"
                       p={2}
                       width="280px"
                       bg={
-                        selectedMovie === movie.tmdbId
-                          ? "#333333"
-                          : "transparent"
+                        selectedMovie === movie.id ? "#333333" : "transparent"
                       }
-                      color={
-                        selectedMovie === movie.tmdbId ? "#d4d3c9" : "black"
-                      }
-                      onClick={() => setSelectedMovie(movie.tmdbId)}
+                      color={selectedMovie === movie.id ? "#d4d3c9" : "black"}
+                      onClick={() => {
+                        setSelectedMovie(movie.id);
+                        setSelectedMovieTmdbId(movie.tmdbId);
+                      }}
                       _hover={{
-                        bg:
-                          selectedMovie === movie.tmdbId
-                            ? "#444444"
-                            : "#d5d3c7",
+                        bg: selectedMovie === movie.id ? "#444444" : "#d5d3c7",
                       }}
                       borderRadius={6}
                     >
@@ -184,12 +233,10 @@ const MovieTicketing = () => {
             <Box flex="1">
               <Tabs
                 variant="unstyled"
-                onChange={(index) =>
-                  setSelectedGu(Object.keys(theaterData["서울시"])[index])
-                }
+                onChange={(index) => setSelectedGu(allGuArray[index])}
               >
                 <TabList>
-                  {Object.keys(theaterData["서울시"]).map((gu) => (
+                  {allGuArray?.map((gu) => (
                     <Tab
                       key={gu}
                       borderBottom="2px solid #ddd"
@@ -201,59 +248,77 @@ const MovieTicketing = () => {
                     </Tab>
                   ))}
                 </TabList>
-
                 <TabPanels>
-                  {Object.keys(theaterData["서울시"]).map((gu) => (
-                    <TabPanel key={gu}>
-                      <Box>
-                        {Object.entries(theaterData["서울시"][gu])?.map(
-                          ([brand, theaters]) => (
-                            <Box key={brand} mt={2}>
-                              <Text
-                                fontWeight="bold"
-                                fontSize="lg"
-                                mb={2}
-                                fontFamily="Noto Sans KR"
-                              >
-                                {brand}
-                              </Text>
-                              <Box pl={3}>
-                                {theaters.map((theater) => (
+                  {isLoading ? (
+                    <VStack align="flex-start">
+                      {[...Array(5)].map((_, i) => (
+                        <Skeleton
+                          key={i}
+                          height="40px"
+                          width="280px"
+                          padding="2px"
+                          borderRadius="6px"
+                          startColor="#d5d3c7"
+                          endColor="#f0efea"
+                        />
+                      ))}
+                    </VStack>
+                  ) : (
+                    allGuArray?.map((gu) => (
+                      <TabPanel key={gu}>
+                        <Box>
+                          {cinemaData[gu] &&
+                            Object.entries(cinemaData[gu]).map(
+                              ([brand, theaters]) => (
+                                <Box key={brand} mt={2}>
                                   <Text
-                                    key={theater}
-                                    p={2}
-                                    mb={1}
-                                    borderRadius={6}
-                                    cursor="pointer"
-                                    width="90%"
-                                    bg={
-                                      selectedTheater === theater
-                                        ? "#333333"
-                                        : "transparent"
-                                    }
-                                    color={
-                                      selectedTheater === theater
-                                        ? "#d4d3c9"
-                                        : "black"
-                                    }
-                                    onClick={() => setSelectedTheater(theater)}
-                                    _hover={{
-                                      bg:
-                                        selectedTheater === theater
-                                          ? "#444444"
-                                          : "#d5d3c7",
-                                    }}
+                                    fontWeight="bold"
+                                    fontSize="lg"
+                                    mb={2}
+                                    fontFamily="Noto Sans KR"
                                   >
-                                    {theater}
+                                    {brand}
                                   </Text>
-                                ))}
-                              </Box>
-                            </Box>
-                          )
-                        )}
-                      </Box>
-                    </TabPanel>
-                  ))}
+                                  <Box pl={3}>
+                                    {theaters.map((theater) => (
+                                      <Text
+                                        key={theater}
+                                        p={2}
+                                        mb={1}
+                                        borderRadius={6}
+                                        cursor="pointer"
+                                        width="90%"
+                                        bg={
+                                          selectedTheater === theater
+                                            ? "#333333"
+                                            : "transparent"
+                                        }
+                                        color={
+                                          selectedTheater === theater
+                                            ? "#d4d3c9"
+                                            : "black"
+                                        }
+                                        onClick={() =>
+                                          setSelectedTheater(theater)
+                                        }
+                                        _hover={{
+                                          bg:
+                                            selectedTheater === theater
+                                              ? "#444444"
+                                              : "#d5d3c7",
+                                        }}
+                                      >
+                                        {theater}
+                                      </Text>
+                                    ))}
+                                  </Box>
+                                </Box>
+                              )
+                            )}
+                        </Box>
+                      </TabPanel>
+                    ))
+                  )}
                 </TabPanels>
               </Tabs>
             </Box>
@@ -278,7 +343,7 @@ const MovieTicketing = () => {
             color="#333333"
             p="10px"
           >
-            <Box flex="1">
+            <Box flex="1" height="100%">
               <DateSelector
                 selectedDate={selectedDate}
                 onDateSelect={handleDateSelect}
@@ -287,6 +352,7 @@ const MovieTicketing = () => {
           </Flex>
         </Box>
 
+        {/* 상영시간 박스 */}
         <Box flex={3} bg="#f2f0e5" position="relative" border="1px solid gray">
           <Box
             height="50px"
@@ -309,9 +375,7 @@ const MovieTicketing = () => {
               {!selectedDate || !selectedMovie || !selectedTheater ? (
                 // 1. 옵션을 아직 선택하지 않은 경우
                 <Text>영화, 극장, 날짜를 모두 선택해주세요</Text>
-              ) : !timeTable[formatDate(selectedDate)]?.[selectedTheater]?.[
-                  selectedMovie
-                ] ? (
+              ) : allTimeArray.length < 1 ? (
                 // 2. 옵션은 선택했지만 Data가 없는 경우
                 <Text>해당 일자에 상영 일정이 없습니다</Text>
               ) : (
@@ -322,10 +386,8 @@ const MovieTicketing = () => {
                     gap={1}
                     width="100%"
                   >
-                    {timeTable[formatDate(selectedDate)][selectedTheater][
-                      selectedMovie
-                    ].map((session, index) => (
-                      <GridItem key={index}>
+                    {allTimeArray.map((session) => (
+                      <GridItem key={session.timeId}>
                         <Flex
                           p={1}
                           align="center"
@@ -337,20 +399,26 @@ const MovieTicketing = () => {
                           <Button
                             size="sm"
                             backgroundColor={
-                              selectedTime === session.time
+                              selectedTime === session.timeId
                                 ? "#333333"
                                 : "brand.primary"
                             }
                             color={
-                              selectedTime === session.time
+                              selectedTime === session.timeId
                                 ? "#d4d3c9"
                                 : "black"
                             }
-                            onClick={() => setSelectedTime(session.time)}
+                            onClick={() => {
+                              setSelectedTime(session.timeId);
+                              setSelectedSession(
+                                session.screeningTime.slice(0, 5)
+                              );
+                              setAvailableSeats(100 - session.reservedSeats);
+                            }}
                           >
-                            {session.time}
+                            {session.screeningTime.slice(0, 5)}
                           </Button>
-                          <Text>{session.availableSeats}석</Text>
+                          <Text>{100 - session.reservedSeats}석</Text>
                         </Flex>
                       </GridItem>
                     ))}
@@ -364,9 +432,12 @@ const MovieTicketing = () => {
       {selectedMovie && selectedTheater && selectedDate && selectedTime && (
         <TicketSummary
           selectedMovie={selectedMovie}
+          selectedMovieTmdbId={selectedMovieTmdbId}
           selectedTheater={selectedTheater}
           selectedDate={formatDate(selectedDate)}
           selectedTime={selectedTime}
+          selectedSession={selectedSession}
+          availableSeats={availableSeats}
         />
       )}
     </Flex>

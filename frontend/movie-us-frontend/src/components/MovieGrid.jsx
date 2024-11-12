@@ -13,12 +13,12 @@ import styled from "styled-components";
 import { ChevronLeftIcon, ChevronRightIcon, CloseIcon } from "@chakra-ui/icons";
 import { useRef } from "react";
 import { Link } from "react-router-dom";
-
+import alterImage from "../assets/images/image.jpg";
 // Swiper 스타일 import
 import "swiper/css";
 import "swiper/css/navigation";
 
-const MovieGrid = ({ movies, title, isLoading }) => {
+const MovieGrid = ({ movies, title, isLoading, likedMovies }) => {
   const swiperRef = useRef(null);
 
   return (
@@ -72,6 +72,7 @@ const MovieGrid = ({ movies, title, isLoading }) => {
             Array.from({ length: 5 }).map((_, index) => (
               <SwiperSlide key={index}>
                 <Box
+                  key={index}
                   position="relative"
                   width="200px"
                   height="300px"
@@ -82,13 +83,17 @@ const MovieGrid = ({ movies, title, isLoading }) => {
                 </Box>
               </SwiperSlide>
             ))
-          ) : // 로딩 완료 후 실제 콘텐츠 표시
-          movies.length !== 0 ? (
+          ) : movies && movies.length !== 0 ? (
+            // 데이터가 있을 때 실제 콘텐츠 표시
             movies.map((movie, index) => (
-              <SwiperSlide key={movie.id}>
+              <SwiperSlide key={index}>
                 <MovieBox position="relative">
                   <StyledImage
-                    src={"https://image.tmdb.org/t/p/w500" + movie.poster_path}
+                    src={
+                      movie.poster_path
+                        ? "https://image.tmdb.org/t/p/w500" + movie.poster_path
+                        : alterImage
+                    }
                     alt={movie.title}
                   />
                   <Box
@@ -108,28 +113,36 @@ const MovieGrid = ({ movies, title, isLoading }) => {
                     <Heading as="h4" size="md" mb={10}>
                       {movie.title}
                     </Heading>
-                    <Flex>
-                      <Link to={`/movie-detail/${movie.id}`}>
-                        <Button
-                          colorScheme="brand.primary"
-                          variant={"outline"}
-                          mr={5}
-                          mx={movie.exists_in_db ? "none" : "auto"}
-                        >
-                          상세정보
-                        </Button>
-                      </Link>
-                      {movie.exists_in_db && (
-                        <Link to={`/ticketing/${movie.id}`}>
-                          <Button colorScheme="teal">예매하기</Button>
+                    {movie.scrn_cnt ? (
+                      <Flex direction="column">
+                        <Box fontSize="lg">개봉일: {movie.release_date}</Box>
+                        <Box fontSize="lg">상영관 수: {movie.scrn_cnt}</Box>
+                      </Flex>
+                    ) : (
+                      <Flex>
+                        <Link to={`/movie-detail/${movie.id}`}>
+                          <Button
+                            colorScheme="brand.primary"
+                            variant={"outline"}
+                            mr={5}
+                            mx={movie.exists_in_db ? "none" : "auto"}
+                          >
+                            상세정보
+                          </Button>
                         </Link>
-                      )}
-                    </Flex>
+                        {movie.exists_in_db && (
+                          <Link to={`/ticketing/${movie.indexId}`}>
+                            <Button colorScheme="teal">예매하기</Button>
+                          </Link>
+                        )}
+                      </Flex>
+                    )}
                   </DescriptionBox>
                 </MovieBox>
               </SwiperSlide>
             ))
           ) : (
+            // 로딩 완료 후 데이터가 없을 때 메시지 표시
             <Flex
               justify={"center"}
               align={"center"}
@@ -138,10 +151,18 @@ const MovieGrid = ({ movies, title, isLoading }) => {
               gap={5}
             >
               <CloseIcon color="red" />
-              <Heading fontSize="lg" fontWeight={"medium"}>
-                영화가 존재하지 않습니다!
-              </Heading>
-              <Button onClick={() => window.location.reload()}>새로고침</Button>
+              {likedMovies ? (
+                <Heading fontSize="lg">관심목록이 없습니다</Heading>
+              ) : (
+                <Flex direction="column">
+                  <Heading fontSize="lg" fontWeight={"medium"}>
+                    영화가 존재하지 않습니다!
+                  </Heading>
+                  <Button onClick={() => window.location.reload()}>
+                    새로고침
+                  </Button>
+                </Flex>
+              )}
             </Flex>
           )}
         </StyledSwiper>

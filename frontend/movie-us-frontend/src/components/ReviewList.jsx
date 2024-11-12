@@ -5,11 +5,6 @@ import {
   Flex,
   Avatar,
   Icon,
-  IconButton,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
   AlertDialog,
   AlertDialogBody,
   AlertDialogFooter,
@@ -20,12 +15,12 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { StarIcon } from '@chakra-ui/icons';
-import { BsThreeDotsVertical } from 'react-icons/bs';
 import { useRef, useState } from 'react';
 import ReportButton from './ReportButton';
+import ReviewMenu from './ReviewMenu';
 
 // 리뷰 목록 컴포넌트
-const ReviewList = ({ reviews, currentUserNum, onEditReview, onDeleteReview }) => {
+const ReviewList = ({ reviews, currentUserNum, currentUserEmail, onEditReview, onDeleteReview }) => {
   console.log('Reviews data:', reviews);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -55,7 +50,7 @@ const ReviewList = ({ reviews, currentUserNum, onEditReview, onDeleteReview }) =
       ) : (
         reviews.map((review) => (
           <Box 
-            key={review.userNum}
+            key={review.reviewId}
             p={4} 
             borderColor="#3F3F3F"
             borderWidth="1px" 
@@ -64,8 +59,8 @@ const ReviewList = ({ reviews, currentUserNum, onEditReview, onDeleteReview }) =
           >
             <Flex justify="space-between" align="center" mb={2}>
               <Flex align="center" gap={4}>
-                <Avatar size="sm" name={review.username || `User ${review.userNum}`} />
-                <Text fontWeight="bold">{review.username || `User ${review.userNum}`}</Text>
+                <Avatar size="sm" name={review.userName} />
+                <Text fontWeight="bold">{review.userName}</Text>
               </Flex>
               <Flex align="center" gap={4}>
                 <Text fontSize="sm" color="gray.500">
@@ -88,37 +83,15 @@ const ReviewList = ({ reviews, currentUserNum, onEditReview, onDeleteReview }) =
                   ))}
                 </Flex>
                 {currentUserNum === review.userNum ? (
-                  <Menu>
-                    <MenuButton
-                      as={IconButton}
-                      icon={<BsThreeDotsVertical />}
-                      variant="ghost"
-                      size="sm"
-                      aria-label="리뷰 옵션"
-                      color="#3F3F3F"
-                      _hover={{ bg: 'gray.100' }}
-                    />
-                    <MenuList bg="#2f2f2f" borderColor="#3F3F3F">
-                      <MenuItem onClick={() => onEditReview(review)} color="white" bg="#2f2f2f" _hover={{ bg: '#464646' }}>
-                        수정하기
-                      </MenuItem>
-                      <MenuItem 
-                        color="red.500" 
-                        bg="#2f2f2f" 
-                        onClick={() => handleDeleteClick(review.reviewId)} 
-                        _hover={{ bg: '#464646' }}
-                      >
-                        삭제하기
-                      </MenuItem>
-                    </MenuList>
-                  </Menu>
+                  <ReviewMenu 
+                    review={review}
+                    onEditReview={onEditReview}
+                    onDeleteClick={handleDeleteClick}
+                  />
                 ) : (
                   <ReportButton 
                     reviewId={review.reviewId}
-                    onReportSubmit={(reportData) => {
-                      console.log('신고 데이터:', reportData);
-                      // 여기에 신고 API 호출 로직 추가
-                    }}
+                    userEmail={currentUserEmail}
                   />
                 )}
               </Flex>

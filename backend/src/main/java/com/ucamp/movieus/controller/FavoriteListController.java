@@ -24,25 +24,21 @@ public class FavoriteListController {
     private final FavoriteListService favoriteListService;
 
     // 찜 항목 조회
-    @GetMapping
-    public List<FavoriteList> getUserFavoriteList() {
-        UserEntity user = userRepository.findById(1).orElseThrow(() -> new RuntimeException("User not found"));
+    @GetMapping("/{userNum}")
+    public List<FavoriteListResponseDTO> getUserFavoriteList(@PathVariable("userNum") Integer userNum) {
+        UserEntity user = userRepository.findById(userNum).orElseThrow(() -> new RuntimeException("User not found"));
         return favoriteListService.getUserFavoriteList(user);
     }
 
     // 찜 항목 추가
     @PostMapping
-    public ResponseEntity<?> addFavorite(@RequestBody FavoriteList favoriteList) {
-        try {
-            // 임시로 user 설정 (나중에 인증 구현 후 수정 필요)
-            UserEntity user = userRepository.findById(1).orElseThrow(() -> new RuntimeException("User not found"));
-            favoriteList.setUser(user);
-            
-            FavoriteList saved = favoriteListService.addFavorite(favoriteList);
-            FavoriteListResponseDTO responseDTO = modelMapper.map(saved, FavoriteListResponseDTO.class);
-            return ResponseEntity.ok(responseDTO);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+    public ResponseEntity<String> addFavorite(@RequestBody FavoriteList favoriteList) {
+        boolean isAdded = favoriteListService.addFavorite(favoriteList);
+
+        if (isAdded) {
+            return ResponseEntity.ok("찜 목록에 추가되었습니다.");
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("추가에 실패했습니다.");
         }
     }
 

@@ -14,4 +14,7 @@ export default defineConfig({
       src: "/src",
     },
   },
+  optimizeDeps: {
+    include: ["toss-payments"],
+  },
 });
