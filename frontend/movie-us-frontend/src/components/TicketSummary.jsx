@@ -60,7 +60,7 @@ const TicketSummary = ({
     });
   };
   const isLogin = () => {
-    if (user.user_email) return true;
+    if (user.user_num) return true;
     return false;
   };
   const isSelectAllSeats = () => {

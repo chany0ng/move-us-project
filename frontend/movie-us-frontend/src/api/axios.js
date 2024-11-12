@@ -9,21 +9,21 @@ export const customAxios = axios.create({
 });
 
 // // 요청 interceptor
-// customAxios.interceptors.request.use(
-//   (config) => {
-//     const accessToken = localStorage.getItem("accessToken");
-//     if (accessToken) {
-//       config.headers.Authorization = `Bearer ${accessToken}`;
-//     }
-//     if (config.data instanceof FormData) {
-//       config.headers["Content-Type"] = "multipart/form-data";
-//     } else {
-//       config.headers["Content-Type"] = "application/json";
-//     }
-//     return config;
-//   },
-//   (error) => Promise.reject(error)
-// );
+customAxios.interceptors.request.use(
+  (config) => {
+    const accessToken = localStorage.getItem("accessToken");
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
+    }
+    if (config.data instanceof FormData) {
+      config.headers["Content-Type"] = "multipart/form-data";
+    } else {
+      config.headers["Content-Type"] = "application/json";
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 // // 응답 interceptor
 // customAxios.interceptors.response.use(
