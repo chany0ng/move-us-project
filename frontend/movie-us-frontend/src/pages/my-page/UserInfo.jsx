@@ -16,6 +16,7 @@ import {
 import { useState, useEffect } from "react";
 import Sidebar from "./../../components/Sidebar";
 import { getData, putData } from "../../api/axios";
+import { userStore } from "../../../store";
 
 const UserInfo = () => {
   const bgColor = "gray.900";
@@ -24,7 +25,8 @@ const UserInfo = () => {
   const inputBgColor = "gray.700";
   const borderColor = "gray.600";
 
-  const userNum = 1; // 임시 유저 번호 설정 (나중에 실제 로그인된 사용자의 번호로 대체)
+  const { getState } = userStore;
+  const userNum = getState().user.user_num;
 
   const toast = useToast();
 
@@ -146,6 +148,7 @@ const UserInfo = () => {
                 onChange={handleInputChange}
                 type="email" 
                 placeholder="이메일을 입력하세요" 
+                isDisabled={!!userInfo.kakaoEmail}
                 bg={inputBgColor} 
                 borderColor={borderColor} 
                 _placeholder={{ color: "gray.500" }}
@@ -153,7 +156,7 @@ const UserInfo = () => {
               />
             </FormControl>
 
-            {/* 카카오 이메일 입력 */}
+            {/* 카카오 이메일 입력. */}
             <FormControl>
               <FormLabel htmlFor="kakaoEmail" color="yellow.400">
                 카카오 이메일
@@ -161,10 +164,9 @@ const UserInfo = () => {
               <InputGroup>
                 <Input 
                   id="kakaoEmail" 
-                  value={userInfo.kakaoEmail || '카카오 계정이 연동되어 있지 않습니다'}
-                  onChange={handleInputChange}
+                  value={userInfo.kakaoEmail ? userInfo.kakaoEmail : '카카오 계정이 연동되어 있지 않습니다'}
                   type="email" 
-                  isDisabled={!userInfo.kakaoEmail}
+                  isReadOnly
                   bg={inputBgColor} 
                   borderColor={borderColor} 
                   _placeholder={{ color: "gray.500" }}

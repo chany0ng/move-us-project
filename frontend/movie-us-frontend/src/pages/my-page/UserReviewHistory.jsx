@@ -7,6 +7,7 @@ import { getData, deleteData } from "../../api/axios";
 import ReviewMenu from "../../components/ReviewMenu";
 import { useNavigate } from "react-router-dom";
 import ReviewModal from "../../components/ReviewModal";
+import { userStore } from "../../../store";
 
 const UserReviewHistory = () => {
   const bgColor = "gray.900";
@@ -16,7 +17,8 @@ const UserReviewHistory = () => {
   const toast = useToast();
   const navigate = useNavigate();
 
-  const userNum = 1; // 임시 유저 번호 설정
+  const { getState } = userStore;
+  const userNum = getState().user.user_num;
   const [reviewHistory, setReviewHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const { isOpen, onOpen, onClose } = useDisclosure();

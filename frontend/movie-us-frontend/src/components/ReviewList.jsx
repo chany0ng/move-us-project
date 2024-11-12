@@ -20,7 +20,7 @@ import ReportButton from './ReportButton';
 import ReviewMenu from './ReviewMenu';
 
 // 리뷰 목록 컴포넌트
-const ReviewList = ({ reviews, currentUserNum, onEditReview, onDeleteReview }) => {
+const ReviewList = ({ reviews, currentUserNum, currentUserEmail, onEditReview, onDeleteReview }) => {
   console.log('Reviews data:', reviews);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -50,7 +50,7 @@ const ReviewList = ({ reviews, currentUserNum, onEditReview, onDeleteReview }) =
       ) : (
         reviews.map((review) => (
           <Box 
-            key={review.userNum}
+            key={review.reviewId}
             p={4} 
             borderColor="#3F3F3F"
             borderWidth="1px" 
@@ -59,8 +59,8 @@ const ReviewList = ({ reviews, currentUserNum, onEditReview, onDeleteReview }) =
           >
             <Flex justify="space-between" align="center" mb={2}>
               <Flex align="center" gap={4}>
-                <Avatar size="sm" name={review.username || `User ${review.userNum}`} />
-                <Text fontWeight="bold">{review.username || `User ${review.userNum}`}</Text>
+                <Avatar size="sm" name={review.userName} />
+                <Text fontWeight="bold">{review.userName}</Text>
               </Flex>
               <Flex align="center" gap={4}>
                 <Text fontSize="sm" color="gray.500">
@@ -91,10 +91,7 @@ const ReviewList = ({ reviews, currentUserNum, onEditReview, onDeleteReview }) =
                 ) : (
                   <ReportButton 
                     reviewId={review.reviewId}
-                    onReportSubmit={(reportData) => {
-                      console.log('신고 데이터:', reportData);
-                      // 여기에 신고 API 호출 로직 추가
-                    }}
+                    userEmail={currentUserEmail}
                   />
                 )}
               </Flex>

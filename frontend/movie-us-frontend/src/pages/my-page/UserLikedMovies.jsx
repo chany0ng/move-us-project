@@ -6,13 +6,15 @@ import { getData } from "../../api/axios"; // API 요청을 위한 함수
 import { useToast } from "@chakra-ui/react";
 import { deleteData } from "../../api/axios"; // API 요청을 위한 함수
 import { useNavigate } from "react-router-dom";  // 추가
+import { userStore } from "../../../store";
 
 const UserLikedMovies = () => {
   const bgColor = "gray.900";
   const cardBgColor = "gray.800";
   const textColor = "gray.100";
   const borderColor = "gray.600";
-  const userNum = 1; // 임시 유저 번호 설정
+  const { getState } = userStore;
+  const userNum = getState().user.user_num;
   const toast = useToast();
   const navigate = useNavigate();  // 추가
 

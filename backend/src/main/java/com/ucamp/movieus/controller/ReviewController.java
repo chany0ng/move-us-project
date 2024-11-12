@@ -91,7 +91,6 @@ public class ReviewController {
     @PostMapping("/report")
     public ResponseEntity<String> reviewReport(@Valid @RequestBody ReveiwReportRequestDTO reviewRequestDTO) {
         try {
-            reviewRequestDTO.setReportUserEmail("user1@example.com");
             reviewService.reviewReport(reviewRequestDTO);
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body("Review has been reported successfully.");
