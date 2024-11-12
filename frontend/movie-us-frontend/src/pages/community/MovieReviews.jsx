@@ -58,6 +58,7 @@ const MovieReviews = () => {
   const fetchReviews = useCallback(async () => {
     try {
       const response = await getData("/api/review/reviewList");
+      console.log("받아온 리뷰 데이터:", response.data);
       setReviews(response.data);
       processTopMovies(response.data);
     } catch (error) {
@@ -143,9 +144,9 @@ const MovieReviews = () => {
                 )}
               </PosterSection>
               <ReviewContent>
-                <h3>영화 : {review.title}</h3>
+                <h3>영화: {review.title || '제목 없음'}</h3>
                 <ReviewInfo>
-                  <div>User {review.userNum}</div>
+                  <div>{review.userName}</div>
                   <div style={{ color: review.rating >= 5 ? '#FFD700' : '#FF0000' }}>
                     ★ {review.rating?.toFixed(1)}
                   </div>
@@ -188,8 +189,8 @@ const ReviewGrid = styled.div`
 
 const ReviewCard = styled.div`
   width: 100%;
-  max-width: 330px;
-  aspect-ratio: 8/9;
+  max-width: 360px;
+  aspect-ratio: 8/11;
   background: #2D2D2D;
   border-radius: 8px;
   overflow: hidden;
@@ -207,7 +208,7 @@ const ReviewCard = styled.div`
 
 const PosterSection = styled.div`
   width: 100%;
-  height: 40%;
+  height: 45%;
   overflow: hidden;
   
   img {
@@ -219,7 +220,7 @@ const PosterSection = styled.div`
 
 const ReviewContent = styled.div`
   padding: 16px;
-  height: 60%;
+  height: 55%;
   display: flex;
   flex-direction: column;
 
@@ -227,9 +228,11 @@ const ReviewContent = styled.div`
     font-size: 16px;
     font-weight: bold;
     margin-bottom: 8px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: normal;
+    word-break: break-word;
+    overflow: visible;
+    max-height: 2.4em;
+    line-height: 1.2;
   }
 
   p {
