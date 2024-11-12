@@ -156,7 +156,7 @@ const UserInfo = () => {
               />
             </FormControl>
 
-            {/* 카카오 이메일 입력 */}
+            {/* 카카오 이메일 입력. */}
             <FormControl>
               <FormLabel htmlFor="kakaoEmail" color="yellow.400">
                 카카오 이메일
