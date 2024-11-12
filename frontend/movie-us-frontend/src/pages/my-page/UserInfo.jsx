@@ -148,6 +148,7 @@ const UserInfo = () => {
                 onChange={handleInputChange}
                 type="email" 
                 placeholder="이메일을 입력하세요" 
+                isDisabled={!!userInfo.kakaoEmail}
                 bg={inputBgColor} 
                 borderColor={borderColor} 
                 _placeholder={{ color: "gray.500" }}
@@ -163,10 +164,9 @@ const UserInfo = () => {
               <InputGroup>
                 <Input 
                   id="kakaoEmail" 
-                  value={userInfo.kakaoEmail || '카카오 계정이 연동되어 있지 않습니다'}
-                  onChange={handleInputChange}
+                  value={userInfo.kakaoEmail ? userInfo.kakaoEmail : '카카오 계정이 연동되어 있지 않습니다'}
                   type="email" 
-                  isDisabled={!userInfo.kakaoEmail}
+                  isReadOnly
                   bg={inputBgColor} 
                   borderColor={borderColor} 
                   _placeholder={{ color: "gray.500" }}
