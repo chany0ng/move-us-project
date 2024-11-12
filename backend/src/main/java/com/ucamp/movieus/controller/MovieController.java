@@ -5,12 +5,19 @@ import com.ucamp.movieus.entity.Movie;
 import com.ucamp.movieus.repository.MovieRepository;
 import com.ucamp.movieus.service.MovieService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -187,6 +194,88 @@ public class MovieController {
         public ResponseEntity<List<DailyBoxOfficeDTO>> getDailyBoxOffice() {
             List<DailyBoxOfficeDTO> boxOfficeData = movieService.getAllOrderedByRankAsDTO();
             return ResponseEntity.ok(boxOfficeData);
+        }
+
+    @GetMapping("/combinedMovies")
+    public ResponseEntity<Page<Map<String, Object>>> getCombinedMovies(
+            @RequestParam(required = false) String genre,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false, defaultValue = "popular") String sort
+    ) {
+        page = page - 1; // 1페이지부터 시작하도록 조정
+
+        // 1. DB 영화 목록 가져오기 및 장르 필터링
+        List<Map<String, Object>> dbMovies;
+        if ("All".equals(genre) || genre == null) {
+            dbMovies = movieRepository.findAll().stream()
+                    .map(this::convertDbMovieToStandardFormat)
+                    .collect(Collectors.toList());
+        } else {
+            dbMovies = movieService.getMoviesByGenreName(genre).stream()
+                    .map(this::convertDbMovieToStandardFormat)
+                    .collect(Collectors.toList());
+        }
+
+        // 2. 외부 API 영화 목록 가져오기 및 장르 필터링
+        List<Map<String, Object>> apiMovies;
+        if ("All".equals(genre) || genre == null) {
+            apiMovies = movieService.getAllPopularMovies().stream()
+                    .map(this::convertApiMovieToStandardFormat)
+                    .collect(Collectors.toList());
+        } else {
+            apiMovies = movieService.getPopularMoviesByGenre(genre).stream()
+                    .map(this::convertApiMovieToStandardFormat)
+                    .collect(Collectors.toList());
+        }
+
+        // 3. 두 영화 리스트 합치기
+        List<Map<String, Object>> allMovies = new ArrayList<>(dbMovies);
+        allMovies.addAll(apiMovies);
+
+        // 4. 정렬 (popularity 기준으로 내림차순)
+        allMovies.sort((movie1, movie2) ->
+                Double.compare(
+                        Double.parseDouble(movie2.get("popularity").toString()),
+                        Double.parseDouble(movie1.get("popularity").toString())
+                )
+        );
+
+        // 5. 페이지네이션 처리
+        Pageable pageable = PageRequest.of(page, size);
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + size, allMovies.size());
+        List<Map<String, Object>> paginatedMovies = allMovies.subList(start, end);
+        Page<Map<String, Object>> moviePage = new PageImpl<>(paginatedMovies, pageable, allMovies.size());
+
+        return ResponseEntity.ok(moviePage);
+    }
+
+    // DB 영화 데이터를 공통 포맷으로 변환
+    private Map<String, Object> convertDbMovieToStandardFormat(Movie movie) {
+        return Map.of(
+                "id", Objects.requireNonNullElse(movie.getTmdbId(), 0),  // id가 null이면 기본값 0 사용
+                "title", Objects.requireNonNullElse(movie.getTitle(), "제목 없음"),  // 기본값을 "제목 없음"으로 설정
+                "poster_path", Objects.requireNonNullElse(movie.getPosterPath(), ""),
+                "popularity", Objects.requireNonNullElse(movie.getPopularity(), ""),
+                "overview", Objects.requireNonNullElse(movie.getOverview(), "정보 없음"),
+                "release_date", Objects.requireNonNullElse(movie.getReleaseDate(), "미정"),
+                "exists_in_db", true  // DB 영화 데이터이므로 항상 true
+        );
+    }
+
+
+    // 외부 API 영화 데이터를 공통 포맷으로 변환
+    private Map<String, Object> convertApiMovieToStandardFormat(Map<String, Object> movie) {
+        return Map.of(
+                "id", movie.get("id"),
+                "title", movie.get("title"),
+                "poster_path", movie.get("poster_path"),
+                "popularity", movie.get("popularity"),
+                "overview", movie.get("overview"),
+                "release_date", movie.get("release_date"),
+                "exists_in_db", false  // 외부 API 데이터이므로 항상 false
+        );
     }
 
 }

@@ -327,7 +327,7 @@ public class MovieService {
         for (Movie dbMovie : dbMovies) {
             // DB 데이터를 Map 형태로 변환 후 allMovies에 추가
             Map<String, Object> movieMap = new HashMap<>();
-            movieMap.put("id", dbMovie.getId());
+            movieMap.put("id", dbMovie.getTmdbId());
             movieMap.put("title", dbMovie.getTitle());
             movieMap.put("original_title", dbMovie.getOriginalTitle());
             movieMap.put("poster_path", dbMovie.getPosterPath());
@@ -345,7 +345,7 @@ public class MovieService {
             String originalTitle = (String) movie.get("original_title");
 
             // 각 영화 제목과 original_title 확인
-            System.out.println("Checking movie: " + title + " / " + originalTitle);
+            //System.out.println("Checking movie: " + title + " / " + originalTitle);
 
             // title 또는 original_title에서 공백을 제거한 후 검색어와 비교
             if ((title != null && title.replaceAll("\\s+", "").toLowerCase().contains(cleanedSearchQuery)) ||
