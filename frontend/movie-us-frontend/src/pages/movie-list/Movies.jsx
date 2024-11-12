@@ -1,12 +1,18 @@
 import { Box, Flex, Heading, Text } from "@chakra-ui/react";
 import { AiFillFolder } from "react-icons/ai";
-import { Select } from "@chakra-ui/react";
-import { Tabs, TabList, TabPanels, Tab } from "@chakra-ui/react";
+import {
+  Select,
+  Tabs,
+  TabList,
+  TabPanels,
+  Tab,
+  useToast,
+} from "@chakra-ui/react";
 import MovieTabPanel from "../../components/MovieTabPanel";
 import { getData } from "../../api/axios";
 import { useEffect, useState } from "react";
-import { useToast } from "@chakra-ui/react";
 import { useLocation, useNavigate } from "react-router-dom";
+import SearchBar from "../../components/SearchBar";
 
 const GENRES = [
   "All",
@@ -24,16 +30,16 @@ const Movies = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // URL 파라미터에서 초기값 설정
   const initialGenre =
     new URLSearchParams(location.search).get("genre") || "All";
   const initialSort =
-    new URLSearchParams(location.search).get("sort") || "latest";
+    new URLSearchParams(location.search).get("sort") || "popular";
 
   const [genre, setGenre] = useState(initialGenre);
   const [sort, setSort] = useState(initialSort);
   const [movies, setMovies] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const normalizeMovieData = (movie) => {
     return {
@@ -43,33 +49,36 @@ const Movies = () => {
       exists_in_db: movie.exists_in_db || true,
     };
   };
+
   useEffect(() => {
-    // 네비게이션 바에서 영화 조회 탭을 클릭했을 때 URL을 기본 쿼리로 리셋
     if (location.pathname === "/movies" && !location.search) {
       setGenre("All");
-      setSort("latest");
-      navigate("?genre=All&sort=latest", { replace: true });
+      setSort("popular");
+      navigate("?genre=All&sort=popular", { replace: true });
     }
   }, [location, navigate]);
+
   useEffect(() => {
+    if (searchQuery || sort === "review") return;
+
     const queryParams = new URLSearchParams({ genre, sort });
     navigate(`?${queryParams.toString()}`, { replace: true });
 
     const fetchAndSetMovies = async () => {
-      const nowPlayingMovies = await fetchMovies(genre, sort);
-      const popularMovies = await fetchPopularMovies(genre, sort);
+      const nowPlayingMovies = await fetchMovies(genre);
+      const popularMovies = await fetchPopularMovies(genre);
       const totalMovies = [...nowPlayingMovies, ...popularMovies];
       setMovies(totalMovies || []);
     };
 
     fetchAndSetMovies();
-  }, [genre, sort]);
+  }, [genre, sort, searchQuery]);
 
-  const fetchMovies = async (genre, sort) => {
+  const fetchMovies = async (genre) => {
     try {
       setIsLoading(true);
       const response = await getData("/movies/moviesList", {
-        params: { genre, sort },
+        params: { genre },
       });
       return response.data.map(normalizeMovieData);
     } catch (error) {
@@ -86,11 +95,11 @@ const Movies = () => {
     }
   };
 
-  const fetchPopularMovies = async (genre, sort) => {
+  const fetchPopularMovies = async (genre) => {
     try {
       setIsLoading(true);
       const response = await getData("/movies/allPopularMovies", {
-        params: { genre, sort },
+        params: { genre },
       });
       return response.data;
     } catch (error) {
@@ -109,12 +118,56 @@ const Movies = () => {
 
   const handleSortChange = (e) => {
     const newSort = e.target.value;
-    setSort(newSort);
+    if (newSort === "review") {
+      setSort(newSort);
+      fetchSortedMoviesByReview(genre);
+    }
+  };
+
+  const fetchSortedMoviesByReview = async (genre) => {
+    try {
+      const response = await getData("/movies/sortedByReviews", {
+        params: { genre: genre },
+      });
+      setMovies(response.data);
+    } catch (error) {
+      toast({
+        title: "리뷰순 정렬 조회 Error",
+        description: `Failed to fetch movies / ${error}`,
+        status: "error",
+        duration: 2000,
+        isClosable: true,
+      });
+      console.error(error);
+    }
   };
 
   const handleTabChange = (index) => {
     const newGenre = GENRES[index];
     setGenre(newGenre);
+  };
+
+  const handleSearch = async (query) => {
+    setSearchQuery(query);
+    if (query) {
+      try {
+        const response = await getData("/movies/search", {
+          params: { query },
+        });
+        setMovies(response.data);
+      } catch (error) {
+        toast({
+          title: "영화명 검색 Error",
+          description: `Failed to search movies / ${error}`,
+          status: "error",
+          duration: 2000,
+          isClosable: true,
+        });
+        console.error("Error Search movies:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
   };
 
   return (
@@ -126,12 +179,13 @@ const Movies = () => {
         </Flex>
         <Flex align={"center"} gap={3} pl={3} color="#cfcfcf">
           <Text fontSize={"lg"} fontWeight={"bold"}>
-            총 {movies?.length}건의 영화가 검색되었습니다
+            총 {movies?.length}건의 영화가 조회되었습니다
           </Text>
         </Flex>
       </Box>
 
-      <Box color="black" p={5} position="relative">
+      <Box color="black" p={10} position="relative">
+        <SearchBar onSearch={handleSearch} />
         <Select
           bg="brand.primary"
           width="150px"
@@ -142,12 +196,14 @@ const Movies = () => {
           top={0}
           right={5}
           _focus={{ border: "1px solid black", boxShadow: "none" }}
-          onChange={(e) => handleSortChange(e)}
+          onChange={handleSortChange}
           value={sort}
         >
-          <option value="latest">최신순</option>
-          <option value="like">오래된 순</option>
-          <option value="review">가나다 순</option>
+          <option value="popular">인기순</option>
+          <option value="review">리뷰 많은 순</option>
+          <option value="latest" disabled>
+            최신순
+          </option>
         </Select>
       </Box>
 
@@ -158,20 +214,20 @@ const Movies = () => {
           size={"md"}
           onChange={(index) => handleTabChange(index)}
           minHeight="50vh"
-          index={GENRES.indexOf(genre)} // Tab의 초기 인덱스 설정
+          index={GENRES.indexOf(genre)}
         >
           <TabList gap={10} justifyContent={"center"}>
             {GENRES.map((genre) => (
               <Tab
                 key={genre}
                 width="10%"
+                _hover={{
+                  transform: "translateY(-10px)", // 위로 3px 올라감
+                  scaleX: "1.1",
+                }}
+                transition="all 0.3s ease"
                 border="1px solid grey"
                 color="white"
-                transition="transform 0.2s ease, box-shadow 0.2s ease"
-                _hover={{
-                  transform: "translateY(-5px)",
-                  boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.3)",
-                }}
               >
                 {genre}
               </Tab>
@@ -179,7 +235,7 @@ const Movies = () => {
           </TabList>
           <TabPanels minHeight="inherit" p={10}>
             <MovieTabPanel
-              key={`${genre}-${sort}`}
+              key={`${genre}-${sort}-${searchQuery}`}
               movies={movies}
               isLoading={isLoading}
             />

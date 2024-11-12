@@ -1,23 +1,63 @@
 import {
   Box,
   Input,
-  Button,
   InputGroup,
   InputRightElement,
+  List,
+  ListItem,
+  Spinner,
+  Text,
 } from "@chakra-ui/react";
-import { SearchIcon } from "@chakra-ui/icons"; // Chakra UI에서 제공하는 아이콘
-import { useState } from "react";
+import { SearchIcon } from "@chakra-ui/icons";
+import { useState, useEffect } from "react";
+import { getData } from "../api/axios";
 
 const SearchBar = ({ onSearch }) => {
   const [query, setQuery] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (query) {
+      const fetchSuggestions = async () => {
+        setLoading(true);
+        try {
+          const response = await getData("/movies/search/top5", {
+            params: { query },
+          });
+          setSuggestions(response.data);
+        } catch (error) {
+          console.error("Error fetching suggestions:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      // 일정 시간 후 검색 (디바운싱)
+      const delayDebounceFn = setTimeout(() => {
+        fetchSuggestions();
+      }, 300);
+
+      // Clean up the timeout
+      return () => clearTimeout(delayDebounceFn);
+    } else {
+      setSuggestions([]);
+    }
+  }, [query]);
 
   const handleSearch = () => {
     onSearch(query);
-    setQuery(""); // 검색 후 입력창 초기화
+    setSuggestions([]);
+  };
+
+  const handleSuggestionClick = (suggestion) => {
+    setQuery(suggestion.title);
+    onSearch(suggestion.title);
+    setSuggestions([]);
   };
 
   return (
-    <Box width={"500px"} py={5} alignSelf={"flex-end"}>
+    <Box width={"500px"} position="relative">
       <InputGroup>
         <InputRightElement
           height="100%"
@@ -30,16 +70,52 @@ const SearchBar = ({ onSearch }) => {
           placeholder="영화 제목으로 검색하기"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          size="lg" // 입력 필드 크기 조정
-          variant="outline" // 입력 필드 스타일
-          paddingRight="50px" // 아이콘과 텍스트 간의 여백 조정
-          lineHeight="1.5" // 입력 필드의 라인 높이 조정
+          size="lg"
+          color="white"
+          variant="outline"
+          paddingRight="50px"
+          lineHeight="1.5"
           _focus={{
             border: "0.1px solid #f7ce46 !important",
             boxShadow: "0 0 0 0.5px #f7ce46 !important",
           }}
         />
       </InputGroup>
+
+      {/* 추천 검색어 목록 */}
+      {query && suggestions.length > 0 && (
+        <Box
+          position="absolute"
+          top="60px"
+          width="100%"
+          bg="black"
+          border="1px solid gray"
+          borderRadius="md"
+          color="white"
+          zIndex={10}
+          maxHeight="200px"
+          // overflowY="auto"
+        >
+          {loading ? (
+            <Box p={3} textAlign="center">
+              <Spinner size="sm" color="gray.500" />
+            </Box>
+          ) : (
+            <List>
+              {suggestions.map((suggestion, index) => (
+                <ListItem
+                  key={index}
+                  p={2}
+                  _hover={{ backgroundColor: "gray", cursor: "pointer" }}
+                  onClick={() => handleSuggestionClick(suggestion)}
+                >
+                  <Text>{suggestion.title}</Text>
+                </ListItem>
+              ))}
+            </List>
+          )}
+        </Box>
+      )}
     </Box>
   );
 };

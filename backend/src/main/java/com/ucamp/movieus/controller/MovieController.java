@@ -29,7 +29,7 @@ public class MovieController {
 
     // 영화 리스트 조회 (장르 필터링 포함)
     @GetMapping("/moviesList")
-    public ResponseEntity<List<Movie>> getMovies(@RequestParam(required = false) String genre, @RequestParam(required = false) String sort) {
+    public ResponseEntity<List<Movie>> getMovies(@RequestParam(required = false) String genre) {
         List<Movie> movies;
         if ("All".equals(genre) || genre == null) {
             // 필터 없이 전체 목록 조회
@@ -79,7 +79,7 @@ public class MovieController {
 
     // TMDB 인기영화 목록 장르별/정렬별 조회(DB존재여부 표시, page 1~5)
     @GetMapping("/allPopularMovies")
-    public ResponseEntity<List<Map<String, Object>>> getAllPopularMovies(@RequestParam(required = false) String genre, @RequestParam(required = false) String sort) {
+    public ResponseEntity<List<Map<String, Object>>> getAllPopularMovies(@RequestParam(required = false) String genre) {
         List<Map<String, Object>> movies;
         if("All".equals(genre) || genre == null) {
             movies = movieService.getAllPopularMovies();
@@ -144,18 +144,29 @@ public class MovieController {
 
     // 리뷰 개수를 기준으로 정렬된 영화 목록 가져오기
     @GetMapping("/sortedByReviews")
-    public ResponseEntity<List<Map<String, Object>>> getMoviesSortedByReviews() {
+    public ResponseEntity<List<Map<String, Object>>> getMoviesSortedByReviews(
+            @RequestParam(required = false) String genre) {
+        System.out.println(genre);
+        if(genre.equals("All")){
+            genre = "";
+        }
+        System.out.println(genre);
+
         try {
             System.out.println("Controller method invoked");
-            // 서비스에서 정렬된 영화 목록 가져오기
-            List<Map<String, Object>> apiMovies = movieService.getAllPopularMovies();
-            List<Map<String, Object>> sortedMovies = movieService.getMoviesSortedByReviewCount(apiMovies);
+
+            // TMDB API에서 인기 있는 영화 목록 가져오기
+            List<Map<String, Object>> apiMovies = movieService.getAllPopularMovies2();
+
+            // 장르 필터링 및 정렬된 영화 목록 가져오기
+            List<Map<String, Object>> sortedMovies = movieService.getMoviesSortedByReviewCountAndGenre(apiMovies, genre);
 
             // 결과 반환
             return new ResponseEntity<>(sortedMovies, HttpStatus.OK);
 
         } catch (Exception e) {
             // 예외 처리
+            System.err.println("Error occurred: " + e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
