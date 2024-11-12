@@ -20,6 +20,7 @@ public class PaymentResponseDTO {
 
     // 추가 필드들
     private Long movieId; // 예매한 영화 ID
+    private String movieName;
     //private int theaterId; // 상영관 ID
     private String theaterName;
     private int userNum;
@@ -27,4 +28,5 @@ public class PaymentResponseDTO {
     private LocalDate screeningDate; // 상영 날짜
     private LocalTime screeningTime; // 상영 시간
     private List<SeatDTO> seats; // 좌석 정보 리스트
+    private String seatNumbers;  // 좌석 번호 문자열
 }

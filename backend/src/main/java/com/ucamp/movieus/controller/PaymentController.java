@@ -294,6 +294,10 @@ public class PaymentController {
 
             paymentService.updateReservedSeats(payment.getScreeningTime().getTimeId());
 
+            String seatNumbers = seats.stream()
+                    .map(Seat::getSeatNumber)
+                    .collect(Collectors.joining(","));
+
             // PaymentResponseDTO로 응답 데이터 구성
             PaymentResponseDTO responseDTO = new PaymentResponseDTO();
             responseDTO.setPaymentId(payment.getPaymentId());
@@ -334,7 +338,8 @@ public class PaymentController {
                     + "&paymentDate=" + URLEncoder.encode(payment.getPaymentDate().toString(), StandardCharsets.UTF_8)
                     + "&theaterName=" + URLEncoder.encode(payment.getScreeningSchedule().getTheater().getTheaterName(), StandardCharsets.UTF_8)
                     + "&screeningDate=" + URLEncoder.encode(payment.getScreeningSchedule().getScreeningDate().toString(), StandardCharsets.UTF_8)
-                    + "&screeningTime=" + URLEncoder.encode(payment.getScreeningTime().getScreeningTime().toString(), StandardCharsets.UTF_8);
+                    + "&screeningTime=" + URLEncoder.encode(payment.getScreeningTime().getScreeningTime().toString(), StandardCharsets.UTF_8)
+                    + "&seatNumbers=" + URLEncoder.encode(seatNumbers, StandardCharsets.UTF_8);
             return ResponseEntity.status(HttpStatus.FOUND)
                     .location(URI.create(redirectUrl)) // 설정된 리다이렉트 URL로 이동
                     .build();
