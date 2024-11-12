@@ -4,7 +4,6 @@ import {
   Flex,
   Heading,
   Text,
-  Input,
   FormControl,
   FormLabel,
   Button,
@@ -12,9 +11,8 @@ import {
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { CheckIcon, CloseIcon } from "@chakra-ui/icons";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink, useNavigate, useParams } from "react-router-dom";
 import { CustomInput } from "./Index";
-import { useNavigate, useParams } from "react-router-dom";
 import { postData } from "../../api/axios";
 
 const ChangePw = () => {
@@ -23,23 +21,29 @@ const ChangePw = () => {
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
 
-  // 비밀번호 유효성 검사 조건
+  // Password validation checks, ensuring it has a minimum length, matches confirmation, and includes letters, numbers, and special characters
   const checks = {
     length: (pwd) => pwd.length >= 8,
     match: (pwd, confirmPwd) => pwd === confirmPwd,
+    pattern: (pwd) => {
+      const regex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
+      return regex.test(pwd);
+    },
   };
 
   const handleSubmitHandler = async (e) => {
     e.preventDefault();
-    if (password.length < 8 || passwordConfirm.length < 8) {
-      alert("비밀번호는 8자 이상이어야 합니다!");
+
+    if (!checks.length(password) || !checks.pattern(password)) {
+      alert("비밀번호는 영문, 숫자, 특수문자를 포함하여 최소 8자 이상이어야 합니다!");
       return;
-    } else if (password !== passwordConfirm) {
+    } else if (!checks.match(password, passwordConfirm)) {
       alert("비밀번호 동일여부를 확인해주세요!");
       return;
     }
+
     try {
-      const response = await postData("/api/movies/passwordReset", {userEmail: email, userPw: password} );
+      const response = await postData("/api/movies/passwordReset", { userEmail: email, userPw: password });
       console.log(response.data);
       navigate("/");
     } catch (error) {
@@ -47,6 +51,7 @@ const ChangePw = () => {
       alert("비밀번호 변경 중 에러가 발생했습니다!");
     }
   };
+
   return (
     <BackGroundDiv
       style={{
@@ -92,22 +97,23 @@ const ChangePw = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
-                <Flex mt={2} flexWrap="nowrap">
-                  <Box flex="1" minW="50%">
-                    <Text
-                      fontSize="sm"
-                      color="gray.600"
-                      display="flex"
-                      alignItems="center"
-                    >
-                      {checks.length(password) ? (
-                        <CheckIcon color="green.500" mr={2} />
-                      ) : (
-                        <CloseIcon color="red.500" mr={2} />
-                      )}
-                      8글자 이상
-                    </Text>
-                  </Box>
+                <Flex mt={2} flexWrap="wrap" gap={4}>
+                  <Text fontSize="sm" color="gray.600" display="flex" alignItems="center">
+                    {checks.length(password) ? (
+                      <CheckIcon color="green.500" mr={2} />
+                    ) : (
+                      <CloseIcon color="red.500" mr={2} />
+                    )}
+                    8글자 이상
+                  </Text>
+                  <Text fontSize="sm" color="gray.600" display="flex" alignItems="center">
+                    {checks.pattern(password) ? (
+                      <CheckIcon color="green.500" mr={2} />
+                    ) : (
+                      <CloseIcon color="red.500" mr={2} />
+                    )}
+                    영문, 숫자, 특수문자 포함
+                  </Text>
                 </Flex>
               </FormControl>
 
@@ -123,16 +129,10 @@ const ChangePw = () => {
                   value={passwordConfirm}
                   onChange={(e) => setPasswordConfirm(e.target.value)}
                 />
-                <Flex mt={2} flexWrap="nowrap">
-                  <Box flex="1" minW="50%">
-                    <Text
-                      fontSize="sm"
-                      color="gray.600"
-                      display="flex"
-                      alignItems="center"
-                    >
-                      {checks.length(password) &&
-                      checks.match(password, passwordConfirm) ? (
+                <Flex mt={2} flexWrap="wrap">
+                  <Box flex="1" minW="250px">
+                    <Text fontSize="sm" color="gray.600" display="flex" alignItems="center">
+                      {checks.length(password) && checks.match(password, passwordConfirm) ? (
                         <CheckIcon color="green.500" mr={2} />
                       ) : (
                         <CloseIcon color="red.500" mr={2} />
@@ -151,7 +151,6 @@ const ChangePw = () => {
                 borderRadius={"8px"}
                 width="100%"
                 type="submit"
-                // isLoading
               >
                 변경하기 &nbsp;
                 <CheckIcon boxSize={5} />
@@ -160,12 +159,7 @@ const ChangePw = () => {
 
             <Text color={"gray"} textAlign={"left"} fontSize={"15px"}>
               비밀번호가 생각이 나셨나요? &nbsp;
-              <ChakraLink
-                as={RouterLink}
-                to="/"
-                textDecoration="underline"
-                color="white"
-              >
+              <ChakraLink as={RouterLink} to="/" textDecoration="underline" color="white">
                 로그인
               </ChakraLink>
             </Text>

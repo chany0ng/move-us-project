@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Heading, Text, useToast } from "@chakra-ui/react";
+import { Box, Button, Flex, Text, useToast } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getData } from "../api/axios";
@@ -9,11 +9,15 @@ const SEAT_PRICE = 10000;
 
 const TicketSummary = ({
   selectedMovie,
+  selectedMovieTmdbId,
+  selectedSession,
   selectedTheater,
   selectedDate,
   selectedTime,
   selectedSeats,
   selectedPeople,
+  handlePayment,
+  availableSeats,
 }) => {
   const navigate = useNavigate();
   const toast = useToast();
@@ -21,10 +25,29 @@ const TicketSummary = ({
   const [title, setTitle] = useState("");
   const [posterPath, setPosterPath] = useState("");
   const [releaseDate, setReleaseDate] = useState("");
-  const handleGoToSeatSelection = () => {
+  const handleGoToSeatSelection = async () => {
+    const seatsData = await getReservedSeats();
     navigate(
-      `/ticketing/seat-selection?movie=${selectedMovie}&poster=${posterPath}&title=${title}&theater=${selectedTheater}&date=${selectedDate}&time=${selectedTime}`
+      `/ticketing/seat-selection?movie=${selectedMovie}&tmdb=${selectedMovieTmdbId}&poster=${posterPath}&title=${title}&theater=${selectedTheater}&date=${selectedDate}&time=${selectedTime}&session=${selectedSession}&seats=${availableSeats}`,
+      { state: { seatsData: seatsData } }
     );
+  };
+  const getReservedSeats = async () => {
+    try {
+      const response = await getData(
+        `/api/v1/payments/time/${selectedTime}/seats`
+      );
+      return response.data;
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: "예매된 좌석 조회 에러",
+        status: "error",
+        duration: 2000,
+        isClosable: true,
+        position: "top",
+      });
+    }
   };
   const requireLoginHandler = () => {
     toast({
@@ -37,8 +60,7 @@ const TicketSummary = ({
     });
   };
   const isLogin = () => {
-    console.log(user.user_email);
-    if (user.user_email) return true;
+    if (user.user_num) return true;
     return false;
   };
   const isSelectAllSeats = () => {
@@ -50,11 +72,11 @@ const TicketSummary = ({
 
   useEffect(() => {
     fetchMovieData();
-  }, [selectedMovie]);
+  }, [selectedMovieTmdbId]);
 
   const fetchMovieData = async () => {
     try {
-      const response = await getData(`/movies/${selectedMovie}`);
+      const response = await getData(`/movies/${selectedMovieTmdbId}`);
       setTitle(response.data.title);
       setPosterPath(response.data.posterPath);
       setReleaseDate(response.data.releaseDate);
@@ -71,7 +93,7 @@ const TicketSummary = ({
   };
 
   const payHandler = () => {
-    alert("결제요청!");
+    handlePayment();
   };
   return (
     <Box
@@ -112,7 +134,7 @@ const TicketSummary = ({
           </Text>
           <Text>극장: {selectedTheater}</Text>
           <Text>
-            일시: {selectedDate} {selectedTime}
+            일시: {selectedDate} {selectedSession}
           </Text>
         </Box>
 
@@ -126,14 +148,23 @@ const TicketSummary = ({
             {selectedSeats ? (
               <Box flex="1" p={2}>
                 <Text fontWeight="bold" fontSize="xl" mb={1}>
-                  좌석 선택
+                  좌석 정보
                 </Text>
-                <Text>좌석번호 {selectedSeats.join(",")}</Text>
+                <Text>선택 좌석: {selectedSeats.join(",")}</Text>
+                <Text>
+                  결제 금액:{" "}
+                  {(selectedSeats.length * SEAT_PRICE).toLocaleString("ko-KR")}
+                  원
+                </Text>
               </Box>
             ) : (
-              <Text fontWeight="bold" fontSize="xl" mb={1}>
-                <ArrowRightIcon /> 좌석 선택
-              </Text>
+              <Box flex="1" p={2}>
+                <Text fontWeight="bold" fontSize="xl" mb={1}>
+                  좌석 정보
+                </Text>
+                <Text>선택 좌석: 미 지정</Text>
+                <Text>결제 금액: 0 \</Text>
+              </Box>
             )}
           </Box>
         </Box>

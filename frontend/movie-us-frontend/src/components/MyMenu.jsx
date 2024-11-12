@@ -14,6 +14,7 @@ const MyMenu = () => {
   const navigate = useNavigate();
   const logoutHandler = () => {
     clearUser();
+    localStorage.removeItem("accessToken");
     navigate("/");
   };
   return (

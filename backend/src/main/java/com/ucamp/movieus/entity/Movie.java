@@ -5,11 +5,11 @@ import lombok.Data;
 
 import java.time.LocalDate;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
 @Data
+@Table(name = "movie")
 public class Movie {
 
     @Id
@@ -28,6 +28,7 @@ public class Movie {
     private double voteAverage;
     private int voteCount;
     private LocalDate releaseDate;
+    private Integer ranking; // 추가: 랭킹 필드
 
     @ManyToMany
     @JoinTable(

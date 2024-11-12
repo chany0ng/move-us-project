@@ -12,10 +12,13 @@
   "dependencies": {
     "@chakra-ui/icons": "^2.2.4",
     "@chakra-ui/react": "^2.10.3",
+    "@channel.io/channel-web-sdk-loader": "^2.0.0",
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
+    "@tosspayments/payment-sdk": "^1.9.0",
     "axios": "^1.7.7",
     "framer-motion": "^11.11.10",
+    "jwt-decode": "^4.0.0",
     "movie-us-frontend": "file:",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

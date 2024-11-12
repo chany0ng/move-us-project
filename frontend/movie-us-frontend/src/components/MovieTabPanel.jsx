@@ -14,56 +14,63 @@ import {
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import noImage from "../assets/images/image.jpg";
 
 const MovieTabPanel = ({ movies, isLoading }) => {
+  console.log(movies);
   const navigate = useNavigate();
-  return movies ? (
-    <TabPanel minHeight="inherit">
-      {isLoading ? (
-        <SimpleGrid columns={[2, 3, 4, 5]} spacing={8} mt={5}>
-          {Array.from({ length: 20 }).map((_, index) => (
-            <Skeleton
-              key={index}
-              height="250px"
-              width="200px"
-              borderRadius="md"
-              startColor="#1f1f1f"
-              endColor="#6b6b6b"
+
+  if (isLoading) {
+    return (
+      <SimpleGrid columns={[2, 3, 4, 5]} spacing={8} mt={5}>
+        {Array.from({ length: 20 }).map((_, index) => (
+          <Skeleton
+            key={index}
+            height="250px"
+            width="200px"
+            borderRadius="md"
+            startColor="#1f1f1f"
+            endColor="#6b6b6b"
+          />
+        ))}
+      </SimpleGrid>
+    );
+  }
+
+  return movies && movies.length > 0 ? (
+    <Grid templateColumns="repeat(auto-fill, minmax(220px, 1fr))" gap={8}>
+      {movies.map((movie, index) => (
+        <Box
+          key={index}
+          borderRadius="lg"
+          overflow="hidden"
+          cursor="pointer"
+          onClick={() => navigate(`/movie-detail/${movie.id}`)}
+        >
+          <Tooltip label={movie.title} hasArrow placement="top">
+            <StyledImage
+              src={
+                movie.poster_path
+                  ? "https://image.tmdb.org/t/p/w500" + movie.poster_path
+                  : noImage
+              }
+              alt="No Poster"
             />
-          ))}
-        </SimpleGrid>
-      ) : (
-        <Grid templateColumns="repeat(auto-fill, minmax(200px, 1fr))" gap={8}>
-          {movies.map((movie) => (
-            <Box
-              key={movie.id}
-              borderRadius="lg"
-              overflow="hidden"
-              cursor="pointer"
-              onClick={() => navigate(`/movie-detail/${movie.id}`)}
-            >
-              <Tooltip label={movie.title} hasArrow placement="top">
-                <StyledImage
-                  src={"https://image.tmdb.org/t/p/w500" + movie.poster_path}
-                  alt="No Poster"
-                />
-              </Tooltip>
-              <Text
-                p={2}
-                height="2em"
-                fontWeight="bold"
-                textAlign="center"
-                overflow="hidden"
-                textOverflow="ellipsis"
-                whiteSpace="nowrap"
-              >
-                {movie.title}
-              </Text>
-            </Box>
-          ))}
-        </Grid>
-      )}
-    </TabPanel>
+          </Tooltip>
+          <Text
+            p={2}
+            height="2em"
+            fontWeight="bold"
+            textAlign="center"
+            overflow="hidden"
+            textOverflow="ellipsis"
+            whiteSpace="nowrap"
+          >
+            {movie.title}
+          </Text>
+        </Box>
+      ))}
+    </Grid>
   ) : (
     <Flex
       justify={"center"}

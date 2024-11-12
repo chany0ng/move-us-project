@@ -5,11 +5,42 @@ import {
   Flex,
   Avatar,
   Icon,
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogContent,
+  AlertDialogOverlay,
+  Button,
+  useDisclosure,
 } from "@chakra-ui/react";
 import { StarIcon } from '@chakra-ui/icons';
+import { useRef, useState } from 'react';
+import ReportButton from './ReportButton';
+import ReviewMenu from './ReviewMenu';
 
 // 리뷰 목록 컴포넌트
-const ReviewList = ({ reviews }) => {
+const ReviewList = ({ reviews, currentUserNum, currentUserEmail, onEditReview, onDeleteReview }) => {
+  console.log('Reviews data:', reviews);
+
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const cancelRef = useRef();
+  const [selectedReviewId, setSelectedReviewId] = useState(null);
+  const [dialogType, setDialogType] = useState('');
+
+  const handleDeleteClick = (reviewId) => {
+    setSelectedReviewId(reviewId);
+    setDialogType('delete');
+    onOpen();
+  };
+
+  const handleConfirm = () => {
+    if (dialogType === 'delete') {
+      onDeleteReview(selectedReviewId);
+    }
+    onClose();
+  };
+
   if (!reviews) return <Text>리뷰를 불러오는 중...</Text>;
 
   return (
@@ -19,7 +50,7 @@ const ReviewList = ({ reviews }) => {
       ) : (
         reviews.map((review) => (
           <Box 
-            key={review.userNum}
+            key={review.reviewId}
             p={4} 
             borderColor="#3F3F3F"
             borderWidth="1px" 
@@ -27,11 +58,21 @@ const ReviewList = ({ reviews }) => {
             boxShadow="sm"
           >
             <Flex justify="space-between" align="center" mb={2}>
-              <Flex align="center" gap={2}>
-                <Avatar size="sm" name={`User ${review.userNum}`} />
-                <Text fontWeight="bold">{`User ${review.userNum}`}</Text>
+              <Flex align="center" gap={4}>
+                <Avatar size="sm" name={review.userName} />
+                <Text fontWeight="bold">{review.userName}</Text>
               </Flex>
-              <Flex align="center" gap={2}>
+              <Flex align="center" gap={4}>
+                <Text fontSize="sm" color="gray.500">
+                  {new Date(review.reviewDate).toLocaleDateString('ko-KR', {
+                    year: '2-digit',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false
+                  }).replace(/\. /g, '.').replace('시 ', ':').replace('분', '').replace(/(\d{2}:\d{2})/, ' $1')}
+                </Text>
                 <Flex>
                   {[...Array(5)].map((_, i) => (
                     <Icon
@@ -41,12 +82,51 @@ const ReviewList = ({ reviews }) => {
                     />
                   ))}
                 </Flex>
+                {currentUserNum === review.userNum ? (
+                  <ReviewMenu 
+                    review={review}
+                    onEditReview={onEditReview}
+                    onDeleteClick={handleDeleteClick}
+                  />
+                ) : (
+                  <ReportButton 
+                    reviewId={review.reviewId}
+                    userEmail={currentUserEmail}
+                  />
+                )}
               </Flex>
             </Flex>
             <Text>{review.comment}</Text>
           </Box>
         ))
       )}
+
+      <AlertDialog
+        isOpen={isOpen}
+        leastDestructiveRef={cancelRef}
+        onClose={onClose}
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent bg="#333">
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              리뷰 삭제
+            </AlertDialogHeader>
+
+            <AlertDialogBody>
+              이 리뷰를 삭제하시겠습니까?
+            </AlertDialogBody>
+
+            <AlertDialogFooter>
+              <Button ref={cancelRef} onClick={onClose}>
+                취소
+              </Button>
+              <Button colorScheme="red" onClick={handleConfirm} ml={3}>
+                확인
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
     </VStack>
   );
 };

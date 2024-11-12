@@ -56,8 +56,6 @@ const NoticeDetail = () => {
         
         // 이전 공지사항 존재 여부 확인
         setIsFirstNotice(parseInt(noticeId) <= 1);
-
-        // 다음 공지사항 존재 여부 확인
         try {
           await getData(`/api/notice/${parseInt(noticeId) + 1}`);
           setIsLastNotice(false);

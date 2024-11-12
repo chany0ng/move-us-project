@@ -1,5 +1,6 @@
 package com.ucamp.movieus.controller;
 
+import com.ucamp.movieus.dto.FavoriteListResponseDTO;
 import com.ucamp.movieus.entity.FavoriteList;
 import com.ucamp.movieus.entity.UserEntity;
 import com.ucamp.movieus.repository.UserRepository;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.modelmapper.ModelMapper;
 
 import java.util.List;
 
@@ -16,14 +18,15 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/api/favorites")
 public class FavoriteListController {
-
+    @Autowired
+    private ModelMapper modelMapper;
     private final UserRepository userRepository;
     private final FavoriteListService favoriteListService;
 
     // 찜 항목 조회
-    @GetMapping
-    public List<FavoriteList> getUserFavoriteList() {
-        UserEntity user = userRepository.findById(1).orElseThrow(() -> new RuntimeException("User not found"));
+    @GetMapping("/{userNum}")
+    public List<FavoriteListResponseDTO> getUserFavoriteList(@PathVariable("userNum") Integer userNum) {
+        UserEntity user = userRepository.findById(userNum).orElseThrow(() -> new RuntimeException("User not found"));
         return favoriteListService.getUserFavoriteList(user);
     }
 
@@ -31,7 +34,7 @@ public class FavoriteListController {
     @PostMapping
     public ResponseEntity<String> addFavorite(@RequestBody FavoriteList favoriteList) {
         boolean isAdded = favoriteListService.addFavorite(favoriteList);
-        
+
         if (isAdded) {
             return ResponseEntity.ok("찜 목록에 추가되었습니다.");
         } else {
@@ -50,4 +53,5 @@ public class FavoriteListController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("삭제할 찜 항목이 없습니다.");
         }
     }
+
 }
