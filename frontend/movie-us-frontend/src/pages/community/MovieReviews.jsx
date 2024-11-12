@@ -14,8 +14,11 @@ const MovieReviews = () => {
   const [topMovies, setTopMovies] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  // const { getState } = userStore;
+  // const userNum = getState().user.user_num;
   const { getState } = userStore;
   const userNum = getState().user.user_num;
+  const userEmail = getState().user.user_email;
   const toast = useToast();
   const navigate = useNavigate();
 
@@ -157,7 +160,10 @@ const MovieReviews = () => {
                     {new Date(review.reviewDate).toLocaleDateString()}
                   </ReviewDate>
                   {userNum !== review.userNum && (
-                    <ReportButton reviewId={review.reviewId} />
+                    <ReportButton 
+                      reviewId={review.reviewId}
+                      userEmail={userEmail}
+                    />
                   )}
                 </ReviewFooter>
               </ReviewContent>

@@ -46,6 +46,7 @@ const MovieDetail = () => {
   // userStore를 직접 사용
   const { getState } = userStore;
   const userNum = getState().user.user_num;
+  const userEmail = getState().user.user_email;
 
   // 찜하기 상태 확인 함수를 별도로 분리하고 useCallback으로 메모이제이션
   const checkWishlistStatus = useCallback(async () => {
@@ -134,7 +135,6 @@ const MovieDetail = () => {
   const refreshReviews = useCallback(async () => {
     try {
       const response = await getData(`/api/review/movieReview/${tmdbId}`);
-      console.log('리뷰 데이터:', response.data);
       setMovieReviews(response.data);
     } catch (error) {
       console.error('리뷰를 불러오는데 실패했습니다:', error);
@@ -250,7 +250,6 @@ const MovieDetail = () => {
 
   // 리뷰 수정 핸들러
   const handleEditReview = (review) => {
-    console.log("수정할 리뷰:", review); // 디버깅용 로그 추가
     setSelectedReview(review);
     setIsReviewModalOpen(true);
   };
@@ -476,7 +475,8 @@ const MovieDetail = () => {
           </Flex>
           <ReviewList 
             reviews={movieReviews}
-            currentUserNum={userNum} // 현재 사용자 번호 전달
+            currentUserNum={userNum}
+            currentUserEmail={userEmail}
             onEditReview={handleEditReview}
             onDeleteReview={handleDeleteReview}
           />
